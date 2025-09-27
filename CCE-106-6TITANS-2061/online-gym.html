@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Online Gym Experience - 6Titans</title>
+    <link rel="stylesheet" href="assets/css/styles-base.css" />
+  <link rel="stylesheet" href="assets/css/online-gym.css" />
+  <link rel="stylesheet" href="assets/css/auth-nav.css" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="nav-logo">
+          <img src="images/image 66.png" alt="6Titans Logo" class="logo-icon" />
+          <img src="images/image 67.png" alt="6Titans" class="logo-text" />
+        </div>
+        <ul class="nav-menu">
+          <li class="nav-item">
+            <a href="index.html" class="nav-link">Home</a>
+          </li>
+          <li class="nav-item">
+            <a href="membership.html" class="nav-link">Membership</a>
+          </li>
+          <li class="nav-item">
+            <a href="classes.html" class="nav-link">Classes</a>
+          </li>
+          <li class="nav-item">
+            <a href="workouts.html" class="nav-link">Workouts</a>
+          </li>
+          <li class="nav-item">
+            <a href="coaching.html" class="nav-link">Coaching</a>
+          </li>
+          <li class="nav-item">
+            <a href="online-gym.html" class="nav-link active">Appointments</a>
+          </li>
+          <li class="nav-item">
+            <a href="articles.html" class="nav-link active">Articles</a>
+          </li>
+        </ul>
+        <div class="auth-buttons" id="authButtons">
+          <a href="login.html" id="loginBtnNav">Login</a>
+          <a href="register.html" id="signupBtnNav">Sign Up</a>
+        </div>
+        <div class="hamburger">
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Online Gym Section -->
+    <section class="online-gym">
+      <div class="container">
+        <h1 class="page-title">Online Gym Experience</h1>
+
+        <!-- Online Gym Experience Section -->
+        <div class="dashboard-section">
+          <div class="dashboard-grid">
+            <!-- Direct Messaging -->
+            <div class="dashboard-card">
+              <div class="dashboard-icon">💬</div>
+              <h3 class="dashboard-title">Direct Messaging</h3>
+              <p class="dashboard-description">
+                Chat directly with your coach for instant support and guidance
+              </p>
+              <button class="dashboard-button" id="openMessages">
+                Open Messages
+              </button>
+            </div>
+
+            <!-- Video Sessions -->
+            <div class="dashboard-card">
+              <div class="dashboard-icon">📹</div>
+              <h3 class="dashboard-title">Video Sessions</h3>
+              <p class="dashboard-description">
+                1-on-1 video call with your coach for personalized training
+              </p>
+              <button class="dashboard-button" id="scheduleCall">
+                Schedule Call
+              </button>
+            </div>
+
+            <!-- Progress Update -->
+            <div class="dashboard-card">
+              <div class="dashboard-icon">📊</div>
+              <h3 class="dashboard-title">Progress Update</h3>
+              <p class="dashboard-description">
+                Share photos, stats, and notes with your coach for feedback
+              </p>
+              <button class="dashboard-button" id="uploadProgress">
+                Upload Progress
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="dashboard-section">
+          <h2 class="section-title">Quick Actions</h2>
+          <div class="dashboard-grid">
+            <!-- Start Workout -->
+            <div class="dashboard-card">
+              <div class="dashboard-icon">🏃‍♂️</div>
+              <h3 class="dashboard-title">Start Workout</h3>
+              <p class="dashboard-description">
+                Begin your scheduled workout session
+              </p>
+              <button class="dashboard-button" id="startWorkout">
+                Start Now
+              </button>
+            </div>
+
+            <!-- View Schedule -->
+            <div class="dashboard-card">
+              <div class="dashboard-icon">📅</div>
+              <h3 class="dashboard-title">View Schedule</h3>
+              <p class="dashboard-description">
+                Check your upcoming classes and sessions
+              </p>
+              <button class="dashboard-button" id="viewSchedule">
+                View Schedule
+              </button>
+            </div>
+
+            <!-- Nutrition Log -->
+            <div class="dashboard-card">
+              <div class="dashboard-icon">🍎</div>
+              <h3 class="dashboard-title">Nutrition Log</h3>
+              <p class="dashboard-description">
+                Track your meals and nutrition intake
+              </p>
+              <button class="dashboard-button" id="nutritionLog">
+                Log Food
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Messaging Modal -->
+    <div id="messagingModal" class="modal">
+      <div class="modal-content messaging-modal">
+        <span class="close">&times;</span>
+        <h2>Direct Messaging</h2>
+        <div class="messaging-container">
+          <div class="chat-sidebar">
+            <h3>Conversations</h3>
+            <div class="conversation-list">
+              <div class="conversation-item active">
+                <div class="conversation-avatar">👨‍💼</div>
+                <div class="conversation-info">
+                  <div class="conversation-name">Coach Charles</div>
+                  <div class="conversation-preview">Great progress today!</div>
+                </div>
+                <div class="conversation-time">2 min ago</div>
+              </div>
+              <div class="conversation-item">
+                <div class="conversation-avatar">👩‍💼</div>
+                <div class="conversation-info">
+                  <div class="conversation-name">Coach Angelou</div>
+                  <div class="conversation-preview">
+                    How was your yoga session?
+                  </div>
+                </div>
+                <div class="conversation-time">1 hour ago</div>
+              </div>
+            </div>
+          </div>
+          <div class="chat-main">
+            <div class="chat-header">
+              <div class="chat-user-info">
+                <div class="chat-avatar">👨‍💼</div>
+                <div>
+                  <div class="chat-name">Coach Charles</div>
+                  <div class="chat-status">Online</div>
+                </div>
+              </div>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+              <div class="message received">
+                <div class="message-content">
+                  Great work on your strength training today! How are you
+                  feeling?
+                </div>
+                <div class="message-time">2:30 PM</div>
+              </div>
+              <div class="message sent">
+                <div class="message-content">
+                  Thanks! I'm feeling stronger each week. The new routine is
+                  really helping.
+                </div>
+                <div class="message-time">2:32 PM</div>
+              </div>
+              <div class="message received">
+                <div class="message-content">
+                  That's fantastic to hear! Keep up the consistency. Remember to
+                  focus on form over weight.
+                </div>
+                <div class="message-time">2:33 PM</div>
+              </div>
+            </div>
+            <div class="chat-input">
+              <input
+                type="text"
+                id="messageInput"
+                placeholder="Type your message..."
+              />
+              <button id="sendMessage">Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress Upload Modal -->
+    <div id="progressModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Upload Progress</h2>
+        <form id="progressForm">
+          <div class="form-group">
+            <label for="progressType">Progress Type</label>
+            <select id="progressType" name="progressType" required>
+              <option value="">Select type</option>
+              <option value="weight">Weight Update</option>
+              <option value="photo">Progress Photo</option>
+              <option value="measurements">Body Measurements</option>
+              <option value="workout">Workout Summary</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="progressValue">Value</label>
+            <input
+              type="text"
+              id="progressValue"
+              name="progressValue"
+              placeholder="e.g., 150 lbs, or describe your progress"
+            />
+          </div>
+          <div class="form-group">
+            <label for="progressNotes">Notes</label>
+            <textarea
+              id="progressNotes"
+              name="progressNotes"
+              rows="3"
+              placeholder="Add any additional notes about your progress..."
+            ></textarea>
+          </div>
+          <div class="form-group">
+            <label for="progressFile">Upload File (Optional)</label>
+            <input
+              type="file"
+              id="progressFile"
+              name="progressFile"
+              accept="image/*"
+            />
+          </div>
+          <button type="submit" class="btn btn-primary">Upload Progress</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <div class="footer-logo">
+              <img
+                src="images/image 66.png"
+                alt="6Titans Logo"
+                class="logo-icon"
+              />
+              <img src="images/image 67.png" alt="6Titans" class="logo-text" />
+            </div>
+            <p>Transform your body, transform your life.</p>
+          </div>
+          <div class="footer-section">
+            <h4>Quick Links</h4>
+            <ul>
+              <li><a href="index.html">Home</a></li>
+              <li><a href="membership.html">Membership</a></li>
+              <li><a href="classes.html">Classes</a></li>
+              <li><a href="workouts.html">Workouts</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Support</h4>
+            <ul>
+              <li><a href="#">Help Center</a></li>
+              <li><a href="#">Contact Us</a></li>
+              <li><a href="#">Privacy Policy</a></li>
+              <li><a href="#">Terms of Service</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Follow Us</h4>
+            <div class="social-links">
+              <a href="#"><i class="fab fa-facebook"></i></a>
+              <a href="#"><i class="fab fa-instagram"></i></a>
+              <a href="#"><i class="fab fa-twitter"></i></a>
+              <a href="#"><i class="fab fa-youtube"></i></a>
+            </div>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; 2024 6Titans. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="online-gym.js"></script>
+  </body>
+</html>

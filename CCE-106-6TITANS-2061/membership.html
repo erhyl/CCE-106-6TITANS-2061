@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Choose Your Plan - 6Titans</title>
+    <link rel="stylesheet" href="assets/css/styles-base.css" />
+  <link rel="stylesheet" href="assets/css/membership.css" />
+  <link rel="stylesheet" href="assets/css/auth-nav.css" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="nav-logo">
+          <img src="images/image 66.png" alt="6Titans Logo" class="logo-icon" />
+          <img src="images/image 67.png" alt="6Titans" class="logo-text" />
+        </div>
+        <ul class="nav-menu">
+          <li class="nav-item">
+            <a href="index.html" class="nav-link">Home</a>
+          </li>
+          <li class="nav-item">
+            <a href="membership.html" class="nav-link active">Membership</a>
+          </li>
+          <li class="nav-item">
+            <a href="classes.html" class="nav-link">Classes</a>
+          </li>
+          <li class="nav-item">
+            <a href="workouts.html" class="nav-link">Workouts</a>
+          </li>
+          <li class="nav-item">
+            <a href="coaching.html" class="nav-link">Coaching</a>
+          </li>
+          <li class="nav-item">
+            <a href="online-gym.html" class="nav-link">Appointments</a>
+          </li>
+          <li class="nav-item">
+            <a href="articles.html" class="nav-link active">Articles</a>
+          </li>
+        </ul>
+        <div class="auth-buttons" id="authButtons">
+          <a href="login.html" id="loginBtnNav">Login</a>
+          <a href="register.html" id="signupBtnNav">Sign Up</a>
+        </div>
+        <div class="hamburger">
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Membership Section -->
+    <section class="membership">
+      <div class="container">
+        <h1 class="page-title">Choose Your Plan</h1>
+
+        <!-- Pricing Grid -->
+        <div class="pricing-grid">
+          <!-- Basic Plan -->
+          <div class="pricing-card">
+            <h3 class="plan-name">Basic</h3>
+            <div class="plan-price">$29<span>/ Month</span></div>
+            <ul class="plan-features">
+              <li><i class="fas fa-check"></i>Access to gym facilities</li>
+              <li><i class="fas fa-check"></i>Basic workout plans</li>
+              <li><i class="fas fa-check"></i>Group classes</li>
+              <li><i class="fas fa-check"></i>Progress tracking</li>
+            </ul>
+            <button class="btn btn-primary choose-plan" data-plan="basic">
+              Choose plan
+            </button>
+          </div>
+
+          <!-- Premium Plan -->
+          <div class="pricing-card popular">
+            <div class="popular-badge">Most popular</div>
+            <h3 class="plan-name">Premium</h3>
+            <div class="plan-price">$59<span>/ Month</span></div>
+            <ul class="plan-features">
+              <li><i class="fas fa-check"></i>Everything in Basic</li>
+              <li><i class="fas fa-check"></i>Personal trainer sessions</li>
+              <li><i class="fas fa-check"></i>Custom meal plans</li>
+              <li><i class="fas fa-check"></i>Online coaching</li>
+              <li><i class="fas fa-check"></i>Video call sessions</li>
+            </ul>
+            <button class="btn btn-primary choose-plan" data-plan="premium">
+              Choose plan
+            </button>
+          </div>
+
+          <!-- Elite Plan -->
+          <div class="pricing-card">
+            <h3 class="plan-name">Elite</h3>
+            <div class="plan-price">$99<span>/ Month</span></div>
+            <ul class="plan-features">
+              <li><i class="fas fa-check"></i>Everything in Premium</li>
+              <li><i class="fas fa-check"></i>24/7 coach access</li>
+              <li><i class="fas fa-check"></i>Nutrition counseling</li>
+              <li><i class="fas fa-check"></i>Priority booking</li>
+              <li><i class="fas fa-check"></i>Exclusive workshops</li>
+            </ul>
+            <button class="btn btn-primary choose-plan" data-plan="elite">
+              Choose plan
+            </button>
+          </div>
+        </div>
+
+        <!-- Additional Plans -->
+        <div class="additional-plans">
+          <h2 class="section-title">Specialized Plans</h2>
+          <div class="pricing-grid">
+            <!-- Student Plan -->
+            <div class="pricing-card">
+              <h3 class="plan-name">Student</h3>
+              <div class="plan-price">$19<span>/ Month</span></div>
+              <ul class="plan-features">
+                <li><i class="fas fa-check"></i>Access to gym facilities</li>
+                <li><i class="fas fa-check"></i>Basic workout plans</li>
+                <li><i class="fas fa-check"></i>Group classes</li>
+                <li><i class="fas fa-check"></i>Student ID required</li>
+              </ul>
+              <button class="btn btn-primary choose-plan" data-plan="student">
+                Choose plan
+              </button>
+            </div>
+
+            <!-- Family Plan -->
+            <div class="pricing-card">
+              <h3 class="plan-name">Family</h3>
+              <div class="plan-price">$149<span>/ Month</span></div>
+              <ul class="plan-features">
+                <li><i class="fas fa-check"></i>Up to 4 family members</li>
+                <li><i class="fas fa-check"></i>Everything in Premium</li>
+                <li><i class="fas fa-check"></i>Family workout sessions</li>
+                <li><i class="fas fa-check"></i>Childcare during workouts</li>
+              </ul>
+              <button class="btn btn-primary choose-plan" data-plan="family">
+                Choose plan
+              </button>
+            </div>
+
+            <!-- Corporate Plan -->
+            <div class="pricing-card">
+              <h3 class="plan-name">Corporate</h3>
+              <div class="plan-price">Custom</div>
+              <ul class="plan-features">
+                <li><i class="fas fa-check"></i>Bulk pricing for teams</li>
+                <li><i class="fas fa-check"></i>On-site fitness classes</li>
+                <li><i class="fas fa-check"></i>Wellness programs</li>
+                <li><i class="fas fa-check"></i>Health assessments</li>
+              </ul>
+              <button class="btn btn-primary choose-plan" data-plan="corporate">
+                Contact Us
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- FAQ Section -->
+        <div class="faq-section">
+          <h2 class="section-title">Frequently Asked Questions</h2>
+          <div class="faq-grid">
+            <div class="faq-item">
+              <h4>Can I change my plan anytime?</h4>
+              <p>
+                Yes, you can upgrade or downgrade your plan at any time. Changes
+                take effect at the beginning of your next billing cycle.
+              </p>
+            </div>
+            <div class="faq-item">
+              <h4>Is there a contract?</h4>
+              <p>
+                No contracts! All our plans are month-to-month with no
+                cancellation fees. You can cancel anytime.
+              </p>
+            </div>
+            <div class="faq-item">
+              <h4>Do you offer a free trial?</h4>
+              <p>
+                Yes! We offer a 7-day free trial for all new members. No credit
+                card required to start.
+              </p>
+            </div>
+            <div class="faq-item">
+              <h4>What payment methods do you accept?</h4>
+              <p>
+                We accept all major credit cards, PayPal, and bank transfers.
+                All payments are processed securely.
+              </p>
+            </div>
+            <div class="faq-item">
+              <h4>Can I pause my membership?</h4>
+              <p>
+                Yes, you can pause your membership for up to 3 months per year
+                for travel or other reasons.
+              </p>
+            </div>
+            <div class="faq-item">
+              <h4>Is there a joining fee?</h4>
+              <p>
+                No joining fees! The price you see is exactly what you pay each
+                month.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Membership Modal -->
+    <div id="membershipModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2 id="modalTitle">Choose Your Plan</h2>
+        <div id="modalContent">
+          <!-- Plan details will be populated here -->
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" id="closeModal">Cancel</button>
+          <button class="btn btn-primary" id="confirmMembership">
+            Confirm Membership
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <div class="footer-logo">
+              <img
+                src="images/image 66.png"
+                alt="6Titans Logo"
+                class="logo-icon"
+              />
+              <img src="images/image 67.png" alt="6Titans" class="logo-text" />
+            </div>
+            <p>Transform your body, transform your life.</p>
+          </div>
+          <div class="footer-section">
+            <h4>Quick Links</h4>
+            <ul>
+              <li><a href="index.html">Home</a></li>
+              <li><a href="membership.html">Membership</a></li>
+              <li><a href="classes.html">Classes</a></li>
+              <li><a href="workouts.html">Workouts</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Support</h4>
+            <ul>
+              <li><a href="#">Help Center</a></li>
+              <li><a href="#">Contact Us</a></li>
+              <li><a href="#">Privacy Policy</a></li>
+              <li><a href="#">Terms of Service</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Follow Us</h4>
+            <div class="social-links">
+              <a href="#"><i class="fab fa-facebook"></i></a>
+              <a href="#"><i class="fab fa-instagram"></i></a>
+              <a href="#"><i class="fab fa-twitter"></i></a>
+              <a href="#"><i class="fab fa-youtube"></i></a>
+            </div>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; 2024 6Titans. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="membership.js"></script>
+  </body>
+</html>

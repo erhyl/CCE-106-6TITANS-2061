@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Coach Registration - 6Titans</title>
+    <link rel="stylesheet" href="assets/css/styles-base.css" />
+    <link rel="stylesheet" href="assets/css/styles.css" />
+    <link rel="stylesheet" href="assets/css/coach-login.css" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="nav-logo">
+          <img src="images/image 66.png" alt="6Titans Logo" class="logo-icon" />
+          <img src="images/image 67.png" alt="6Titans" class="logo-text" />
+        </div>
+        <ul class="nav-menu">
+          <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
+          <li class="nav-item"><a href="membership.html" class="nav-link">Membership</a></li>
+          <li class="nav-item"><a href="classes.html" class="nav-link">Classes</a></li>
+          <li class="nav-item"><a href="workouts.html" class="nav-link">Workouts</a></li>
+          <li class="nav-item"><a href="coaching.html" class="nav-link">Coaching</a></li>
+          <li class="nav-item"><a href="online-gym.html" class="nav-link">Appointments</a></li>
+        </ul>
+        <div class="hamburger">
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </div>
+      </div>
+    </nav>
+
+    <section class="auth-section">
+      <div class="auth-container">
+        <div class="auth-card coach-card">
+          <div class="auth-header">
+            <img src="images/image 66.png" alt="6Titans Logo" class="logo-icon" />
+            <h1>Coach Registration</h1>
+            <p>Apply for a coach account</p>
+          </div>
+
+          <form id="coachRegisterForm" class="auth-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="firstName">First Name</label>
+                <div class="input-group">
+                  <i class="fas fa-user"></i>
+                  <input type="text" id="firstName" name="firstName" required />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="lastName">Last Name</label>
+                <div class="input-group">
+                  <i class="fas fa-user"></i>
+                  <input type="text" id="lastName" name="lastName" required />
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email</label>
+              <div class="input-group">
+                <i class="fas fa-envelope"></i>
+                <input type="email" id="email" name="email" required />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="password">Password</label>
+                <div class="input-group">
+                  <i class="fas fa-lock"></i>
+                  <input type="password" id="password" name="password" required />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <div class="input-group">
+                  <i class="fas fa-lock"></i>
+                  <input type="password" id="confirmPassword" name="confirmPassword" required />
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="experience">Years of Experience</label>
+              <div class="input-group">
+                <i class="fas fa-clipboard"></i>
+                <select id="experience" name="experience" required>
+                  <option value="">Select years of experience</option>
+                  <option value="0-1">0-1 years</option>
+                  <option value="2-4">2-4 years</option>
+                  <option value="5-9">5-9 years</option>
+                  <option value="10+">10+ years</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="bio">Short Bio</label>
+              <textarea id="bio" name="bio" rows="3" placeholder="Tell us about your coaching background..." required></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary auth-btn">
+              <i class="fas fa-user-plus"></i>
+              Create Coach Account
+            </button>
+
+            <div class="auth-footer">
+              <p>Already a coach? <a href="coach-login.html">Login here</a></p>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <div class="footer-logo">
+              <img src="images/image 66.png" alt="6Titans Logo" class="logo-icon" />
+              <img src="images/image 67.png" alt="6Titans" class="logo-text" />
+            </div>
+            <p>Transform your body, transform your life.</p>
+          </div>
+          <div class="footer-section">
+            <h4>Quick Links</h4>
+            <ul>
+              <li><a href="index.html">Home</a></li>
+              <li><a href="membership.html">Membership</a></li>
+              <li><a href="classes.html">Classes</a></li>
+              <li><a href="workouts.html">Workouts</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Support</h4>
+            <ul>
+              <li><a href="#">Help Center</a></li>
+              <li><a href="#">Contact Us</a></li>
+              <li><a href="#">Privacy Policy</a></li>
+              <li><a href="#">Terms of Service</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Follow Us</h4>
+            <div class="social-links">
+              <a href="#"><i class="fab fa-facebook"></i></a>
+              <a href="#"><i class="fab fa-instagram"></i></a>
+              <a href="#"><i class="fab fa-twitter"></i></a>
+              <a href="#"><i class="fab fa-youtube"></i></a>
+            </div>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; 2024 6Titans. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="auth.js"></script>
+  </body>
+  </html>
+
+

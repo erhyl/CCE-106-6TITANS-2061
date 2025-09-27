@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Dashboard - 6Titans</title>
+    <link rel="stylesheet" href="assets/css/styles-base.css" />
+    <link rel="stylesheet" href="assets/css/styles.css" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="nav-logo">
+          <img src="images/image 66.png" alt="6Titans Logo" class="logo-icon" />
+          <img src="images/image 67.png" alt="6Titans" class="logo-text" />
+        </div>
+        <ul class="nav-menu">
+          <li class="nav-item">
+            <a href="index.html" class="nav-link">Home</a>
+          </li>
+          <li class="nav-item">
+            <a href="membership.html" class="nav-link active">Membership</a>
+          </li>
+          <li class="nav-item">
+            <a href="classes.html" class="nav-link">Classes</a>
+          </li>
+          <li class="nav-item">
+            <a href="workouts.html" class="nav-link">Workouts</a>
+          </li>
+          <li class="nav-item">
+            <a href="coaching.html" class="nav-link">Coaching</a>
+          </li>
+          <li class="nav-item">
+            <a href="online-gym.html" class="nav-link">Appointments</a>
+          </li>
+          <li class="nav-item">
+            <div class="user-menu">
+              <button class="user-avatar" id="userMenuBtn">
+                <i class="fas fa-user"></i>
+              </button>
+              <div class="user-dropdown" id="userDropdown">
+                <a href="user-dashboard.html"
+                  ><i class="fas fa-tachometer-alt"></i> Dashboard</a
+                >
+                <a href="user-profile.html"
+                  ><i class="fas fa-user-edit"></i> Profile</a
+                >
+                <a href="user-settings.html"
+                  ><i class="fas fa-cog"></i> Settings</a
+                >
+                <a href="#" id="logoutBtn"
+                  ><i class="fas fa-sign-out-alt"></i> Logout</a
+                >
+              </div>
+            </div>
+          </li>
+        </ul>
+        <div class="hamburger">
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </div>
+      </div>
+    </nav>
+
+    <!-- User Dashboard -->
+    <section class="dashboard">
+      <div class="container">
+        <div class="dashboard-header">
+          <div class="welcome-section">
+            <h1>Welcome back, <span id="userName">John Doe</span>!</h1>
+            <p>Ready to crush your fitness goals today?</p>
+          </div>
+          <div class="dashboard-stats">
+            <div class="stat-card">
+              <div class="stat-icon">🔥</div>
+              <div class="stat-info">
+                <h3>7</h3>
+                <p>Day Streak</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">⏱️</div>
+              <div class="stat-info">
+                <h3>45min</h3>
+                <p>Today's Workout</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">💪</div>
+              <div class="stat-info">
+                <h3>12</h3>
+                <p>Workouts This Month</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-content">
+          <!-- Quick Actions -->
+          <div class="dashboard-section">
+            <h2>Quick Actions</h2>
+            <div class="quick-actions">
+              <button class="action-btn" id="startWorkoutBtn">
+                <i class="fas fa-play"></i>
+                <span>Start Workout</span>
+              </button>
+              <button class="action-btn" id="bookClassBtn">
+                <i class="fas fa-calendar-plus"></i>
+                <span>Book Class</span>
+              </button>
+              <button class="action-btn" id="logProgressBtn">
+                <i class="fas fa-chart-line"></i>
+                <span>Log Progress</span>
+              </button>
+              <button class="action-btn" id="messageCoachBtn">
+                <i class="fas fa-comments"></i>
+                <span>Message Coach</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Today's Schedule -->
+          <div class="dashboard-section">
+            <h2>Today's Schedule</h2>
+            <div class="schedule-list">
+              <div class="schedule-item">
+                <div class="schedule-time">6:00 AM</div>
+                <div class="schedule-content">
+                  <h4>Morning Yoga</h4>
+                  <p>With Angelou Carino</p>
+                </div>
+                <div class="schedule-status completed">Completed</div>
+              </div>
+              <div class="schedule-item">
+                <div class="schedule-time">7:00 PM</div>
+                <div class="schedule-content">
+                  <h4>Personal Training</h4>
+                  <p>With Charles Cacam</p>
+                </div>
+                <div class="schedule-status upcoming">Upcoming</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Progress Overview -->
+          <div class="dashboard-section">
+            <h2>Progress Overview</h2>
+            <div class="progress-grid">
+              <div class="progress-card">
+                <h3>Weight Progress</h3>
+                <div class="progress-chart">
+                  <div class="chart-bar">
+                    <div class="bar-fill" style="height: 60%"></div>
+                  </div>
+                  <div class="chart-labels">
+                    <span>Start: 180lbs</span>
+                    <span>Current: 175lbs</span>
+                    <span>Goal: 170lbs</span>
+                  </div>
+                </div>
+              </div>
+              <div class="progress-card">
+                <h3>Workout Consistency</h3>
+                <div class="consistency-chart">
+                  <div class="week-days">
+                    <div class="day completed">M</div>
+                    <div class="day completed">T</div>
+                    <div class="day completed">W</div>
+                    <div class="day">T</div>
+                    <div class="day">F</div>
+                    <div class="day">S</div>
+                    <div class="day">S</div>
+                  </div>
+                  <p>3/7 days this week</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Activity -->
+          <div class="dashboard-section">
+            <h2>Recent Activity</h2>
+            <div class="activity-list">
+              <div class="activity-item">
+                <div class="activity-icon">🏋️‍♂️</div>
+                <div class="activity-content">
+                  <h4>Completed Strength Training</h4>
+                  <p>45 minutes • 2 hours ago</p>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-icon">📊</div>
+                <div class="activity-content">
+                  <h4>Updated Progress Photos</h4>
+                  <p>Coach Charles reviewed • 1 day ago</p>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-icon">💬</div>
+                <div class="activity-content">
+                  <h4>New message from Coach</h4>
+                  <p>Great progress this week! • 2 days ago</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Upcoming Classes -->
+          <div class="dashboard-section">
+            <h2>Upcoming Classes</h2>
+            <div class="classes-grid">
+              <div class="class-card">
+                <div class="class-header">
+                  <h3>HIIT Training</h3>
+                  <div class="class-time">Tomorrow 8:00 AM</div>
+                </div>
+                <p>High-intensity interval training for maximum results</p>
+                <div class="class-details">
+                  <div class="class-detail">
+                    <i class="fas fa-user"></i>
+                    <span>Jude Tomonas</span>
+                  </div>
+                  <div class="class-detail">
+                    <i class="fas fa-clock"></i>
+                    <span>45min</span>
+                  </div>
+                </div>
+                <button class="btn btn-primary">Join Class</button>
+              </div>
+              <div class="class-card">
+                <div class="class-header">
+                  <h3>Yoga Flow</h3>
+                  <div class="class-time">Friday 6:00 PM</div>
+                </div>
+                <p>Flexibility and mindfulness practice</p>
+                <div class="class-details">
+                  <div class="class-detail">
+                    <i class="fas fa-user"></i>
+                    <span>Angelou Carino</span>
+                  </div>
+                  <div class="class-detail">
+                    <i class="fas fa-clock"></i>
+                    <span>60min</span>
+                  </div>
+                </div>
+                <button class="btn btn-primary">Join Class</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <div class="footer-logo">
+              <img
+                src="images/image 66.png"
+                alt="6Titans Logo"
+                class="logo-icon"
+              />
+              <img src="images/image 67.png" alt="6Titans" class="logo-text" />
+            </div>
+            <p>Transform your body, transform your life.</p>
+          </div>
+          <div class="footer-section">
+            <h4>Quick Links</h4>
+            <ul>
+              <li><a href="index.html">Home</a></li>
+              <li><a href="membership.html">Membership</a></li>
+              <li><a href="classes.html">Classes</a></li>
+              <li><a href="workouts.html">Workouts</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Support</h4>
+            <ul>
+              <li><a href="#">Help Center</a></li>
+              <li><a href="#">Contact Us</a></li>
+              <li><a href="#">Privacy Policy</a></li>
+              <li><a href="#">Terms of Service</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Follow Us</h4>
+            <div class="social-links">
+              <a href="#"><i class="fab fa-facebook"></i></a>
+              <a href="#"><i class="fab fa-instagram"></i></a>
+              <a href="#"><i class="fab fa-twitter"></i></a>
+              <a href="#"><i class="fab fa-youtube"></i></a>
+            </div>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; 2024 6Titans. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="user-dashboard.js"></script>
+    <!-- Video Call Modal -->
+    <div
+      id="videoCallModal"
+      class="modal"
+      style="
+        display: none;
+        align-items: center;
+        justify-content: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.95);
+        z-index: 10000;
+      "
+      
+    >
+      <div
+        class="modal-content"
+        style="
+          max-width: 950px;
+          min-width: 340px;
+          margin: auto;
+          background: #181818;
+          border-radius: 18px;
+          box-shadow: 0 8px 32px #000a;
+          padding: 2.5rem 2.5rem 1.5rem 2.5rem;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+        "
+        onclick="event.stopPropagation();"
+      >
+        <span
+          class="close"
+          id="closeCallModal"
+          style="
+            color: #ffd700;
+            font-size: 2.2rem;
+            position: absolute;
+            top: 24px;
+            right: 36px;
+            cursor: pointer;
+          "
+        >&times;</span>
+        <h2
+          style="
+            color: #ffd700;
+            text-align: center;
+            font-size: 2.2rem;
+            margin-bottom: 1.5rem;
+            width: 100%;
+          "
+        >
+          6TITANS 1VS1
+        </h2>
+        <div
+          class="call-id-row"
+          style="
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.7rem;
+            justify-content: center;
+            width: 100%;
+          "
+        >
+          <label style="color: #fff; font-size: 1.1rem">Your Peer ID: </label>
+          <input
+            id="myPeerId"
+            readonly
+            style="
+              background: #222;
+              color: #ffd700;
+              border: 1.5px solid #ffd700;
+              border-radius: 6px;
+              padding: 0.3rem 0.7rem;
+              font-size: 1.15rem;
+              width: 260px;
+              font-weight: 600;
+              letter-spacing: 0.5px;
+            "
+          />
+          <button
+            id="copyPeerIdBtn"
+            class="call-btn"
+            style="
+              background: #ffd700;
+              color: #181818;
+              font-weight: 600;
+              border-radius: 6px;
+              padding: 0.4rem 1.2rem;
+              min-width: 70px;
+            "
+          >
+            Copy
+              </button>
+            </div>
+            <div
+              class="call-id-row"
+              style="
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                margin-bottom: 1.5rem;
+                justify-content: center;
+                width: 100%;
+              "
+            >
+              <label style="color: #fff; font-size: 1.1rem">Call Peer ID: </label>
+              <input
+                id="callPeerId"
+                style="
+                  background: #222;
+                  color: #ffd700;
+                  border: none;
+                  border-radius: 6px;
+                  padding: 0.3rem 0.7rem;
+                  font-size: 1.1rem;
+                  width: 210px;
+                  text-align: center;
+                "
+              />
+              <button
+                id="startCallBtn"
+                class="call-btn"
+                style="
+                  background: #ffd700;
+                  color: #181818;
+                  font-weight: 600;
+                  border-radius: 6px;
+                  padding: 0.4rem 1.2rem;
+                  min-width: 70px;
+                "
+              >
+                Call
+              </button>
+            </div>
+            <div
+              class="video-row"
+              style="
+                display: flex;
+                flex-direction: row;
+                gap: 2.5vw;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                margin-bottom: 1.5rem;
+              "
+            >
+              <div
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  align-items: center;
+                  width: 320px;
+                  min-width: 160px;
+                "
+              >
+                <video
+                  id="localVideo"
+                  autoplay
+                  playsinline
+                  muted
+                  style="
+                    background: #222;
+                    border-radius: 16px;
+                    width: 180px;
+                    height: 140px;
+                    margin-bottom: 1.1rem;
+                    box-shadow: 0 2px 12px #0007;
+                  "
+                ></video>
+                <div
+                  class="device-controls"
+                  style="
+                    display: flex;
+                    gap: 1rem;
+                    justify-content: center;
+                    width: 100%;
+                  "
+                >
+                  <button
+                    id="toggleCamBtn"
+                    class="call-btn"
+                    title="Toggle Camera"
+                    style="
+                      background: #ffd700;
+                      color: #181818;
+                      font-size: 1.2rem;
+                      border-radius: 6px;
+                      padding: 0.5rem 1.2rem;
+                      min-width: 48px;
+                    "
+                  >
+                    <i class="fas fa-video"></i>
+                  </button>
+                  <button
+                    id="toggleMicBtn"
+                    class="call-btn"
+                    title="Toggle Mic"
+                    style="
+                      background: #ffd700;
+                      color: #181818;
+                      font-size: 1.2rem;
+                      border-radius: 6px;
+                      padding: 0.5rem 1.2rem;
+                      min-width: 48px;
+                    "
+                  >
+                    <i class="fas fa-microphone"></i>
+                  </button>
+                </div>
+              </div>
+              <div
+                style="
+                  flex: 1;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                "
+              >
+                <video
+                  id="remoteVideo"
+                  autoplay
+                  playsinline
+                  style="
+                    background: #222;
+                    border-radius: 16px;
+                    width: 420px;
+                    height: 320px;
+                    box-shadow: 0 2px 12px #0007;
+                  "
+                ></video>
+              </div>
+            </div>
+            <div
+              class="call-controls"
+              style="
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin-top: 0.5rem;
+                width: 100%;
+              "
+            >
+              <button
+                id="endCallBtn"
+                style="
+                  background: #f44336;
+                  color: #fff;
+                  font-size: 1.1rem;
+                  padding: 0.7rem 2.2rem;
+                  border-radius: 8px;
+                  border: none;
+                  font-weight: bold;
+                  box-shadow: 0 2px 8px #0005;
+                "
+              >
+                End Call
+              </button>
+            </div>
+          </div>
+        </div>
+    </div>
+    <link rel="stylesheet" href="assets/css/call.css" />
+  </body>
+</html>

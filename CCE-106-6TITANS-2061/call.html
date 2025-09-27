@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Video Session - 6Titans</title>
+    <link rel="stylesheet" href="assets/css/styles-base.css" />
+    <style>
+      body {
+        background: #0a0a0a;
+        color: #fff;
+      }
+      .call-wrap {
+        padding: 100px 20px 40px;
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+      .videos {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      video {
+        width: 100%;
+        background: #000;
+        border: 1px solid #333;
+        border-radius: 8px;
+      }
+      .controls {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+      }
+      .controls .btn {
+        padding: 10px 14px;
+        border-radius: 8px;
+        border: 1px solid #333;
+        background: #1a1a1a;
+        color: #fff;
+        cursor: pointer;
+      }
+      .controls .btn.primary {
+        background: #ffd700;
+        color: #0a0a0a;
+        border-color: #ffd700;
+      }
+      .room {
+        margin-bottom: 10px;
+        font-size: 0.95rem;
+        color: #ccc;
+      }
+      @media (max-width: 768px) {
+        .videos {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+  </head>
+  <body>
+    <div class="call-wrap">
+      <h1>Video Session</h1>
+      <div class="room">Room: <span id="roomIdText"></span></div>
+      <div class="videos">
+        <video id="localVideo" autoplay playsinline muted></video>
+        <video id="remoteVideo" autoplay playsinline></video>
+      </div>
+      <div class="controls">
+        <button id="toggleCam" class="btn">Toggle Camera</button>
+        <button id="toggleMic" class="btn">Toggle Mic</button>
+        <button id="shareScreen" class="btn">Share Screen</button>
+        <button id="copyLink" class="btn">Copy Invite Link</button>
+        <button id="hangup" class="btn primary">Hang Up</button>
+      </div>
+    </div>
+    <script src="call.js"></script>
+  </body>
+</html>

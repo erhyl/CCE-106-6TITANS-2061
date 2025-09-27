@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meet Your Coaches - 6Titans</title>
+    <link rel="stylesheet" href="assets/css/styles-base.css" />
+  <link rel="stylesheet" href="assets/css/coaching.css" />
+  <link rel="stylesheet" href="assets/css/auth-nav.css" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="nav-logo">
+          <img src="images/image 66.png" alt="6Titans Logo" class="logo-icon" />
+          <img src="images/image 67.png" alt="6Titans" class="logo-text" />
+        </div>
+        <ul class="nav-menu">
+          <li class="nav-item">
+            <a href="index.html" class="nav-link">Home</a>
+          </li>
+          <li class="nav-item">
+            <a href="membership.html" class="nav-link">Membership</a>
+          </li>
+          <li class="nav-item">
+            <a href="classes.html" class="nav-link">Classes</a>
+          </li>
+          <li class="nav-item">
+            <a href="workouts.html" class="nav-link">Workouts</a>
+          </li>
+          <li class="nav-item">
+            <a href="coaching.html" class="nav-link active">Coaching</a>
+          </li>
+          <li class="nav-item">
+            <a href="online-gym.html" class="nav-link">Appointments</a>
+          </li>
+          <li class="nav-item">
+            <a href="articles.html" class="nav-link active">Articles</a>
+          </li>
+        </ul>
+        <div class="auth-buttons" id="authButtons">
+          <a href="login.html" id="loginBtnNav">Login</a>
+          <a href="register.html" id="signupBtnNav">Sign Up</a>
+        </div>
+        <div class="hamburger">
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Coaching Section -->
+    <section class="coaching">
+      <div class="container">
+        <h1 class="page-title">Meet Your Coaches</h1>
+
+        <!-- Coaches Grid -->
+        <div class="coaches-grid">
+          <!-- Angelou Carino -->
+          <div class="coach-card">
+            <div class="coach-avatar">
+              <i class="fas fa-user"></i>
+            </div>
+            <h3 class="coach-name">Angelou Carino</h3>
+            <p class="coach-specialization">Yoga & Mindfulness</p>
+            <p class="coach-description">
+              Certified yoga instructor with 8 years of experience in helping
+              clients find balance and strength.
+            </p>
+            <div class="coach-badges">
+              <span class="badge">RYT_500</span>
+              <span class="badge">Pilates Certified</span>
+            </div>
+            <div class="coach-rating">
+              <div class="stars">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+              </div>
+              <span class="rating-text">4.9 (158 reviews)</span>
+            </div>
+            <button
+              class="btn btn-primary book-session"
+              data-coach="Angelou Carino"
+            >
+              Book Session
+            </button>
+          </div>
+
+          <!-- Jerard Lavilla -->
+          <div class="coach-card">
+            <div class="coach-avatar">
+              <i class="fas fa-user"></i>
+            </div>
+            <h3 class="coach-name">Jerard Lavilla</h3>
+            <p class="coach-specialization">HIIT & Cardio</p>
+            <p class="coach-description">
+              Former competitive athlete specializing in high-intensity training
+              and fat loss programs.
+            </p>
+            <div class="coach-badges">
+              <span class="badge">NASM-CPT</span>
+              <span class="badge">HIIT Specialist</span>
+            </div>
+            <div class="coach-rating">
+              <div class="stars">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+              </div>
+              <span class="rating-text">4.8 (98 reviews)</span>
+            </div>
+            <button
+              class="btn btn-primary book-session"
+              data-coach="Jerard Lavilla"
+            >
+              Book Session
+            </button>
+          </div>
+
+          <!-- Charles Cacam -->
+          <div class="coach-card">
+            <div class="coach-avatar">
+              <i class="fas fa-user"></i>
+            </div>
+            <h3 class="coach-name">Charles Cacam</h3>
+            <p class="coach-specialization">Strength Training</p>
+            <p class="coach-description">
+              Powerlifting coach with expertise in building raw strength and
+              muscle mass.
+            </p>
+            <div class="coach-badges">
+              <span class="badge">CSCS</span>
+              <span class="badge">Powerlifting Coach</span>
+            </div>
+            <div class="coach-rating">
+              <div class="stars">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+              </div>
+              <span class="rating-text">4.9 (169 reviews)</span>
+            </div>
+            <button
+              class="btn btn-primary book-session"
+              data-coach="Charles Cacam"
+            >
+              Book Session
+            </button>
+          </div>
+
+          <!-- Additional Coaches -->
+          <div class="coach-card">
+            <div class="coach-avatar">
+              <i class="fas fa-user"></i>
+            </div>
+            <h3 class="coach-name">Niel Ian Villaver</h3>
+            <p class="coach-specialization">Yoga & Flexibility</p>
+            <p class="coach-description">
+              Experienced yoga instructor focused on flexibility, mobility, and
+              stress relief.
+            </p>
+            <div class="coach-badges">
+              <span class="badge">RYT_200</span>
+              <span class="badge">Flexibility Expert</span>
+            </div>
+            <div class="coach-rating">
+              <div class="stars">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+              </div>
+              <span class="rating-text">4.7 (124 reviews)</span>
+            </div>
+            <button
+              class="btn btn-primary book-session"
+              data-coach="Niel Ian Villaver"
+            >
+              Book Session
+            </button>
+          </div>
+
+          <div class="coach-card">
+            <div class="coach-avatar">
+              <i class="fas fa-user"></i>
+            </div>
+            <h3 class="coach-name">Jude Tomonas</h3>
+            <p class="coach-specialization">Cardio & Endurance</p>
+            <p class="coach-description">
+              Marathon runner and cardio specialist helping clients build
+              endurance and stamina.
+            </p>
+            <div class="coach-badges">
+              <span class="badge">ACE-CPT</span>
+              <span class="badge">Endurance Coach</span>
+            </div>
+            <div class="coach-rating">
+              <div class="stars">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+              </div>
+              <span class="rating-text">4.8 (87 reviews)</span>
+            </div>
+            <button
+              class="btn btn-primary book-session"
+              data-coach="Jude Tomonas"
+            >
+              Book Session
+            </button>
+          </div>
+
+          <div class="coach-card">
+            <div class="coach-avatar">
+              <i class="fas fa-user"></i>
+            </div>
+            <h3 class="coach-name">Karl Verbo</h3>
+            <p class="coach-specialization">Bodybuilding</p>
+            <p class="coach-description">
+              Competitive bodybuilder and physique coach specializing in muscle
+              building and contest prep.
+            </p>
+            <div class="coach-badges">
+              <span class="badge">IFBB Pro</span>
+              <span class="badge">Bodybuilding Coach</span>
+            </div>
+            <div class="coach-rating">
+              <div class="stars">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+              </div>
+              <span class="rating-text">4.9 (203 reviews)</span>
+            </div>
+            <button
+              class="btn btn-primary book-session"
+              data-coach="Karl Verbo"
+            >
+              Book Session
+            </button>
+          </div>
+
+          <div class="coach-card">
+            <div class="coach-avatar">
+              <i class="fas fa-user"></i>
+            </div>
+            <h3 class="coach-name">Joshua Mortejo</h3>
+            <p class="coach-specialization">Pilates & Core</p>
+            <p class="coach-description">
+              Pilates instructor focused on core strength, posture, and
+              functional movement patterns.
+            </p>
+            <div class="coach-badges">
+              <span class="badge">PMA Certified</span>
+              <span class="badge">Core Specialist</span>
+            </div>
+            <div class="coach-rating">
+              <div class="stars">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+              </div>
+              <span class="rating-text">4.6 (95 reviews)</span>
+            </div>
+            <button
+              class="btn btn-primary book-session"
+              data-coach="Joshua Mortejo"
+            >
+              Book Session
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Booking Modal -->
+    <div id="bookingModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Book Coaching Session</h2>
+        <form id="bookingForm">
+          <div class="form-group">
+            <label for="coachName">Coach</label>
+            <input type="text" id="coachName" name="coachName" readonly />
+          </div>
+          <div class="form-group">
+            <label for="sessionType">Session Type *</label>
+            <select id="sessionType" name="sessionType" required>
+              <option value="">Select session type</option>
+              <option value="in-person">In-Person Training</option>
+              <option value="video-call">Video Call Session</option>
+              <option value="group-class">Group Class</option>
+              <option value="nutrition-consultation">
+                Nutrition Consultation
+              </option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="preferredDate">Preferred Date *</label>
+            <input
+              type="date"
+              id="preferredDate"
+              name="preferredDate"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="preferredTime">Preferred Time *</label>
+            <select id="preferredTime" name="preferredTime" required>
+              <option value="">Select time</option>
+              <option value="06:00">6:00 AM</option>
+              <option value="07:00">7:00 AM</option>
+              <option value="08:00">8:00 AM</option>
+              <option value="09:00">9:00 AM</option>
+              <option value="10:00">10:00 AM</option>
+              <option value="11:00">11:00 AM</option>
+              <option value="12:00">12:00 PM</option>
+              <option value="13:00">1:00 PM</option>
+              <option value="14:00">2:00 PM</option>
+              <option value="15:00">3:00 PM</option>
+              <option value="16:00">4:00 PM</option>
+              <option value="17:00">5:00 PM</option>
+              <option value="18:00">6:00 PM</option>
+              <option value="19:00">7:00 PM</option>
+              <option value="20:00">8:00 PM</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="memberName">Your Name *</label>
+            <input type="text" id="memberName" name="memberName" required />
+          </div>
+          <div class="form-group">
+            <label for="memberEmail">Email *</label>
+            <input type="email" id="memberEmail" name="memberEmail" required />
+          </div>
+          <div class="form-group">
+            <label for="memberPhone">Phone Number *</label>
+            <input type="tel" id="memberPhone" name="memberPhone" required />
+          </div>
+          <div class="form-group">
+            <label for="goals">Fitness Goals</label>
+            <textarea
+              id="goals"
+              name="goals"
+              rows="3"
+              placeholder="Tell us about your fitness goals and what you'd like to achieve..."
+            ></textarea>
+          </div>
+          <div class="form-group">
+            <label for="experience">Fitness Experience</label>
+            <select id="experience" name="experience">
+              <option value="">Select experience level</option>
+              <option value="beginner">Beginner (0-6 months)</option>
+              <option value="intermediate">
+                Intermediate (6 months - 2 years)
+              </option>
+              <option value="advanced">Advanced (2+ years)</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">Book Session</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <div class="footer-logo">
+              <img
+                src="images/image 66.png"
+                alt="6Titans Logo"
+                class="logo-icon"
+              />
+              <img src="images/image 67.png" alt="6Titans" class="logo-text" />
+            </div>
+            <p>Transform your body, transform your life.</p>
+          </div>
+          <div class="footer-section">
+            <h4>Quick Links</h4>
+            <ul>
+              <li><a href="index.html">Home</a></li>
+              <li><a href="membership.html">Membership</a></li>
+              <li><a href="classes.html">Classes</a></li>
+              <li><a href="workouts.html">Workouts</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Support</h4>
+            <ul>
+              <li><a href="#">Help Center</a></li>
+              <li><a href="#">Contact Us</a></li>
+              <li><a href="#">Privacy Policy</a></li>
+              <li><a href="#">Terms of Service</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Follow Us</h4>
+            <div class="social-links">
+              <a href="#"><i class="fab fa-facebook"></i></a>
+              <a href="#"><i class="fab fa-instagram"></i></a>
+              <a href="#"><i class="fab fa-twitter"></i></a>
+              <a href="#"><i class="fab fa-youtube"></i></a>
+            </div>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; 2024 6Titans. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="coaching.js"></script>
+  </body>
+</html>

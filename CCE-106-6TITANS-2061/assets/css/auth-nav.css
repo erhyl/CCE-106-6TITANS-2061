@@ -1,0 +1,43 @@
+/* Login/Sign Up Navigation Buttons (shared)
+   Place this in assets/css/auth-nav.css and link in all pages with login/signup nav buttons. */
+.auth-buttons {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-left: 1.5rem;
+}
+/* Unified button style for both Login and Sign Up */
+.auth-buttons a#loginBtnNav,
+.auth-buttons a#signupBtnNav {
+  width: 100px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: 14px;
+  border: none;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px #0002;
+  transition: background 0.2s, color 0.2s;
+  text-decoration: none;
+  margin: 0;
+}
+.auth-buttons a#loginBtnNav {
+  background: #fff;
+  color: #111;
+}
+.auth-buttons a#signupBtnNav {
+  background: #ffd700;
+  color: #111;
+}
+.auth-buttons a#loginBtnNav:hover {
+  background: #f3f3f3;
+  color: #000;
+}
+.auth-buttons a#signupBtnNav:hover {
+  background: #ffe066;
+  color: #000;
+}

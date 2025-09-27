@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Class Schedules - 6Titans</title>
+    <link rel="stylesheet" href="assets/css/styles-base.css" />
+  <link rel="stylesheet" href="assets/css/classes.css" />
+  <link rel="stylesheet" href="assets/css/auth-nav.css" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="nav-logo">
+          <img src="images/image 66.png" alt="6Titans Logo" class="logo-icon" />
+          <img src="images/image 67.png" alt="6Titans" class="logo-text" />
+        </div>
+        <ul class="nav-menu">
+          <li class="nav-item">
+            <a href="index.html" class="nav-link">Home</a>
+          </li>
+          <li class="nav-item">
+            <a href="membership.html" class="nav-link">Membership</a>
+          </li>
+          <li class="nav-item">
+            <a href="classes.html" class="nav-link active">Classes</a>
+          </li>
+          <li class="nav-item">
+            <a href="workouts.html" class="nav-link">Workouts</a>
+          </li>
+          <li class="nav-item">
+            <a href="coaching.html" class="nav-link">Coaching</a>
+          </li>
+          <li class="nav-item">
+            <a href="online-gym.html" class="nav-link">Appointments</a>
+          </li>
+          <li class="nav-item">
+            <a href="articles.html" class="nav-link active">Articles</a>
+          </li>
+        </ul>
+        <div class="auth-buttons" id="authButtons">
+          <a href="login.html" id="loginBtnNav">Login</a>
+          <a href="register.html" id="signupBtnNav">Sign Up</a>
+        </div>
+        <div class="hamburger">
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Class Schedules Section -->
+    <section class="class-schedules">
+      <div class="container">
+        <h1 class="page-title">Class Schedules</h1>
+
+        <!-- Day Filters -->
+        <div class="day-filters">
+          <button class="filter-btn active" data-day="all">All days</button>
+          <button class="filter-btn" data-day="monday">Monday</button>
+          <button class="filter-btn" data-day="tuesday">Tuesday</button>
+          <button class="filter-btn" data-day="wednesday">Wednesday</button>
+          <button class="filter-btn" data-day="thursday">Thursday</button>
+          <button class="filter-btn" data-day="friday">Friday</button>
+          <button class="filter-btn" data-day="weekend">Week-End</button>
+        </div>
+
+        <!-- Class Cards -->
+        <div class="classes-grid" id="classesGrid">
+          <!-- Morning Yoga -->
+          <div class="class-card" data-day="monday">
+            <div class="class-header">
+              <h3 class="class-name">Morning Yoga</h3>
+              <div class="class-time">6:00 AM</div>
+            </div>
+            <p class="class-description">
+              Start your day with gentle stretches and mindfulness
+            </p>
+            <div class="class-details">
+              <div class="class-detail">
+                <i class="fas fa-user"></i>
+                <span>Niel Ian Villaver</span>
+              </div>
+              <div class="class-detail">
+                <i class="fas fa-clock"></i>
+                <span>60min</span>
+              </div>
+            </div>
+            <button class="btn btn-primary book-class">Book Class</button>
+          </div>
+
+          <!-- HIIT Training -->
+          <div class="class-card" data-day="tuesday">
+            <div class="class-header">
+              <h3 class="class-name">HIIT Training</h3>
+              <div class="class-time">8:00 AM</div>
+            </div>
+            <p class="class-description">
+              High-intensity interval training for maximum results
+            </p>
+            <div class="class-details">
+              <div class="class-detail">
+                <i class="fas fa-user"></i>
+                <span>Jude Tomonas</span>
+              </div>
+              <div class="class-detail">
+                <i class="fas fa-clock"></i>
+                <span>45min</span>
+              </div>
+            </div>
+            <button class="btn btn-primary book-class">Book Class</button>
+          </div>
+
+          <!-- Strength Training -->
+          <div class="class-card" data-day="wednesday">
+            <div class="class-header">
+              <h3 class="class-name">Strength Training</h3>
+              <div class="class-time">6:00 AM</div>
+            </div>
+            <p class="class-description">
+              Build muscle and strength with progressive resistance training
+            </p>
+            <div class="class-details">
+              <div class="class-detail">
+                <i class="fas fa-user"></i>
+                <span>Karl Verbo</span>
+              </div>
+              <div class="class-detail">
+                <i class="fas fa-clock"></i>
+                <span>75min</span>
+              </div>
+            </div>
+            <button class="btn btn-primary book-class">Book Class</button>
+          </div>
+
+          <!-- Pilates -->
+          <div class="class-card" data-day="thursday">
+            <div class="class-header">
+              <h3 class="class-name">Pilates</h3>
+              <div class="class-time">6:00 AM</div>
+            </div>
+            <p class="class-description">
+              Core strengthening and flexibility through controlled movements
+            </p>
+            <div class="class-details">
+              <div class="class-detail">
+                <i class="fas fa-user"></i>
+                <span>Joshua Mortejo</span>
+              </div>
+              <div class="class-detail">
+                <i class="fas fa-clock"></i>
+                <span>50min</span>
+              </div>
+            </div>
+            <button class="btn btn-primary book-class">Book Class</button>
+          </div>
+
+          <!-- Cardio Blast -->
+          <div class="class-card" data-day="friday">
+            <div class="class-header">
+              <h3 class="class-name">Cardio Blast</h3>
+              <div class="class-time">7:00 AM</div>
+            </div>
+            <p class="class-description">
+              High-energy cardio workout to boost your heart rate
+            </p>
+            <div class="class-details">
+              <div class="class-detail">
+                <i class="fas fa-user"></i>
+                <span>Jude Tomonas</span>
+              </div>
+              <div class="class-detail">
+                <i class="fas fa-clock"></i>
+                <span>45min</span>
+              </div>
+            </div>
+            <button class="btn btn-primary book-class">Book Class</button>
+          </div>
+
+          <!-- Weekend Yoga -->
+          <div class="class-card" data-day="weekend">
+            <div class="class-header">
+              <h3 class="class-name">Weekend Yoga</h3>
+              <div class="class-time">9:00 AM</div>
+            </div>
+            <p class="class-description">
+              Relaxing weekend yoga session for mind and body
+            </p>
+            <div class="class-details">
+              <div class="class-detail">
+                <i class="fas fa-user"></i>
+                <span>Niel Ian Villaver</span>
+              </div>
+              <div class="class-detail">
+                <i class="fas fa-clock"></i>
+                <span>60min</span>
+              </div>
+            </div>
+            <button class="btn btn-primary book-class">Book Class</button>
+          </div>
+
+          <!-- Boxing -->
+          <div class="class-card" data-day="monday">
+            <div class="class-header">
+              <h3 class="class-name">Boxing</h3>
+              <div class="class-time">7:00 PM</div>
+            </div>
+            <p class="class-description">
+              High-intensity boxing workout for strength and endurance
+            </p>
+            <div class="class-details">
+              <div class="class-detail">
+                <i class="fas fa-user"></i>
+                <span>Charles Cacam</span>
+              </div>
+              <div class="class-detail">
+                <i class="fas fa-clock"></i>
+                <span>50min</span>
+              </div>
+            </div>
+            <button class="btn btn-primary book-class">Book Class</button>
+          </div>
+
+          <!-- Zumba -->
+          <div class="class-card" data-day="tuesday">
+            <div class="class-header">
+              <h3 class="class-name">Zumba</h3>
+              <div class="class-time">6:30 PM</div>
+            </div>
+            <p class="class-description">
+              Dance fitness party that's fun and effective
+            </p>
+            <div class="class-details">
+              <div class="class-detail">
+                <i class="fas fa-user"></i>
+                <span>Angelou Carino</span>
+              </div>
+              <div class="class-detail">
+                <i class="fas fa-clock"></i>
+                <span>45min</span>
+              </div>
+            </div>
+            <button class="btn btn-primary book-class">Book Class</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Booking Modal -->
+    <div id="bookingModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Book Class</h2>
+        <form id="bookingForm">
+          <div class="form-group">
+            <label for="className">Class Name</label>
+            <input type="text" id="className" name="className" readonly />
+          </div>
+          <div class="form-group">
+            <label for="classTime">Time</label>
+            <input type="text" id="classTime" name="classTime" readonly />
+          </div>
+          <div class="form-group">
+            <label for="instructor">Instructor</label>
+            <input type="text" id="instructor" name="instructor" readonly />
+          </div>
+          <div class="form-group">
+            <label for="memberName">Your Name *</label>
+            <input type="text" id="memberName" name="memberName" required />
+          </div>
+          <div class="form-group">
+            <label for="memberEmail">Email *</label>
+            <input type="email" id="memberEmail" name="memberEmail" required />
+          </div>
+          <div class="form-group">
+            <label for="memberPhone">Phone Number *</label>
+            <input type="tel" id="memberPhone" name="memberPhone" required />
+          </div>
+          <button type="submit" class="btn btn-primary">Confirm Booking</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <div class="footer-logo">
+              <img
+                src="images/image 66.png"
+                alt="6Titans Logo"
+                class="logo-icon"
+              />
+              <img src="images/image 67.png" alt="6Titans" class="logo-text" />
+            </div>
+            <p>Transform your body, transform your life.</p>
+          </div>
+          <div class="footer-section">
+            <h4>Quick Links</h4>
+            <ul>
+              <li><a href="index.html">Home</a></li>
+              <li><a href="membership.html">Membership</a></li>
+              <li><a href="classes.html">Classes</a></li>
+              <li><a href="workouts.html">Workouts</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Support</h4>
+            <ul>
+              <li><a href="#">Help Center</a></li>
+              <li><a href="#">Contact Us</a></li>
+              <li><a href="#">Privacy Policy</a></li>
+              <li><a href="#">Terms of Service</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Follow Us</h4>
+            <div class="social-links">
+              <a href="#"><i class="fab fa-facebook"></i></a>
+              <a href="#"><i class="fab fa-instagram"></i></a>
+              <a href="#"><i class="fab fa-twitter"></i></a>
+              <a href="#"><i class="fab fa-youtube"></i></a>
+            </div>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; 2024 6Titans. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="classes.js"></script>
+  </body>
+</html>

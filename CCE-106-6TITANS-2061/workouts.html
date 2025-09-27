@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workout & Diet Plans - 6Titans</title>
+    <link rel="stylesheet" href="assets/css/styles-base.css">
+    <link rel="stylesheet" href="assets/css/workouts.css">
+    <link rel="stylesheet" href="assets/css/auth-nav.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <img src="images/image 66.png" alt="6Titans Logo" class="logo-icon">
+                <img src="images/image 67.png" alt="6Titans" class="logo-text">
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="membership.html" class="nav-link">Membership</a>
+                </li>
+                <li class="nav-item">
+                    <a href="classes.html" class="nav-link">Classes</a>
+                </li>
+                <li class="nav-item">
+                    <a href="workouts.html" class="nav-link active">Workouts</a>
+                </li>
+                <li class="nav-item">
+                    <a href="coaching.html" class="nav-link">Coaching</a>
+                </li>
+                <li class="nav-item">
+                    <a href="online-gym.html" class="nav-link">Appointments</a>
+                </li>
+                <li class="nav-item">
+                    <a href="articles.html" class="nav-link active">Articles</a>
+                </li>
+            </ul>
+            <div class="auth-buttons" id="authButtons">
+                <a href="login.html" id="loginBtnNav">Login</a>
+                <a href="register.html" id="signupBtnNav">Sign Up</a>
+            </div>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Workout Plans Section -->
+    <section class="workout-plans">
+        <div class="container">
+            <h1 class="page-title">Workout</h1>
+
+            <!-- Workout Plans Content -->
+            <div id="workoutPlans" class="tab-content active">
+                <div class="plans-grid">
+                    <!-- Beginner Strength -->
+                    <div class="plan-card">
+                        <div class="plan-icon">🏋️‍♂️</div>
+                        <h3 class="plan-name"> Strength</h3>
+                        <p class="plan-description">Perfect for those new to strength training</p>
+                        <div class="plan-details">
+                            <div class="plan-detail">
+                                <i class="fas fa-calendar"></i>
+                                <span>9 weeks</span>
+                            </div>
+                            <div class="plan-detail">
+                                <i class="fas fa-clock"></i>
+                                <span>60min</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary choose-plan">Choose Plan</button>
+                    </div>
+
+                    <!-- Fat Burn HIIT -->
+                    <div class="plan-card">
+                        <div class="plan-icon">🔥</div>
+                        <h3 class="plan-name">Agility</h3>
+                        <p class="plan-description">High Intensity Workout for maximum calorie burn</p>
+                        <div class="plan-details">
+                            <div class="plan-detail">
+                                <i class="fas fa-calendar"></i>
+                                <span>6 weeks</span>
+                            </div>
+                            <div class="plan-detail">
+                                <i class="fas fa-clock"></i>
+                                <span>30min</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary choose-plan">Choose Plan</button>
+                    </div>
+
+                    <!-- Cardio Blast -->
+                    <div class="plan-card">
+                        <div class="plan-icon">❤️</div>
+                        <h3 class="plan-name">Cardio</h3>
+                        <p class="plan-description">Improve Cardiovascular health and endurance</p>
+                        <div class="plan-details">
+                            <div class="plan-detail">
+                                <i class="fas fa-calendar"></i>
+                                <span>4 weeks</span>
+                            </div>
+                            <div class="plan-detail">
+                                <i class="fas fa-clock"></i>
+                                <span>45min</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary choose-plan">Choose Plan</button>
+                    </div>
+
+                    <!-- Advanced Strength -->
+                    <div class="plan-card">
+                        <div class="plan-icon">💪</div>
+                        <h3 class="plan-name">Flexibility</h3>
+                        <p class="plan-description">For experienced lifters looking to break plateaus</p>
+                        <div class="plan-details">
+                            <div class="plan-detail">
+                                <i class="fas fa-calendar"></i>
+                                <span>12 weeks</span>
+                            </div>
+                            <div class="plan-detail">
+                                <i class="fas fa-clock"></i>
+                                <span>90min</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary choose-plan">Choose Plan</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Plan Details Modal -->
+    <div id="planModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modalTitle">Plan Details</h2>
+            <div id="modalContent">
+                <!-- Plan details will be populated here -->
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="closeModal">Close</button>
+                <button class="btn btn-primary" id="selectPlan">Select This Plan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <img src="images/image 66.png" alt="6Titans Logo" class="logo-icon">
+                        <img src="images/image 67.png" alt="6Titans" class="logo-text">
+                    </div>
+                    <p>Transform your body, transform your life.</p>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Follow Us</h4>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+        
+            <div class="footer-bottom">
+                <p>&copy; 2024 6Titans. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="workouts.js"></script>
+</body>
+</html>

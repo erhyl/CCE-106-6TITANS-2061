@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard - 6Titans</title>
+    <link rel="stylesheet" href="assets/css/styles-base.css" />
+    <link rel="stylesheet" href="assets/css/styles.css" />
+    <link rel="stylesheet" href="assets/css/admin.css" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="nav-logo">
+          <img src="images/image 66.png" alt="6Titans Logo" class="logo-icon" />
+          <img src="images/image 67.png" alt="6Titans" class="logo-text" />
+        </div>
+        <ul class="nav-menu">
+          <li class="nav-item">
+            <a href="index.html" class="nav-link">Home</a>
+          </li>
+          <li class="nav-item">
+            <a href="admin.html" class="nav-link active">Admin Dashboard</a>
+          </li>
+          <li class="nav-item">
+            <div class="user-menu">
+              <button class="user-avatar admin-avatar" id="adminMenuBtn">
+                <i class="fas fa-crown"></i>
+              </button>
+              <div class="user-dropdown" id="adminDropdown">
+                <a href="admin.html"
+                  ><i class="fas fa-tachometer-alt"></i> Dashboard</a
+                >
+                <a href="admin-users.html"
+                  ><i class="fas fa-users"></i> Manage Users</a
+                >
+                <a href="admin-coaches.html"
+                  ><i class="fas fa-user-tie"></i> Manage Coaches</a
+                >
+                <a href="admin-settings.html"
+                  ><i class="fas fa-cog"></i> Settings</a
+                >
+                <a href="#" id="adminLogoutBtn"
+                  ><i class="fas fa-sign-out-alt"></i> Logout</a
+                >
+              </div>
+            </div>
+          </li>
+        </ul>
+        <div class="hamburger">
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Admin Dashboard -->
+    <section class="admin-dashboard">
+      <div class="container">
+        <!-- Admin Header -->
+        <div class="admin-header">
+          <div class="welcome-section">
+            <h1>Admin Dashboard</h1>
+            <p>Manage your 6Titans platform with comprehensive control</p>
+          </div>
+          <div class="admin-actions">
+            <button class="btn btn-primary" id="refreshDataBtn">
+              <i class="fas fa-sync-alt"></i> Refresh Data
+            </button>
+            <button class="btn btn-secondary" id="exportDataBtn">
+              <i class="fas fa-download"></i> Export Data
+            </button>
+          </div>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="admin-stats">
+          <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <div class="stat-info">
+              <h3 id="totalUsers">1,247</h3>
+              <p>Total Users</p>
+              <span class="stat-change positive">+12% this month</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🏋️‍♂️</div>
+            <div class="stat-info">
+              <h3 id="totalCoaches">24</h3>
+              <p>Active Coaches</p>
+              <span class="stat-change positive">+3 this month</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">💰</div>
+            <div class="stat-info">
+              <h3 id="monthlyRevenue">$45,230</h3>
+              <p>Monthly Revenue</p>
+              <span class="stat-change positive">+18% this month</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <div class="stat-info">
+              <h3 id="activeSessions">89%</h3>
+              <p>Active Sessions</p>
+              <span class="stat-change positive">+5% this week</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div class="admin-content">
+          <!-- Quick Actions -->
+          <div class="admin-section">
+            <h2>Quick Actions</h2>
+            <div class="quick-actions-grid">
+              <button class="action-card" id="addUserBtn">
+                <i class="fas fa-user-plus"></i>
+                <h3>Add User</h3>
+                <p>Create new user account</p>
+              </button>
+              <button class="action-card" id="addCoachBtn">
+                <i class="fas fa-user-tie"></i>
+                <h3>Add Coach</h3>
+                <p>Add new coach to platform</p>
+              </button>
+              <button class="action-card" id="createClassBtn">
+                <i class="fas fa-calendar-plus"></i>
+                <h3>Create Class</h3>
+                <p>Schedule new fitness class</p>
+              </button>
+              <button class="action-card" id="viewReportsBtn">
+                <i class="fas fa-chart-bar"></i>
+                <h3>View Reports</h3>
+                <p>Generate detailed analytics</p>
+              </button>
+              <button class="action-card" id="manageContentBtn">
+                <i class="fas fa-edit"></i>
+                <h3>Manage Content</h3>
+                <p>Update articles and workouts</p>
+              </button>
+              <button class="action-card" id="systemSettingsBtn">
+                <i class="fas fa-cogs"></i>
+                <h3>System Settings</h3>
+                <p>Configure platform settings</p>
+              </button>
+            </div>
+          </div>
+
+          <!-- Charts and Analytics -->
+          <div class="admin-section">
+            <h2>Analytics Overview</h2>
+            <div class="charts-grid">
+              <div class="chart-card">
+                <h3>User Growth</h3>
+                <canvas id="userGrowthChart"></canvas>
+              </div>
+              <div class="chart-card">
+                <h3>Revenue Trends</h3>
+                <canvas id="revenueChart"></canvas>
+              </div>
+              <div class="chart-card">
+                <h3>Class Bookings</h3>
+                <canvas id="bookingsChart"></canvas>
+              </div>
+              <div class="chart-card">
+                <h3>User Activity</h3>
+                <canvas id="activityChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Activity -->
+          <div class="admin-section">
+            <h2>Recent Activity</h2>
+            <div class="activity-feed">
+              <div class="activity-item">
+                <div class="activity-icon">👤</div>
+                <div class="activity-content">
+                  <h4>New user registered</h4>
+                  <p>Sarah Johnson joined the platform</p>
+                  <span class="activity-time">2 minutes ago</span>
+                </div>
+                <div class="activity-status new">New</div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-icon">🏋️‍♂️</div>
+                <div class="activity-content">
+                  <h4>Class completed</h4>
+                  <p>HIIT Training with 15 participants</p>
+                  <span class="activity-time">15 minutes ago</span>
+                </div>
+                <div class="activity-status completed">Completed</div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-icon">💰</div>
+                <div class="activity-content">
+                  <h4>Payment received</h4>
+                  <p>Monthly subscription from John Doe</p>
+                  <span class="activity-time">1 hour ago</span>
+                </div>
+                <div class="activity-status success">Success</div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-icon">📝</div>
+                <div class="activity-content">
+                  <h4>Coach profile updated</h4>
+                  <p>Charles Cacam updated availability</p>
+                  <span class="activity-time">2 hours ago</span>
+                </div>
+                <div class="activity-status updated">Updated</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- User Management Preview -->
+          <div class="admin-section">
+            <h2>User Management</h2>
+            <div class="management-preview">
+              <div class="preview-header">
+                <h3>Recent Users</h3>
+                <a href="admin-users.html" class="view-all-btn">View All</a>
+              </div>
+              <div class="users-table">
+                <div class="table-header">
+                  <div class="table-cell">User</div>
+                  <div class="table-cell">Email</div>
+                  <div class="table-cell">Status</div>
+                  <div class="table-cell">Join Date</div>
+                  <div class="table-cell">Actions</div>
+                </div>
+                <div class="table-row">
+                  <div class="table-cell">
+                    <div class="user-info">
+                      <div class="user-avatar-small">SJ</div>
+                      <span>Sarah Johnson</span>
+                    </div>
+                  </div>
+                  <div class="table-cell">sarah.j@email.com</div>
+                  <div class="table-cell">
+                    <span class="status-badge active">Active</span>
+                  </div>
+                  <div class="table-cell">Today</div>
+                  <div class="table-cell">
+                    <button class="btn-sm btn-primary">Edit</button>
+                  </div>
+                </div>
+                <div class="table-row">
+                  <div class="table-cell">
+                    <div class="user-info">
+                      <div class="user-avatar-small">JD</div>
+                      <span>John Doe</span>
+                    </div>
+                  </div>
+                  <div class="table-cell">john.doe@email.com</div>
+                  <div class="table-cell">
+                    <span class="status-badge active">Active</span>
+                  </div>
+                  <div class="table-cell">2 days ago</div>
+                  <div class="table-cell">
+                    <button class="btn-sm btn-primary">Edit</button>
+                  </div>
+                </div>
+                <div class="table-row">
+                  <div class="table-cell">
+                    <div class="user-info">
+                      <div class="user-avatar-small">MJ</div>
+                      <span>Mike Johnson</span>
+                    </div>
+                  </div>
+                  <div class="table-cell">mike.j@email.com</div>
+                  <div class="table-cell">
+                    <span class="status-badge inactive">Inactive</span>
+                  </div>
+                  <div class="table-cell">1 week ago</div>
+                  <div class="table-cell">
+                    <button class="btn-sm btn-primary">Edit</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- System Status -->
+          <div class="admin-section">
+            <h2>System Status</h2>
+            <div class="system-status-grid">
+              <div class="status-card">
+                <div class="status-header">
+                  <h3>Server Status</h3>
+                  <span class="status-indicator online">Online</span>
+                </div>
+                <p>All systems operational</p>
+                <div class="status-details">
+                  <span>Uptime: 99.9%</span>
+                  <span>Response: 45ms</span>
+                </div>
+              </div>
+              <div class="status-card">
+                <div class="status-header">
+                  <h3>Database</h3>
+                  <span class="status-indicator online">Healthy</span>
+                </div>
+                <p>Database performance optimal</p>
+                <div class="status-details">
+                  <span>Connections: 45/100</span>
+                  <span>Query time: 12ms</span>
+                </div>
+              </div>
+              <div class="status-card">
+                <div class="status-header">
+                  <h3>Storage</h3>
+                  <span class="status-indicator warning">Warning</span>
+                </div>
+                <p>Storage usage at 85%</p>
+                <div class="status-details">
+                  <span>Used: 850GB/1TB</span>
+                  <span>Available: 150GB</span>
+                </div>
+              </div>
+              <div class="status-card">
+                <div class="status-header">
+                  <h3>Backup</h3>
+                  <span class="status-indicator online">Current</span>
+                </div>
+                <p>Last backup: 2 hours ago</p>
+                <div class="status-details">
+                  <span>Next: 22 hours</span>
+                  <span>Size: 2.3GB</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Modals -->
+    <!-- Add User Modal -->
+    <div class="modal" id="addUserModal">
+      <div class="modal-content">
+        <button class="close" id="closeAddUserModal">&times;</button>
+        <h2>Add New User</h2>
+        <form class="admin-form" id="addUserForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="firstName">First Name</label>
+              <input type="text" id="firstName" name="firstName" required />
+            </div>
+            <div class="form-group">
+              <label for="lastName">Last Name</label>
+              <input type="text" id="lastName" name="lastName" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required />
+          </div>
+          <div class="form-group">
+            <label for="userType">User Type</label>
+            <select id="userType" name="userType" required>
+              <option value="member">Member</option>
+              <option value="coach">Coach</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="membershipPlan">Membership Plan</label>
+            <select id="membershipPlan" name="membershipPlan">
+              <option value="basic">Basic</option>
+              <option value="premium">Premium</option>
+              <option value="pro">Pro</option>
+            </select>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" id="cancelAddUser">
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">Add User</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Add Coach Modal -->
+    <div class="modal" id="addCoachModal">
+      <div class="modal-content">
+        <button class="close" id="closeAddCoachModal">&times;</button>
+        <h2>Add New Coach</h2>
+        <form class="admin-form" id="addCoachForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="coachFirstName">First Name</label>
+              <input
+                type="text"
+                id="coachFirstName"
+                name="coachFirstName"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="coachLastName">Last Name</label>
+              <input
+                type="text"
+                id="coachLastName"
+                name="coachLastName"
+                required
+              />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="coachEmail">Email</label>
+            <input type="email" id="coachEmail" name="coachEmail" required />
+          </div>
+          <div class="form-group">
+            <label for="specialization">Specialization</label>
+            <select id="specialization" name="specialization" required>
+              <option value="strength">Strength Training</option>
+              <option value="cardio">Cardio</option>
+              <option value="yoga">Yoga</option>
+              <option value="hiit">HIIT</option>
+              <option value="nutrition">Nutrition</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="experience">Years of Experience</label>
+            <input
+              type="number"
+              id="experience"
+              name="experience"
+              min="0"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="certifications">Certifications</label>
+            <textarea
+              id="certifications"
+              name="certifications"
+              rows="3"
+            ></textarea>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" id="cancelAddCoach">
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">Add Coach</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <div class="footer-logo">
+              <img
+                src="images/image 66.png"
+                alt="6Titans Logo"
+                class="logo-icon"
+              />
+              <img src="images/image 67.png" alt="6Titans" class="logo-text" />
+            </div>
+            <p>Transform your body, transform your life.</p>
+          </div>
+          <div class="footer-section">
+            <h4>Admin Links</h4>
+            <ul>
+              <li><a href="admin.html">Dashboard</a></li>
+              <li><a href="admin-users.html">Users</a></li>
+              <li><a href="admin-coaches.html">Coaches</a></li>
+              <li><a href="admin-settings.html">Settings</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Support</h4>
+            <ul>
+              <li><a href="#">Help Center</a></li>
+              <li><a href="#">Contact Us</a></li>
+              <li><a href="#">Privacy Policy</a></li>
+              <li><a href="#">Terms of Service</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Follow Us</h4>
+            <div class="social-links">
+              <a href="#"><i class="fab fa-facebook"></i></a>
+              <a href="#"><i class="fab fa-instagram"></i></a>
+              <a href="#"><i class="fab fa-twitter"></i></a>
+              <a href="#"><i class="fab fa-youtube"></i></a>
+            </div>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; 2024 6Titans. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="admin.js"></script>
+  </body>
+</html>
