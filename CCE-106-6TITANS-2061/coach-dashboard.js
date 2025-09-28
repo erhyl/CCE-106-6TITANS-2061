@@ -167,18 +167,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 };
 
-    // Check authentication
-    const userSession = checkAuthStatus();
-    if (!userSession || userSession.type !== 'coach') {
-        window.location.href = 'coach-login.html';
-        return;
-    }
-
-    // Update coach name
-    const coachName = document.getElementById('coachName');
-    if (coachName && userSession.firstName) {
-        coachName.textContent = userSession.firstName + ' ' + (userSession.lastName || '');
-    }
+    // Authentication and coach info are now handled by Firebase in the HTML <script type="module">.
 
     // Coach menu toggle
     if (coachMenuBtn && coachDropdown) {
@@ -195,13 +184,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Logout functionality
-    if (coachLogoutBtn) {
-        coachLogoutBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            logout();
-        });
-    }
+
 
     // Quick action buttons
     if (addClientBtn) {

@@ -53,38 +53,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Login form submission
-  if (loginForm) {
-    loginForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      handleLogin();
-    });
-  }
-
-  // Register form submission
-  if (registerForm) {
-    registerForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      handleRegistration();
-    });
-  }
-
-  // Coach login form submission
-  if (coachLoginForm) {
-    coachLoginForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      handleCoachLogin();
-    });
-  }
-
-  // Coach register page submission
-  const coachRegisterForm = document.getElementById("coachRegisterForm");
-  if (coachRegisterForm) {
-    coachRegisterForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      handleCoachRegistration();
-    });
-  }
+  // Login, register, and coach forms are now handled by Firebase in the HTML files.
 
   // Social login buttons
   const socialButtons = document.querySelectorAll(".btn-social");
@@ -107,281 +76,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
-// --- Local user storage helpers ---
-function getStoredUsers() {
-  const raw = localStorage.getItem("users");
-  try {
-    return raw ? JSON.parse(raw) : [];
-  } catch (e) {
-    console.error("Failed to parse users from storage", e);
-    return [];
-  }
-}
-
-function saveStoredUsers(users) {
-  localStorage.setItem("users", JSON.stringify(users));
-}
-
-function findUserByEmail(email) {
-  const users = getStoredUsers();
-  return users.find((u) => (u.email || "").toLowerCase() === (email || "").toLowerCase());
-}
-
-function generateCoachId(firstName, lastName) {
-  const base = `${(firstName || "").slice(0, 1)}${lastName || "coach"}`.toLowerCase();
-  const ts = Date.now().toString().slice(-5);
-  return `${base}-${ts}`;
-}
-
-// Handle user login
-function handleLogin() {
-  const formData = new FormData(document.getElementById("loginForm"));
-  const loginData = {
-    email: formData.get("email"),
-    password: formData.get("password"),
-    rememberMe: formData.get("rememberMe") === "on",
-  };
-
-  // Validate form
-  if (!validateLoginForm(loginData)) {
-    return;
-  }
-
-  // Show loading
-  showLoading();
-
-  setTimeout(() => {
-    try {
-      const user = findUserByEmail(loginData.email);
-      if (!user || user.password !== loginData.password) {
-        hideLoading();
-        alert("Invalid email or password.");
-        return;
-      }
-
-      const session = {
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        type: user.accountType || "member",
-        coachId: user.coachId || null,
-        loginTime: new Date().toISOString(),
-      };
-      localStorage.setItem("userSession", JSON.stringify(session));
-
-      hideLoading();
-      if (session.type === "coach") {
-        window.location.href = "coach-dashboard.html";
-      } else {
-        window.location.href = "user-dashboard.html";
-      }
-    } catch (e) {
-      hideLoading();
-      console.error(e);
-      alert("Something went wrong. Please try again.");
-    }
-  }, 800);
-}
-
-// Handle user registration
-function handleRegistration() {
-  const formData = new FormData(document.getElementById("registerForm"));
-  const registerData = {
-    firstName: formData.get("firstName"),
-    lastName: formData.get("lastName"),
-    email: formData.get("email"),
-    phone: formData.get("phone"),
-    password: formData.get("password"),
-    confirmPassword: formData.get("confirmPassword"),
-    accountType: formData.get("accountType"),
-    fitnessGoals: formData.get("fitnessGoals"),
-    agreeTerms: formData.get("agreeTerms") === "on",
-    newsletter: formData.get("newsletter") === "on",
-  };
-
-  // Validate form
-  if (!validateRegistrationForm(registerData)) {
-    return;
-  }
-
-  // Show loading
-  showLoading();
-
-  setTimeout(() => {
-    try {
-      const users = getStoredUsers();
-      const existing = findUserByEmail(registerData.email);
-      if (existing) {
-        hideLoading();
-        alert("Email is already registered.");
-        return;
-      }
-
-      const userToStore = {
-        firstName: registerData.firstName,
-        lastName: registerData.lastName,
-        email: registerData.email,
-        phone: registerData.phone,
-        password: registerData.password,
-        accountType: registerData.accountType,
-        fitnessGoals: registerData.fitnessGoals || "",
-        newsletter: !!registerData.newsletter,
-      };
-
-      if (registerData.accountType === "coach") {
-        userToStore.coachId = generateCoachId(registerData.firstName, registerData.lastName);
-      }
-
-      users.push(userToStore);
-      saveStoredUsers(users);
-
-      const session = {
-        email: userToStore.email,
-        firstName: userToStore.firstName,
-        lastName: userToStore.lastName,
-        type: userToStore.accountType,
-        coachId: userToStore.coachId || null,
-        loginTime: new Date().toISOString(),
-      };
-      localStorage.setItem("userSession", JSON.stringify(session));
-
-      hideLoading();
-      alert("Account created successfully!");
-      if (session.type === "coach") {
-        window.location.href = "coach-dashboard.html";
-      } else {
-        window.location.href = "user-dashboard.html";
-      }
-    } catch (e) {
-      hideLoading();
-      console.error(e);
-      alert("Could not create account. Please try again.");
-    }
-  }, 800);
-}
-
-// Handle coach login
-function handleCoachLogin() {
-  const formData = new FormData(document.getElementById("coachLoginForm"));
-  const coachData = {
-    coachId: formData.get("coachId"),
-    password: formData.get("password"),
-    rememberMe: formData.get("rememberMe") === "on",
-  };
-
-  // Validate form
-  if (!validateCoachLoginForm(coachData)) {
-    return;
-  }
-
-  // Show loading
-  showLoading();
-
-  setTimeout(() => {
-    try {
-      const users = getStoredUsers();
-      const idOrEmail = (coachData.coachId || "").toLowerCase();
-      const user = users.find(
-        (u) =>
-          (u.accountType === "coach") &&
-          ((u.coachId && u.coachId.toLowerCase() === idOrEmail) || (u.email && u.email.toLowerCase() === idOrEmail))
-      );
-      if (!user || user.password !== coachData.password) {
-        hideLoading();
-        alert("Invalid credentials.");
-        return;
-      }
-
-      const session = {
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        type: "coach",
-        coachId: user.coachId || null,
-        loginTime: new Date().toISOString(),
-      };
-      localStorage.setItem("userSession", JSON.stringify(session));
-
-      hideLoading();
-      window.location.href = "coach-dashboard.html";
-    } catch (e) {
-      hideLoading();
-      console.error(e);
-      alert("Something went wrong. Please try again.");
-    }
-  }, 800);
-}
-
-// Handle coach registration (dedicated page)
-function handleCoachRegistration() {
-  const formData = new FormData(document.getElementById("coachRegisterForm"));
-  const data = {
-    firstName: formData.get("firstName"),
-    lastName: formData.get("lastName"),
-    email: formData.get("email"),
-    password: formData.get("password"),
-    confirmPassword: formData.get("confirmPassword"),
-    experience: formData.get("experience"),
-    bio: formData.get("bio"),
-  };
-
-  if (!data.firstName || !data.lastName || !data.email || !data.password || !data.confirmPassword || !data.experience || !data.bio) {
-    alert("Please fill in all required fields.");
-    return;
-  }
-  if (!isValidEmail(data.email)) {
-    alert("Please enter a valid email address.");
-    return;
-  }
-  if (data.password !== data.confirmPassword) {
-    alert("Passwords do not match.");
-    return;
-  }
-
-  showLoading();
-  setTimeout(() => {
-    try {
-      const users = getStoredUsers();
-      const existing = findUserByEmail(data.email);
-      if (existing) {
-        hideLoading();
-        alert("Email is already registered.");
-        return;
-      }
-
-      const coachId = generateCoachId(data.firstName, data.lastName);
-      users.push({
-        firstName: data.firstName,
-        lastName: data.lastName,
-        email: data.email,
-        password: data.password,
-        accountType: "coach",
-        coachId,
-        experience: data.experience,
-        bio: data.bio,
-      });
-      saveStoredUsers(users);
-
-      const session = {
-        email: data.email,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        type: "coach",
-        coachId,
-        loginTime: new Date().toISOString(),
-      };
-      localStorage.setItem("userSession", JSON.stringify(session));
-
-      hideLoading();
-      alert("Coach account created successfully!");
-      window.location.href = "coach-dashboard.html";
-    } catch (e) {
-      hideLoading();
-      console.error(e);
-      alert("Could not create coach account. Please try again.");
-    }
-  }, 800);
-}
 
 // Handle social login
 function handleSocialLogin(provider) {
@@ -524,21 +218,7 @@ function isValidEmail(email) {
   return emailRegex.test(email);
 }
 
-// Check if user is logged in
-function checkAuthStatus() {
-  const session = localStorage.getItem("userSession");
-  if (session) {
-    const userData = JSON.parse(session);
-    return userData;
-  }
-  return null;
-}
 
-// Logout function
-function logout() {
-  localStorage.removeItem("userSession");
-  window.location.href = "index.html";
-}
 
 // Add auth styles
 const authStyle = document.createElement("style");
@@ -1000,15 +680,7 @@ function showCoachApplicationModal() {
           existing.bio = data.bio;
           saveStoredUsers(users);
 
-          const session = {
-            email: existing.email,
-            firstName: existing.firstName,
-            lastName: existing.lastName,
-            type: "coach",
-            coachId: existing.coachId,
-            loginTime: new Date().toISOString(),
-          };
-          localStorage.setItem("userSession", JSON.stringify(session));
+
         } else {
           // Create new coach account
           const coachId = generateCoachId(data.firstName, data.lastName);
@@ -1024,15 +696,7 @@ function showCoachApplicationModal() {
           });
           saveStoredUsers(users);
 
-          const session = {
-            email: data.email,
-            firstName: data.firstName,
-            lastName: data.lastName,
-            type: "coach",
-            coachId,
-            loginTime: new Date().toISOString(),
-          };
-          localStorage.setItem("userSession", JSON.stringify(session));
+
         }
 
         hideLoading();

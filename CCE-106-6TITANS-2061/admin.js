@@ -17,9 +17,8 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeAdminDashboard() {
     console.log('Admin dashboard initialized');
     
-    // Set current user infoa
-    const adminName = localStorage.getItem('adminName') || 'Admin';
-    document.getElementById('userName').textContent = adminName;
+    // Set current user info (adminName now static or from Firebase)
+    document.getElementById('userName').textContent = 'Admin';
     
     // Initialize tooltips and other UI elements
     initializeTooltips();
@@ -527,10 +526,7 @@ function exportDashboardData() {
 // Handle admin logout
 function handleAdminLogout() {
     if (confirm('Are you sure you want to logout?')) {
-        localStorage.removeItem('adminToken');
-        localStorage.removeItem('adminName');
         showNotification('Logged out successfully!', 'success');
-        
         setTimeout(() => {
             window.location.href = 'login.html';
         }, 1000);

@@ -222,33 +222,7 @@ const throttledScrollHandler = debounce(() => {
 
 window.addEventListener('scroll', throttledScrollHandler);
 
-// Authentication functions
-function checkAuthStatus() {
-    const session = localStorage.getItem('userSession');
-    if (session) {
-        const userData = JSON.parse(session);
-        updateNavigationForUser(userData);
-        return userData;
-    }
-    return null;
-}
 
-function updateNavigationForUser(userData) {
-    // Update navigation based on user type
-    const navMenu = document.querySelector('.nav-menu');
-    if (navMenu && userData.type === 'coach') {
-    }
-}
-
-function logout() {
-    localStorage.removeItem('userSession');
-    window.location.href = 'index.html';
-}
-
-// Check authentication status on page load
-document.addEventListener('DOMContentLoaded', () => {
-    checkAuthStatus();
-});
 
 // Console welcome message
 console.log('%c💪 Welcome to 6Titans! 💪', 'color: #ffd700; font-size: 20px; font-weight: bold;');

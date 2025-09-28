@@ -148,18 +148,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    // Check authentication
-    const userSession = checkAuthStatus();
-    if (!userSession) {
-        window.location.href = 'login.html';
-        return;
-    }
-
-    // Update user name
-    const userName = document.getElementById('userName');
-    if (userName && userSession.firstName) {
-        userName.textContent = userSession.firstName;
-    }
+    // Use window.userData for user info if needed
 
     // User menu toggle
     if (userMenuBtn && userDropdown) {
@@ -176,13 +165,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Logout functionality
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            logout();
-        });
-    }
+
 
     // Quick action buttons
     if (startWorkoutBtn) {

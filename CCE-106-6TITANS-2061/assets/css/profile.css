@@ -1,0 +1,100 @@
+/* Profile Dropdown Styles */
+
+/* Modern Profile Dropdown Styles */
+.profile-dropdown {
+  position: relative;
+  display: inline-block;
+  z-index: 3000;
+}
+.profile-btn {
+  background: #181818;
+  border: 1.5px solid #ffd700;
+  color: #ffd700;
+  font-size: 1.08rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 8px 16px;
+  border-radius: 999px;
+  box-shadow: 0 2px 8px #0002;
+  transition: background 0.18s, border 0.18s, color 0.18s;
+  outline: none;
+}
+.profile-btn:focus, .profile-btn:hover {
+  background: #ffd700;
+  color: #181818;
+  border-color: #ffd700;
+}
+.profile-avatar {
+  font-size: 1.5rem;
+  background: #ffd70022;
+  border-radius: 50%;
+  padding: 2px 7px 2px 5px;
+  color: #ffd700;
+}
+.profile-menu {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 120%;
+  background: #181818;
+  min-width: 220px;
+  box-shadow: 0 8px 32px #0008;
+  border-radius: 16px;
+  overflow: hidden;
+  z-index: 4000;
+  animation: fadeIn 0.22s;
+  border: 1.5px solid #ffd700;
+}
+.profile-dropdown.open .profile-menu {
+  display: block;
+}
+.profile-menu-header {
+  background: #ffd700;
+  color: #181818;
+  padding: 1.1rem 1.2rem 0.8rem 1.2rem;
+  font-weight: 700;
+  font-size: 1.13rem;
+  border-bottom: 1px solid #222;
+  letter-spacing: 0.01em;
+}
+.profile-menu-header small {
+  color: #333;
+  font-size: 0.97rem;
+}
+.profile-menu-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.profile-menu-list li {
+  border-bottom: 1px solid #222;
+}
+.profile-menu-list li:last-child {
+  border-bottom: none;
+}
+.profile-menu-list a, .profile-menu-list button {
+  display: block;
+  width: 100%;
+  padding: 1rem 1.3rem;
+  background: none;
+  border: none;
+  color: #fff;
+  text-align: left;
+  font-size: 1.04rem;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+  text-decoration: none;
+  border-radius: 0;
+}
+.profile-menu-list a:hover, .profile-menu-list button:hover, .profile-menu-list a:focus, .profile-menu-list button:focus {
+  background: #ffd700;
+  color: #181818;
+  outline: none;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
