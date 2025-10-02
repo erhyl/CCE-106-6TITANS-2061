@@ -32,10 +32,44 @@ document.addEventListener("DOMContentLoaded", function () {
   if (passwordInput) {
     passwordInput.addEventListener("input", function () {
       const password = this.value;
-      const strength = checkPasswordStrength(password);
+      
+      // Get personal information for validation
+      const personalInfo = {
+        firstName: document.getElementById("firstName")?.value || "",
+        lastName: document.getElementById("lastName")?.value || "",
+        email: document.getElementById("email")?.value || ""
+      };
+      
+      const strength = checkPasswordStrength(password, personalInfo);
       updatePasswordStrength(strength);
+      
+      // Show/hide password requirements
+      const requirementsDiv = document.getElementById("passwordRequirements");
+      if (requirementsDiv) {
+        requirementsDiv.style.display = password.length > 0 ? "block" : "none";
+      }
     });
   }
+
+  // Also check when personal info changes
+  const personalFields = ["firstName", "lastName", "email"];
+  personalFields.forEach(fieldId => {
+    const field = document.getElementById(fieldId);
+    if (field) {
+      field.addEventListener("input", function () {
+        const passwordField = document.getElementById("password");
+        if (passwordField && passwordField.value) {
+          const personalInfo = {
+            firstName: document.getElementById("firstName")?.value || "",
+            lastName: document.getElementById("lastName")?.value || "",
+            email: document.getElementById("email")?.value || ""
+          };
+          const strength = checkPasswordStrength(passwordField.value, personalInfo);
+          updatePasswordStrength(strength);
+        }
+      });
+    }
+  });
 
   // Confirm password validation
   if (confirmPasswordInput) {
@@ -72,6 +106,36 @@ document.addEventListener("DOMContentLoaded", function () {
     applyCoachLink.addEventListener("click", function (e) {
       e.preventDefault();
       showCoachApplicationModal();
+    });
+  }
+
+  // Password generator
+  const passwordGenerate = document.getElementById("passwordGenerate");
+  if (passwordGenerate) {
+    passwordGenerate.addEventListener("click", function () {
+      const passwordField = document.getElementById("password");
+      const confirmPasswordField = document.getElementById("confirmPassword");
+      
+      if (passwordField) {
+        const generatedPassword = generateSecurePassword();
+        passwordField.value = generatedPassword;
+        if (confirmPasswordField) {
+          confirmPasswordField.value = generatedPassword;
+        }
+        
+        // Trigger password strength check
+        const event = new Event('input', { bubbles: true });
+        passwordField.dispatchEvent(event);
+        
+        // Show user the generated password temporarily
+        const originalType = passwordField.type;
+        passwordField.type = 'text';
+        setTimeout(() => {
+          passwordField.type = originalType;
+        }, 3000);
+        
+        alert('Secure password generated! It will be visible for 3 seconds. Please save it in a secure location.');
+      }
     });
   }
 });
@@ -130,8 +194,15 @@ function validateRegistrationForm(data) {
     return false;
   }
 
-  if (data.password.length < 8) {
-    alert("Password must be at least 8 characters long.");
+  // Get personal information for password validation
+  const personalInfo = {
+    firstName: data.firstName || "",
+    lastName: data.lastName || "",
+    email: data.email || ""
+  };
+
+  if (!isPasswordSecure(data.password, personalInfo)) {
+    alert("Password does not meet security requirements. Please ensure your password is at least 12 characters long, contains uppercase and lowercase letters, numbers, symbols, is not a common password, and doesn't contain personal information.");
     return false;
   }
 
@@ -153,17 +224,168 @@ function validateCoachLoginForm(data) {
   return true;
 }
 
-// Check password strength
-function checkPasswordStrength(password) {
-  let strength = 0;
+// Common passwords list (top 100 most common passwords)
+const commonPasswords = [
+  'password', '123456', '123456789', '12345678', '12345', '1234567', 'qwerty',
+  'abc123', '111111', '123123', 'admin', 'letmein', 'welcome', 'monkey',
+  'password1', '1234567890', 'dragon', 'iloveyou', 'sunshine', 'princess',
+  'football', 'charlie', 'aa123456', 'donald', 'qwerty123', 'password123',
+  'login', 'solo', 'master', 'hello', 'freedom', 'whatever', 'qazwsx',
+  'trustno1', 'jordan23', 'harley', 'robert', 'matthew', 'jordan',
+  'asshole', 'daniel', 'andrew', 'joshua', 'michelle', 'golden',
+  'computer', 'michelle', 'jessica', 'pepper', '1111', 'zxcvbn',
+  '555555', '11111111', '131313', 'freedom', '000000', 'iloveyou',
+  'princess', 'starwars', '123qwe', 'qwertyuiop', 'lovely', '7777777',
+  'maggie', 'jesus', 'michael', 'shadow', 'william', 'banana',
+  'superman', 'tigger', 'mustang', 'batman', 'master', 'mercedes',
+  'hockey', 'george', 'sexy', 'andrew', 'charlie', 'superman',
+  'asshole', 'fuckyou', 'dallas', 'jessica', 'panties', 'pepper',
+  'michelle', 'pass', '123456a', 'secret', 'password1', 'password12',
+  'password123', 'trustno1', 'qwertyui', 'qwert', 'welcome123',
+  'letmein123', 'password!', 'Password1', 'password@1', 'P@ssw0rd',
+  'welcome1', 'admin123', 'administrator', 'root', 'toor'
+];
 
-  if (password.length >= 8) strength++;
-  if (password.match(/[a-z]/)) strength++;
-  if (password.match(/[A-Z]/)) strength++;
-  if (password.match(/[0-9]/)) strength++;
-  if (password.match(/[^a-zA-Z0-9]/)) strength++;
+// Enhanced password strength checker
+function checkPasswordStrength(password, personalInfo = {}) {
+  const requirements = {
+    length: password.length >= 12,
+    uppercase: /[A-Z]/.test(password),
+    lowercase: /[a-z]/.test(password),
+    number: /[0-9]/.test(password),
+    symbol: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password),
+    notCommon: !isCommonPassword(password),
+    notPersonal: !containsPersonalInfo(password, personalInfo)
+  };
 
-  return strength;
+  // Update requirement indicators
+  updatePasswordRequirements(requirements);
+
+  // Calculate strength based on all requirements
+  const metRequirements = Object.values(requirements).filter(Boolean).length;
+  return metRequirements;
+}
+
+// Check if password is in common passwords list
+function isCommonPassword(password) {
+  const lowerPassword = password.toLowerCase();
+  return commonPasswords.some(common => 
+    lowerPassword.includes(common.toLowerCase()) || 
+    common.toLowerCase().includes(lowerPassword)
+  );
+}
+
+// Check if password contains personal information
+function containsPersonalInfo(password, personalInfo) {
+  const lowerPassword = password.toLowerCase();
+  const { firstName = '', lastName = '', email = '' } = personalInfo;
+  
+  // Check names
+  if (firstName && lowerPassword.includes(firstName.toLowerCase())) return true;
+  if (lastName && lowerPassword.includes(lastName.toLowerCase())) return true;
+  
+  // Check email parts
+  if (email) {
+    const emailParts = email.toLowerCase().split('@')[0];
+    if (emailParts && lowerPassword.includes(emailParts)) return true;
+  }
+  
+  // Check for common patterns
+  const patterns = [
+    /(.)\1{3,}/, // Repeated characters (aaaa, 1111)
+    /123456/, // Sequential numbers
+    /abcdef/, // Sequential letters
+    /qwerty/, // Keyboard patterns
+    /asdfgh/,
+    /zxcvbn/
+  ];
+  
+  return patterns.some(pattern => pattern.test(lowerPassword));
+}
+
+// Update password requirement indicators
+function updatePasswordRequirements(requirements) {
+  const reqElements = {
+    'req-length': requirements.length,
+    'req-uppercase': requirements.uppercase,
+    'req-lowercase': requirements.lowercase,
+    'req-number': requirements.number,
+    'req-symbol': requirements.symbol,
+    'req-common': requirements.notCommon,
+    'req-personal': requirements.notPersonal
+  };
+
+  Object.entries(reqElements).forEach(([id, met]) => {
+    const element = document.getElementById(id);
+    if (element) {
+      const icon = element.querySelector('i');
+      if (met) {
+        element.classList.add('met');
+        element.classList.remove('unmet');
+        icon.className = 'fas fa-check';
+      } else {
+        element.classList.add('unmet');
+        element.classList.remove('met');
+        icon.className = 'fas fa-times';
+      }
+    }
+  });
+}
+
+// Validate password meets all requirements
+function isPasswordSecure(password, personalInfo = {}) {
+  const requirements = {
+    length: password.length >= 12,
+    uppercase: /[A-Z]/.test(password),
+    lowercase: /[a-z]/.test(password),
+    number: /[0-9]/.test(password),
+    symbol: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password),
+    notCommon: !isCommonPassword(password),
+    notPersonal: !containsPersonalInfo(password, personalInfo)
+  };
+
+  return Object.values(requirements).every(Boolean);
+}
+
+// Generate a secure random password
+function generateSecurePassword(length = 16) {
+  const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+  const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const numbers = '0123456789';
+  const symbols = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+  
+  const allChars = lowercase + uppercase + numbers + symbols;
+  
+  let password = '';
+  
+  // Ensure at least one character from each category
+  password += getRandomChar(lowercase);
+  password += getRandomChar(uppercase);
+  password += getRandomChar(numbers);
+  password += getRandomChar(symbols);
+  
+  // Fill the rest randomly
+  for (let i = 4; i < length; i++) {
+    password += getRandomChar(allChars);
+  }
+  
+  // Shuffle the password to randomize character positions
+  return shuffleString(password);
+}
+
+// Get a random character from a string
+function getRandomChar(str) {
+  return str.charAt(Math.floor(Math.random() * str.length));
+}
+
+// Shuffle string characters
+function shuffleString(str) {
+  const arr = str.split('');
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr.join('');
 }
 
 // Update password strength indicator
@@ -173,19 +395,35 @@ function updatePasswordStrength(strength) {
   const strengthFill = passwordStrength.querySelector(".strength-fill");
   const strengthText = passwordStrength.querySelector(".strength-text");
 
-  const strengthLevels = ["Very Weak", "Weak", "Fair", "Good", "Strong"];
+  const strengthLevels = ["Very Weak", "Very Weak", "Weak", "Fair", "Good", "Strong", "Very Strong", "Excellent"];
   const strengthColors = [
-    "#ff6b6b",
-    "#ffa726",
-    "#ffeb3b",
-    "#66bb6a",
-    "#4caf50",
+    "#ff6b6b", // Very Weak (0-1)
+    "#ff6b6b", // Very Weak (2)
+    "#ffa726", // Weak (3)
+    "#ffeb3b", // Fair (4)
+    "#66bb6a", // Good (5)
+    "#4caf50", // Strong (6)
+    "#2e7d32", // Very Strong (7)
+    "#1b5e20"  // Excellent (8)
   ];
 
-  strengthFill.style.width = `${(strength / 5) * 100}%`;
-  strengthFill.style.backgroundColor =
-    strengthColors[strength - 1] || "#ff6b6b";
-  strengthText.textContent = strengthLevels[strength - 1] || "Very Weak";
+  const percentage = Math.min((strength / 7) * 100, 100);
+  strengthFill.style.width = `${percentage}%`;
+  strengthFill.style.backgroundColor = strengthColors[strength] || "#ff6b6b";
+  strengthText.textContent = strengthLevels[strength] || "Very Weak";
+
+  // Add visual feedback
+  const strengthContainer = passwordStrength;
+  strengthContainer.className = 'password-strength';
+  if (strength >= 7) {
+    strengthContainer.classList.add('excellent');
+  } else if (strength >= 5) {
+    strengthContainer.classList.add('strong');
+  } else if (strength >= 3) {
+    strengthContainer.classList.add('fair');
+  } else {
+    strengthContainer.classList.add('weak');
+  }
 }
 
 // Show password error
@@ -341,6 +579,24 @@ authStyle.textContent = `
         color: #ffd700;
     }
     
+    .password-generate {
+        position: absolute;
+        right: 50px;
+        background: none;
+        border: none;
+        color: #999;
+        cursor: pointer;
+        z-index: 2;
+        padding: 5px;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+    }
+    
+    .password-generate:hover {
+        color: #ffd700;
+        background-color: rgba(255, 215, 0, 0.1);
+    }
+    
     .password-strength {
         margin-top: 0.5rem;
     }
@@ -363,6 +619,67 @@ authStyle.textContent = `
     .strength-text {
         font-size: 0.8rem;
         color: #999;
+    }
+    
+    .password-requirements {
+        margin-top: 1rem;
+        padding: 1rem;
+        background-color: #0a0a0a;
+        border-radius: 8px;
+        border: 1px solid #333;
+        display: none;
+    }
+    
+    .requirement {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+    }
+    
+    .requirement:last-child {
+        margin-bottom: 0;
+    }
+    
+    .requirement.met {
+        color: #4caf50;
+    }
+    
+    .requirement.met i {
+        color: #4caf50;
+    }
+    
+    .requirement.unmet {
+        color: #ff6b6b;
+    }
+    
+    .requirement.unmet i {
+        color: #ff6b6b;
+    }
+    
+    .requirement i {
+        width: 16px;
+        text-align: center;
+        font-size: 0.8rem;
+    }
+    
+    .password-strength.excellent .strength-fill {
+        background: linear-gradient(90deg, #4caf50, #2e7d32);
+        box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+    }
+    
+    .password-strength.strong .strength-fill {
+        background: linear-gradient(90deg, #66bb6a, #4caf50);
+    }
+    
+    .password-strength.fair .strength-fill {
+        background: linear-gradient(90deg, #ffeb3b, #ffc107);
+    }
+    
+    .password-strength.weak .strength-fill {
+        background: linear-gradient(90deg, #ff6b6b, #f44336);
     }
     
     .form-options {

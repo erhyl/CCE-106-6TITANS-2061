@@ -6,8 +6,8 @@
     <title>Register - 6Titans</title>
     <link rel="stylesheet" href="assets/css/styles-base.css" />
     <link rel="stylesheet" href="assets/css/styles.css" />
-  <link rel="stylesheet" href="assets/css/register.css" />
-  <link rel="stylesheet" href="assets/css/auth-nav.css" />
+    <link rel="stylesheet" href="assets/css/register.css" />
+    <link rel="stylesheet" href="assets/css/auth-nav.css" />
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
       rel="stylesheet"
@@ -113,12 +113,51 @@
                 >
                   <i class="fas fa-eye"></i>
                 </button>
+
+                <button
+                  type="button"
+                  class="password-generate"
+                  id="passwordGenerate"
+                  title="Generate secure password"
+                >
+                  <i class="fas fa-magic"></i>
+                </button>
               </div>
               <div class="password-strength" id="passwordStrength">
                 <div class="strength-bar">
                   <div class="strength-fill"></div>
                 </div>
                 <span class="strength-text">Password strength</span>
+              </div>
+              <div class="password-requirements" id="passwordRequirements">
+                <div class="requirement" id="req-length">
+                  <i class="fas fa-times"></i>
+                  <span>At least 12 characters</span>
+                </div>
+                <div class="requirement" id="req-uppercase">
+                  <i class="fas fa-times"></i>
+                  <span>At least one uppercase letter</span>
+                </div>
+                <div class="requirement" id="req-lowercase">
+                  <i class="fas fa-times"></i>
+                  <span>At least one lowercase letter</span>
+                </div>
+                <div class="requirement" id="req-number">
+                  <i class="fas fa-times"></i>
+                  <span>At least one number</span>
+                </div>
+                <div class="requirement" id="req-symbol">
+                  <i class="fas fa-times"></i>
+                  <span>At least one symbol (!@#$%^&*)</span>
+                </div>
+                <div class="requirement" id="req-common">
+                  <i class="fas fa-times"></i>
+                  <span>Not a common password</span>
+                </div>
+                <div class="requirement" id="req-personal">
+                  <i class="fas fa-times"></i>
+                  <span>No personal information</span>
+                </div>
               </div>
             </div>
 
@@ -272,7 +311,6 @@
       </div>
     </footer>
 
-
     <script src="script.js"></script>
     <script src="auth.js"></script>
     <style>
@@ -282,7 +320,7 @@
         left: 0;
         width: 100vw;
         height: 100vh;
-        background: rgba(0,0,0,0.6);
+        background: rgba(0, 0, 0, 0.6);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -297,25 +335,36 @@
         animation: spin 1s linear infinite;
       }
       @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
       }
     </style>
     <script type="module">
       function showLoading() {
-        let overlay = document.createElement('div');
-        overlay.className = 'loading-overlay';
+        let overlay = document.createElement("div");
+        overlay.className = "loading-overlay";
         overlay.innerHTML = '<div class="loading-spinner"></div>';
-        overlay.id = 'loadingOverlay';
+        overlay.id = "loadingOverlay";
         document.body.appendChild(overlay);
       }
       function hideLoading() {
-        const overlay = document.getElementById('loadingOverlay');
+        const overlay = document.getElementById("loadingOverlay");
         if (overlay) overlay.remove();
       }
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-      import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
-      import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+      import {
+        getAuth,
+        createUserWithEmailAndPassword,
+      } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+      import {
+        getFirestore,
+        doc,
+        setDoc,
+      } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyC2YE5Cn0gbiuQ5sq8lErotl01itq5-hYk",
@@ -324,49 +373,66 @@
         storageBucket: "titans-8d454.firebasestorage.app",
         messagingSenderId: "537648978979",
         appId: "1:537648978979:web:30eb90af77c7569b7be596",
-        measurementId: "G-W1D2R0Q1L1"
+        measurementId: "G-W1D2R0Q1L1",
       };
       const app = initializeApp(firebaseConfig);
       const auth = getAuth(app);
       const db = getFirestore(app);
 
-      document.addEventListener('DOMContentLoaded', () => {
-        const registerForm = document.getElementById('registerForm');
+      document.addEventListener("DOMContentLoaded", () => {
+        const registerForm = document.getElementById("registerForm");
         if (registerForm) {
-          registerForm.addEventListener('submit', async (e) => {
+          registerForm.addEventListener("submit", async (e) => {
             e.preventDefault();
-            const firstName = document.getElementById('firstName').value;
-            const lastName = document.getElementById('lastName').value;
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
+            const firstName = document.getElementById("firstName").value;
+            const lastName = document.getElementById("lastName").value;
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            const confirmPassword =
+              document.getElementById("confirmPassword").value;
             if (password !== confirmPassword) {
-              alert('Passwords do not match.');
+              alert("Passwords do not match.");
+              return;
+            }
+
+            // Validate password security
+            const personalInfo = { firstName, lastName, email };
+            // Import the validation function from auth.js (assuming it's loaded)
+            if (
+              typeof isPasswordSecure === "function" &&
+              !isPasswordSecure(password, personalInfo)
+            ) {
+              alert(
+                "Password does not meet security requirements. Please ensure your password is at least 12 characters long, contains uppercase and lowercase letters, numbers, symbols, is not a common password, and doesn't contain personal information."
+              );
               return;
             }
             try {
               showLoading();
-              const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+              const userCredential = await createUserWithEmailAndPassword(
+                auth,
+                email,
+                password
+              );
               const user = userCredential.user;
               await setDoc(doc(db, "users", user.uid), {
                 uid: user.uid,
                 email: email,
                 firstName: firstName,
                 lastName: lastName,
-                accountType: 'member',
-                createdAt: new Date().toISOString()
+                accountType: "member",
+                createdAt: new Date().toISOString(),
               });
               hideLoading();
-              alert('Registration successful!');
-              window.location.href = 'user-dashboard.html';
+              alert("Registration successful!");
+              window.location.href = "user-dashboard.html";
             } catch (error) {
               hideLoading();
-              alert('Registration failed: ' + error.message);
+              alert("Registration failed: " + error.message);
             }
           });
         }
       });
     </script>
-
   </body>
 </html>
