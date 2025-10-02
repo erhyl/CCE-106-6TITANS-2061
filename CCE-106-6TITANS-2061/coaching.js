@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // Handle form submission
-  bookingForm.addEventListener("submit", function (e) {
+  bookingForm.addEventListener("submit", async function (e) {
     e.preventDefault();
 
     // Get form data
@@ -66,37 +66,84 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    // Show loading
-    showLoading();
-
-    // For video-call session, generate a room and redirect
-    if (bookingData.sessionType === "video-call") {
-      const roomId = Math.random().toString(36).slice(2, 10);
-      const bookings = JSON.parse(localStorage.getItem("bookings") || "[]");
-      bookings.push({
-        type: "video-call",
-        roomId,
-        coachName: bookingData.coachName,
-        preferredDate: bookingData.preferredDate,
-        preferredTime: bookingData.preferredTime,
-        memberEmail: bookingData.memberEmail,
-        createdAt: new Date().toISOString()
-      });
-      localStorage.setItem("bookings", JSON.stringify(bookings));
-
-      hideLoading();
-      window.location.href = `call.html?room=${encodeURIComponent(roomId)}`;
+    const auth = window.firebaseAuth;
+    const rtdb = window.firebaseRtdb;
+    const { ref, set, push, get, child } = window.firebaseRT || {};
+    if (!auth || !rtdb || !ref || !set || !push) {
+      alert('Service unavailable. Please refresh the page.');
       return;
     }
 
-    // Simulate API call for other session types
-    setTimeout(() => {
+    const user = auth.currentUser;
+    if (!user) {
+      alert('Please log in to book a session.');
+      return;
+    }
+
+    // Membership gating
+    try {
+      if (get) {
+        const userSnap = await get(child(ref(rtdb), 'users/' + user.uid));
+        const userData = userSnap.exists() ? userSnap.val() : null;
+        if (!userData || !userData.membership || userData.membership.status !== 'active') {
+          alert('Booking requires an active membership.');
+          return;
+        }
+      }
+    } catch {}
+
+    showLoading();
+    try {
+      // Create booking in RTDB
+      const key = push(ref(rtdb, 'bookings')).key;
+      await set(ref(rtdb, `bookings/${key}`), {
+        id: key,
+        type: 'coach',
+        memberId: user.uid,
+        coachName: bookingData.coachName,
+        sessionType: bookingData.sessionType,
+        dateISO: bookingData.preferredDate,
+        timeSlot: bookingData.preferredTime,
+        status: 'pending',
+        createdAt: Date.now()
+      });
+
+      // Notification to member
+      const notifKey = push(ref(rtdb, 'notifications/' + user.uid)).key;
+      await set(ref(rtdb, `notifications/${user.uid}/${notifKey}`), {
+        type: 'booking',
+        message: `Session request with ${bookingData.coachName} submitted`,
+        data: { bookingId: key },
+        read: false,
+        createdAt: Date.now()
+      });
+
+      // Audit event
+      const evtKey = push(ref(rtdb, 'events/' + user.uid)).key;
+      await set(ref(rtdb, `events/${user.uid}/${evtKey}`), {
+        action: 'booking_created',
+        details: { type: 'coach', coachName: bookingData.coachName },
+        page: 'coaching',
+        createdAt: Date.now()
+      });
+
       hideLoading();
-      alert(`Session booked successfully with ${bookingData.coachName}!`);
+      if (window.Utils && window.Utils.showToast) {
+        window.Utils.showToast(`Session booked with ${bookingData.coachName}`, 'success');
+      } else {
+        alert(`Session booked with ${bookingData.coachName}`);
+      }
       bookingModal.style.display = "none";
       document.body.style.overflow = "auto";
       this.reset();
-    }, 800);
+    } catch (err) {
+      hideLoading();
+      if (window.Utils && window.Utils.showToast) {
+        window.Utils.showToast(`Booking failed: ${err.message}`, 'error');
+      } else {
+        alert('Booking failed: ' + err.message);
+      }
+    }
   });
 
   // Set minimum date to today

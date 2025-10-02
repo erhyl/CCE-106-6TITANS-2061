@@ -85,31 +85,54 @@ function showAdminProfileMenu() {
 
 // Setup quick action buttons
 function setupQuickActionButtons() {
-    const actionButtons = [
-        { id: 'addUserBtn', modalId: 'addUserModal' },
-        { id: 'addCoachBtn', modalId: 'addCoachModal' },
-        { id: 'createClassBtn', action: 'createClass' },
-        { id: 'viewReportsBtn', action: 'viewReports' },
-        { id: 'manageContentBtn', action: 'manageContent' },
-        { id: 'systemSettingsBtn', action: 'systemSettings' }
-    ];
-    
-    actionButtons.forEach(button => {
-        const btn = document.getElementById(button.id);
-        if (btn) {
-            btn.addEventListener('click', function() {
-                if (button.modalId) {
-                    openModal(button.modalId);
-                } else if (button.action) {
-                    handleQuickAction(button.action);
-                }
-            });
-        }
-    });
+    // Navigate to dedicated pages
+    const usersBtn = document.getElementById('addUserBtn');
+    if (usersBtn) {
+        usersBtn.addEventListener('click', function() {
+            window.location.href = 'admin-users.html';
+        });
+    }
+
+    const coachesBtn = document.getElementById('addCoachBtn');
+    if (coachesBtn) {
+        coachesBtn.addEventListener('click', function() {
+            window.location.href = 'admin-coaches.html';
+        });
+    }
+
+    const classesBtn = document.getElementById('createClassBtn');
+    if (classesBtn) {
+        classesBtn.addEventListener('click', function() {
+            window.location.href = 'admin-classes.html';
+        });
+    }
+
+    // Other actions remain handled here
+    const viewReportsBtn = document.getElementById('viewReportsBtn');
+    if (viewReportsBtn) {
+        viewReportsBtn.addEventListener('click', function(){ handleQuickAction('viewReports'); });
+    }
+    const manageContentBtn = document.getElementById('manageContentBtn');
+    if (manageContentBtn) {
+        manageContentBtn.addEventListener('click', function(){ handleQuickAction('manageContent'); });
+    }
+    const systemSettingsBtn = document.getElementById('systemSettingsBtn');
+    if (systemSettingsBtn) {
+        systemSettingsBtn.addEventListener('click', function(){ handleQuickAction('systemSettings'); });
+    }
 }
 
 // Setup modal controls
 function setupModalControls() {
+    // Manage Users Modal
+    const manageUsersModal = document.getElementById('manageUsersModal');
+    const closeManageUsersModal = document.getElementById('closeManageUsersModal');
+    if (closeManageUsersModal) closeManageUsersModal.addEventListener('click', () => closeModal('manageUsersModal'));
+
+    // Manage Coaches Modal
+    const manageCoachesModal = document.getElementById('manageCoachesModal');
+    const closeManageCoachesModal = document.getElementById('closeManageCoachesModal');
+    if (closeManageCoachesModal) closeManageCoachesModal.addEventListener('click', () => closeModal('manageCoachesModal'));
     // Add User Modal
     const addUserModal = document.getElementById('addUserModal');
     const closeAddUserModal = document.getElementById('closeAddUserModal');
@@ -183,7 +206,7 @@ function handleQuickAction(action) {
             showNotification('Create Class feature coming soon!', 'info');
             break;
         case 'viewReports':
-            showNotification('Reports feature coming soon!', 'info');
+            renderAnalyticsReport();
             break;
         case 'manageContent':
             showNotification('Content management feature coming soon!', 'info');
@@ -194,6 +217,130 @@ function handleQuickAction(action) {
         default:
             console.log('Unknown action:', action);
     }
+}
+
+// Render Users table with upgrade/downgrade
+async function renderUsersTable() {
+    const container = document.getElementById('usersTable');
+    if (!container) return;
+    container.innerHTML = '<p style="color:#ccc">Loading users...</p>';
+    try {
+        const { ref, get, child, update } = await import('https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js');
+        const rtdb = window.firebaseRtdb; const auth = window.firebaseAuth;
+        const snap = await get(child(ref(rtdb), 'users'));
+        const users = snap.exists() ? snap.val() : {};
+        const rows = Object.values(users).map((u) => {
+            const plan = u.membership?.plan || 'none';
+            const status = u.membership?.status || 'inactive';
+            const email = u.email || '';
+            const name = [u.firstName, u.lastName].filter(Boolean).join(' ') || email || 'User';
+            const uid = u.uid || '';
+            return `
+              <tr>
+                <td>${name}</td>
+                <td>${email}</td>
+                <td>${status}</td>
+                <td>${plan}</td>
+                <td>
+                  <button class="btn-sm" data-upgrade="${uid}" data-plan="basic">Basic</button>
+                  <button class="btn-sm" data-upgrade="${uid}" data-plan="premium">Premium</button>
+                  <button class="btn-sm" data-upgrade="${uid}" data-plan="elite">Elite</button>
+                </td>
+              </tr>`;
+        }).join('');
+        container.innerHTML = `
+          <table class="admin-table">
+            <thead><tr><th>Name</th><th>Email</th><th>Status</th><th>Plan</th><th>Actions</th></tr></thead>
+            <tbody>${rows || ''}</tbody>
+          </table>`;
+
+        container.querySelectorAll('[data-upgrade]').forEach((btn) => {
+            btn.addEventListener('click', async () => {
+                const uid = btn.getAttribute('data-upgrade');
+                const plan = btn.getAttribute('data-plan');
+                try {
+                    await update(ref(rtdb, 'users/' + uid + '/membership'), {
+                        status: 'active', plan,
+                        expiry: new Date(Date.now() + 30*24*60*60*1000).toISOString()
+                    });
+                    showNotification('Membership updated to ' + plan, 'success');
+                    renderUsersTable();
+                } catch (e) { showNotification('Update failed: ' + e.message, 'error'); }
+            });
+        });
+    } catch (e) { container.innerHTML = '<p style="color:#ff6b6b">Failed to load users</p>'; }
+}
+
+// Render Coaches approval table
+async function renderCoachesTable() {
+    const container = document.getElementById('coachesTable');
+    if (!container) return;
+    container.innerHTML = '<p style="color:#ccc">Loading coaches...</p>';
+    try {
+        const { ref, get, child, update } = await import('https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js');
+        const rtdb = window.firebaseRtdb;
+        const snap = await get(child(ref(rtdb), 'users'));
+        const users = snap.exists() ? snap.val() : {};
+        const coaches = Object.values(users).filter(u => u.accountType === 'coach' || u.role === 'coach');
+        const rows = coaches.map((u) => {
+            const email = u.email || '';
+            const name = [u.firstName, u.lastName].filter(Boolean).join(' ') || email || 'Coach';
+            const uid = u.uid || '';
+            const approved = u.coachApproved === true;
+            return `
+              <tr>
+                <td>${name}</td>
+                <td>${email}</td>
+                <td>${approved ? 'Approved' : 'Pending'}</td>
+                <td>
+                  ${approved ? '' : `<button class="btn-sm" data-approve="${uid}">Approve</button>`}
+                </td>
+              </tr>`;
+        }).join('');
+        container.innerHTML = `
+          <table class="admin-table">
+            <thead><tr><th>Name</th><th>Email</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>${rows || ''}</tbody>
+          </table>`;
+
+        container.querySelectorAll('[data-approve]').forEach((btn) => {
+            btn.addEventListener('click', async () => {
+                const uid = btn.getAttribute('data-approve');
+                try {
+                    await update(ref(rtdb, 'users/' + uid), { coachApproved: true });
+                    showNotification('Coach approved', 'success');
+                    renderCoachesTable();
+                } catch (e) { showNotification('Approval failed: ' + e.message, 'error'); }
+            });
+        });
+    } catch (e) { container.innerHTML = '<p style="color:#ff6b6b">Failed to load coaches</p>'; }
+}
+
+// Analytics: render a simple aggregate from RTDB (counts)
+async function renderAnalyticsReport() {
+    try {
+        const { ref, get, child } = await import('https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js');
+        const rtdb = window.firebaseRtdb;
+        const usersSnap = await get(child(ref(rtdb), 'users'));
+        const bookingsSnap = await get(child(ref(rtdb), 'bookings'));
+        const users = usersSnap.exists() ? usersSnap.val() : {};
+        const bookings = bookingsSnap.exists() ? bookingsSnap.val() : {};
+        const totalUsers = Object.keys(users).length;
+        const coaches = Object.values(users).filter(u => (u.role === 'coach' || u.accountType === 'coach')).length;
+        const activeMembers = Object.values(users).filter(u => u.membership && u.membership.status === 'active').length;
+        const totalBookings = Object.keys(bookings).length;
+        showNotification(`Users: ${totalUsers}, Coaches: ${coaches}, Active Members: ${activeMembers}, Bookings: ${totalBookings}`, 'info');
+    } catch (e) {
+        showNotification('Failed to load analytics', 'error');
+    }
+}
+
+// When opening modals, render tables
+const origOpenModal = openModal;
+openModal = function(modalId){
+    origOpenModal(modalId);
+    if (modalId === 'manageUsersModal') renderUsersTable();
+    if (modalId === 'manageCoachesModal') renderCoachesTable();
 }
 
 // Handle add user form submission
@@ -525,12 +672,21 @@ function exportDashboardData() {
 
 // Handle admin logout
 function handleAdminLogout() {
-    if (confirm('Are you sure you want to logout?')) {
-        showNotification('Logged out successfully!', 'success');
-        setTimeout(() => {
-            window.location.href = 'login.html';
-        }, 1000);
-    }
+    (async () => {
+        if (!confirm('Are you sure you want to logout?')) return;
+        try {
+            const auth = window.firebaseAuth;
+            if (auth) {
+                const { signOut } = await import('https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js');
+                await signOut(auth);
+            }
+            showNotification('Logged out successfully!', 'success');
+        } catch (e) {
+            showNotification('Logout error: ' + (e && e.message ? e.message : 'Unknown'), 'error');
+        } finally {
+            setTimeout(() => { window.location.href = 'admin-login.html'; }, 600);
+        }
+    })();
 }
 
 // Utility functions

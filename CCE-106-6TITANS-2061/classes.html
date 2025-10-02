@@ -3,14 +3,16 @@
   <head>
     <link rel="stylesheet" href="assets/css/profile.css" />
     <style>
-      #authButtons { visibility: hidden; }
+      #authButtons {
+        visibility: hidden;
+      }
     </style>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Class Schedules - 6Titans</title>
     <link rel="stylesheet" href="assets/css/styles-base.css" />
-  <link rel="stylesheet" href="assets/css/classes.css" />
-  <link rel="stylesheet" href="assets/css/auth-nav.css" />
+    <link rel="stylesheet" href="assets/css/classes.css" />
+    <link rel="stylesheet" href="assets/css/auth-nav.css" />
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
       rel="stylesheet"
@@ -75,184 +77,8 @@
           <button class="filter-btn" data-day="weekend">Week-End</button>
         </div>
 
-        <!-- Class Cards -->
-        <div class="classes-grid" id="classesGrid">
-          <!-- Morning Yoga -->
-          <div class="class-card" data-day="monday">
-            <div class="class-header">
-              <h3 class="class-name">Morning Yoga</h3>
-              <div class="class-time">6:00 AM</div>
-            </div>
-            <p class="class-description">
-              Start your day with gentle stretches and mindfulness
-            </p>
-            <div class="class-details">
-              <div class="class-detail">
-                <i class="fas fa-user"></i>
-                <span>Niel Ian Villaver</span>
-              </div>
-              <div class="class-detail">
-                <i class="fas fa-clock"></i>
-                <span>60min</span>
-              </div>
-            </div>
-            <button class="btn btn-primary book-class">Book Class</button>
-          </div>
-
-          <!-- HIIT Training -->
-          <div class="class-card" data-day="tuesday">
-            <div class="class-header">
-              <h3 class="class-name">HIIT Training</h3>
-              <div class="class-time">8:00 AM</div>
-            </div>
-            <p class="class-description">
-              High-intensity interval training for maximum results
-            </p>
-            <div class="class-details">
-              <div class="class-detail">
-                <i class="fas fa-user"></i>
-                <span>Jude Tomonas</span>
-              </div>
-              <div class="class-detail">
-                <i class="fas fa-clock"></i>
-                <span>45min</span>
-              </div>
-            </div>
-            <button class="btn btn-primary book-class">Book Class</button>
-          </div>
-
-          <!-- Strength Training -->
-          <div class="class-card" data-day="wednesday">
-            <div class="class-header">
-              <h3 class="class-name">Strength Training</h3>
-              <div class="class-time">6:00 AM</div>
-            </div>
-            <p class="class-description">
-              Build muscle and strength with progressive resistance training
-            </p>
-            <div class="class-details">
-              <div class="class-detail">
-                <i class="fas fa-user"></i>
-                <span>Karl Verbo</span>
-              </div>
-              <div class="class-detail">
-                <i class="fas fa-clock"></i>
-                <span>75min</span>
-              </div>
-            </div>
-            <button class="btn btn-primary book-class">Book Class</button>
-          </div>
-
-          <!-- Pilates -->
-          <div class="class-card" data-day="thursday">
-            <div class="class-header">
-              <h3 class="class-name">Pilates</h3>
-              <div class="class-time">6:00 AM</div>
-            </div>
-            <p class="class-description">
-              Core strengthening and flexibility through controlled movements
-            </p>
-            <div class="class-details">
-              <div class="class-detail">
-                <i class="fas fa-user"></i>
-                <span>Joshua Mortejo</span>
-              </div>
-              <div class="class-detail">
-                <i class="fas fa-clock"></i>
-                <span>50min</span>
-              </div>
-            </div>
-            <button class="btn btn-primary book-class">Book Class</button>
-          </div>
-
-          <!-- Cardio Blast -->
-          <div class="class-card" data-day="friday">
-            <div class="class-header">
-              <h3 class="class-name">Cardio Blast</h3>
-              <div class="class-time">7:00 AM</div>
-            </div>
-            <p class="class-description">
-              High-energy cardio workout to boost your heart rate
-            </p>
-            <div class="class-details">
-              <div class="class-detail">
-                <i class="fas fa-user"></i>
-                <span>Jude Tomonas</span>
-              </div>
-              <div class="class-detail">
-                <i class="fas fa-clock"></i>
-                <span>45min</span>
-              </div>
-            </div>
-            <button class="btn btn-primary book-class">Book Class</button>
-          </div>
-
-          <!-- Weekend Yoga -->
-          <div class="class-card" data-day="weekend">
-            <div class="class-header">
-              <h3 class="class-name">Weekend Yoga</h3>
-              <div class="class-time">9:00 AM</div>
-            </div>
-            <p class="class-description">
-              Relaxing weekend yoga session for mind and body
-            </p>
-            <div class="class-details">
-              <div class="class-detail">
-                <i class="fas fa-user"></i>
-                <span>Niel Ian Villaver</span>
-              </div>
-              <div class="class-detail">
-                <i class="fas fa-clock"></i>
-                <span>60min</span>
-              </div>
-            </div>
-            <button class="btn btn-primary book-class">Book Class</button>
-          </div>
-
-          <!-- Boxing -->
-          <div class="class-card" data-day="monday">
-            <div class="class-header">
-              <h3 class="class-name">Boxing</h3>
-              <div class="class-time">7:00 PM</div>
-            </div>
-            <p class="class-description">
-              High-intensity boxing workout for strength and endurance
-            </p>
-            <div class="class-details">
-              <div class="class-detail">
-                <i class="fas fa-user"></i>
-                <span>Charles Cacam</span>
-              </div>
-              <div class="class-detail">
-                <i class="fas fa-clock"></i>
-                <span>50min</span>
-              </div>
-            </div>
-            <button class="btn btn-primary book-class">Book Class</button>
-          </div>
-
-          <!-- Zumba -->
-          <div class="class-card" data-day="tuesday">
-            <div class="class-header">
-              <h3 class="class-name">Zumba</h3>
-              <div class="class-time">6:30 PM</div>
-            </div>
-            <p class="class-description">
-              Dance fitness party that's fun and effective
-            </p>
-            <div class="class-details">
-              <div class="class-detail">
-                <i class="fas fa-user"></i>
-                <span>Angelou Carino</span>
-              </div>
-              <div class="class-detail">
-                <i class="fas fa-clock"></i>
-                <span>45min</span>
-              </div>
-            </div>
-            <button class="btn btn-primary book-class">Book Class</button>
-          </div>
-        </div>
+        <!-- Class Cards (dynamic) -->
+        <div class="classes-grid" id="classesGrid"></div>
       </div>
     </section>
 
@@ -340,146 +166,94 @@
       </div>
     </footer>
 
-  <script src="script.js"></script>
-  <script src="classes.js"></script>
-    <!-- Firebase/profile dropdown logic from index.html -->
+    <script src="script.js"></script>
+    <script src="utils.js"></script>
+    <script src="classes.js"></script>
+    
+    <!-- Load classes from Firebase RTDB -->
     <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-      import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
-      import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
-      const firebaseConfig = {
-        apiKey: "AIzaSyC2YE5Cn0gbiuQ5sq8lErotl01itq5-hYk",
-        authDomain: "titans-8d454.firebaseapp.com",
-        projectId: "titans-8d454",
-        storageBucket: "titans-8d454.firebasestorage.app",
-        messagingSenderId: "537648978979",
-        appId: "1:537648978979:web:30eb90af77c7569b7be596",
-        measurementId: "G-W1D2R0Q1L1"
-      };
-      const app = initializeApp(firebaseConfig);
-      const auth = getAuth(app);
-      const db = getFirestore(app);
-      function showUserUI(userData) {
-        const authButtons = document.getElementById('authButtons');
-        if (authButtons) {
-          authButtons.style.visibility = 'visible';
-          authButtons.innerHTML = `
-            <div class="profile-dropdown" id="profileDropdown">
-              <button class="profile-btn" id="profileBtn">
-                <span class="profile-avatar">👤</span>
-                <span id="navUserName">${userData && userData.firstName ? userData.firstName : 'User'}</span>
-                <i class="fa fa-caret-down"></i>
-              </button>
-              <div class="profile-menu" id="profileMenu">
-                <div class="profile-menu-header">
-                  <span id="profileMenuName">${userData && userData.firstName ? userData.firstName : 'User'} ${userData && userData.lastName ? userData.lastName : ''}</span><br>
-                  <small id="profileMenuEmail">${userData && userData.email ? userData.email : (userData && userData.uid ? userData.uid : '')}</small>
-                </div>
-                <ul class="profile-menu-list">
-                  <li><a href="user-dashboard.html">Dashboard</a></li>
-                  <li><a href="#" id="profileViewBtn">View Profile</a></li>
-                  <li><button id="logoutBtnNav">Logout</button></li>
-                </ul>
+      import { ref, onValue } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+      import { rtdb } from "./firebase-init.js";
+      
+      const grid = document.getElementById("classesGrid");
+      
+      function render(classes) {
+        const days = [
+          "monday",
+          "tuesday",
+          "wednesday",
+          "thursday",
+          "friday",
+          "weekend",
+        ];
+        const cards = Object.values(classes || {})
+          .map((c) => {
+            const day = (c.day || "monday").toLowerCase();
+            const safeDay = days.includes(day) ? day : "monday";
+            const name = c.name || "Class";
+            const time = c.time || "";
+            const instructor = c.instructor || "";
+            const desc = c.description || "";
+            return `
+          <div class="class-card" data-day="${safeDay}">
+            <div class="class-header">
+              <h3 class="class-name">${name}</h3>
+              <div class="class-time">${time}</div>
+            </div>
+            <p class="class-description">${desc}</p>
+            <div class="class-details">
+              <div class="class-detail">
+                <i class="fas fa-user"></i>
+                <span>${instructor}</span>
+              </div>
+              <div class="class-detail">
+                <i class="fas fa-clock"></i>
+                <span>${time || "60min"}</span>
               </div>
             </div>
-          `;
-          // Dropdown logic
-          const dropdown = document.getElementById('profileDropdown');
-          const btn = document.getElementById('profileBtn');
-          if (btn && dropdown) {
-            btn.addEventListener('click', (e) => {
-              e.stopPropagation();
-              dropdown.classList.toggle('open');
-            });
-            document.addEventListener('click', (e) => {
-              if (!dropdown.contains(e.target)) dropdown.classList.remove('open');
-            });
-          }
-          // Logout logic
-          const logoutBtn = document.getElementById('logoutBtnNav');
-          if (logoutBtn) {
-            logoutBtn.addEventListener('click', async (e) => {
-              e.preventDefault();
-              try {
-                await signOut(auth);
-                window.location.href = 'index.html';
-              } catch (error) {
-                alert('Logout failed: ' + error.message);
-              }
-            });
-          }
-          // Profile modal logic
-          const profileViewBtn = document.getElementById('profileViewBtn');
-          if (profileViewBtn) {
-            profileViewBtn.addEventListener('click', (e) => {
-              e.preventDefault();
-              showProfileModal(userData);
-            });
-          }
-        }
+            <button class="btn btn-primary book-class">Book Class</button>
+          </div>`;
+          })
+          .join("");
+        grid.innerHTML = cards || '<p style="color:#ccc">No classes yet.</p>';
       }
-      function showProfileModal(userData) {
-        // Remove existing modal if present
-        const oldModal = document.getElementById('profileModal');
-        if (oldModal) oldModal.remove();
-        const modal = document.createElement('div');
-        modal.id = 'profileModal';
-        modal.style.position = 'fixed';
-        modal.style.top = '0';
-        modal.style.left = '0';
-        modal.style.width = '100vw';
-        modal.style.height = '100vh';
-        modal.style.background = 'rgba(0,0,0,0.7)';
-        modal.style.display = 'flex';
-        modal.style.alignItems = 'center';
-        modal.style.justifyContent = 'center';
-        modal.style.zIndex = '3000';
-        modal.innerHTML = `
-          <div style="background:#181818;padding:2.5rem 2rem 2rem 2rem;border-radius:18px;min-width:320px;max-width:95vw;box-shadow:0 8px 32px #0008;position:relative;">
-            <button id="closeProfileModal" style="position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.5rem;color:#ffd700;cursor:pointer;">&times;</button>
-            <div style="display:flex;align-items:center;gap:1.2rem;margin-bottom:1.5rem;">
-              <span style="font-size:2.5rem;">👤</span>
-              <div>
-                <div style="font-size:1.3rem;font-weight:700;color:#ffd700;">${userData && userData.firstName ? userData.firstName : ''} ${userData && userData.lastName ? userData.lastName : ''}</div>
-                <div style="font-size:1rem;color:#fff;">${userData && userData.email ? userData.email : ''}</div>
-              </div>
-            </div>
-            <div style="margin-bottom:1.2rem;">
-              <strong>Account Type:</strong> <span style="color:#ffd700;">${userData && userData.accountType ? userData.accountType : 'Member'}</span>
-            </div>
-            <div style="margin-bottom:1.2rem;">
-              <strong>UID:</strong> <span style="color:#fff;">${userData && userData.uid ? userData.uid : ''}</span>
-            </div>
-            <div style="margin-bottom:1.2rem;">
-              <strong>Joined:</strong> <span style="color:#fff;">${userData && userData.createdAt ? new Date(userData.createdAt.seconds*1000).toLocaleDateString() : 'N/A'}</span>
-            </div>
-            <button style="margin-top:1.5rem;padding:0.7rem 1.5rem;background:#ffd700;color:#111;font-weight:700;border:none;border-radius:8px;cursor:pointer;">Edit Profile (Coming Soon)</button>
-          </div>
-        `;
-        document.body.appendChild(modal);
-        document.getElementById('closeProfileModal').onclick = () => modal.remove();
-        modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
-      }
-      function showGuestUI() {
-        const authButtons = document.getElementById('authButtons');
-        if (authButtons) {
-          authButtons.style.visibility = 'visible';
-          authButtons.innerHTML = `
-            <a href="login.html" id="loginBtnNav">Login</a>
-            <a href="register.html" id="signupBtnNav">Sign Up</a>
-          `;
-        }
-      }
-      onAuthStateChanged(auth, async (user) => {
-        if (user) {
-          // Fetch user info from Firestore
-          const userDoc = await getDoc(doc(db, "users", user.uid));
-          const userData = userDoc.exists() ? userDoc.data() : null;
-          showUserUI(userData);
-        } else {
-          showGuestUI();
-        }
+      
+      onValue(ref(rtdb, "classes"), (snap) => {
+        render(snap.val());
       });
     </script>
+    
+    <!-- Initialize auth UI -->
+    <script type="module">
+      import { ref, get, child, set, push } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+      import { auth, rtdb } from "./firebase-init.js";
+      import { initAuthState } from "./auth-ui.js";
+      
+      // Expose to classes.js
+      window.firebaseAuth = auth;
+      window.firebaseRtdb = rtdb;
+      window.firebaseRT = { ref, get, child, set, push };
+      
+      // Initialize auth state with membership gating callback
+      initAuthState(async (userData) => {
+        try {
+          if (!userData || !userData.membership || userData.membership.status !== "active") {
+            const container = document.querySelector(".class-schedules .container");
+            const banner = document.createElement("div");
+            banner.style.background = "#1a1a1a";
+            banner.style.border = "1px solid #333";
+            banner.style.borderLeft = "4px solid #ff6b6b";
+            banner.style.color = "#fff";
+            banner.style.padding = "12px 16px";
+            banner.style.borderRadius = "8px";
+            banner.style.margin = "1rem 0";
+            banner.innerHTML = `Booking classes requires an active membership. <a href="membership.html" style="color:#ffd700;text-decoration:underline">Upgrade now</a>`;
+            if (container)
+              container.insertBefore(banner, container.children[2] || null);
+          }
+        } catch {}
+      });
+    </script>
+    <script src="script.js"></script>
   </body>
 </html>

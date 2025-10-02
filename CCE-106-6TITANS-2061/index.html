@@ -21,6 +21,7 @@
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
       import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
       import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+      import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
       const firebaseConfig = {
         apiKey: "AIzaSyC2YE5Cn0gbiuQ5sq8lErotl01itq5-hYk",
         authDomain: "titans-8d454.firebaseapp.com",
@@ -28,11 +29,13 @@
         storageBucket: "titans-8d454.firebasestorage.app",
         messagingSenderId: "537648978979",
         appId: "1:537648978979:web:30eb90af77c7569b7be596",
-        measurementId: "G-W1D2R0Q1L1"
+        measurementId: "G-W1D2R0Q1L1",
+        databaseURL: "https://titans-8d454-default-rtdb.firebaseio.com"
       };
       const app = initializeApp(firebaseConfig);
       const auth = getAuth(app);
       const db = getFirestore(app);
+      const rtdb = getDatabase(app);
       function showUserUI(userData) {
         const authButtons = document.getElementById('authButtons');
         if (authButtons) {
@@ -50,6 +53,12 @@
                   <small id="profileMenuEmail">${userData && userData.email ? userData.email : (userData && userData.uid ? userData.uid : '')}</small>
                 </div>
                 <ul class="profile-menu-list">
+                  <li>
+                    <a href="#" id="openNotif">
+                      <i class="fas fa-bell"></i> Notifications
+                      <span class="notif-badge" id="notifBadgeDd" style="display:none;background:#ff6b6b;color:#fff;border-radius:999px;padding:2px 8px;font-size:10px;margin-left:8px;">0</span>
+                    </a>
+                  </li>
                   <li><a href="user-dashboard.html">Dashboard</a></li>
                   <li><a href="#" id="profileViewBtn">View Profile</a></li>
                   <li><button id="logoutBtnNav">Logout</button></li>
@@ -68,6 +77,56 @@
             document.addEventListener('click', (e) => {
               if (!dropdown.contains(e.target)) dropdown.classList.remove('open');
             });
+          }
+          // Dropdown notifications panel
+          let notifPanel = document.getElementById('dropdownNotifPanel');
+          if (!notifPanel) {
+            notifPanel = document.createElement('div');
+            notifPanel.id = 'dropdownNotifPanel';
+            notifPanel.style.position = 'absolute';
+            notifPanel.style.right = '16px';
+            notifPanel.style.top = '72px';
+            notifPanel.style.background = '#1a1a1a';
+            notifPanel.style.border = '1px solid #333';
+            notifPanel.style.borderRadius = '8px';
+            notifPanel.style.padding = '10px';
+            notifPanel.style.minWidth = '280px';
+            notifPanel.style.maxHeight = '50vh';
+            notifPanel.style.overflow = 'auto';
+            notifPanel.style.display = 'none';
+            notifPanel.style.zIndex = '2200';
+            notifPanel.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;"><strong style="color:#ffd700">Notifications</strong><button id="markAllRead" style="background:#2a2a2a;border:1px solid #333;color:#fff;padding:4px 8px;border-radius:6px;cursor:pointer">Mark all read</button></div><div id="notifList" style="display:flex;flex-direction:column;gap:6px;"></div>`;
+            document.body.appendChild(notifPanel);
+          }
+          const openNotif = document.getElementById('openNotif');
+          const badgeDd = document.getElementById('notifBadgeDd');
+          if (openNotif && auth && rtdb) {
+            const userNow = auth.currentUser;
+            let notifCache = {};
+            if (userNow) {
+              onValue(ref(rtdb, 'notifications/' + userNow.uid), (snap) => {
+                notifCache = snap.val() || {};
+                const unread = Object.values(notifCache).filter(n => n && n.read === false).length;
+                if (badgeDd) { badgeDd.style.display = unread > 0 ? 'inline-block' : 'none'; badgeDd.textContent = String(unread); }
+                const list = document.getElementById('notifList');
+                if (list) {
+                  const entries = Object.entries(notifCache).slice(-10).reverse();
+                  list.innerHTML = entries.map(([id, n]) => `<div style="padding:8px;border:1px solid #333;border-radius:6px;color:#ddd;background:${n.read ? '#161616' : '#202020'};"><div style="color:#ffd700;font-weight:600;">${n.type || 'notice'}</div><div>${n.message || ''}</div><small style="color:#888;">${new Date(n.createdAt || Date.now()).toLocaleString()}</small></div>`).join('') || '<div style="color:#888;padding:8px;text-align:center;">No notifications</div>';
+                }
+              });
+            }
+            openNotif.addEventListener('click', (e)=>{ e.preventDefault(); notifPanel.style.display = notifPanel.style.display==='none'?'block':'none'; });
+            document.addEventListener('click', (e)=>{ if (notifPanel.style.display==='block' && !e.target.closest('#openNotif') && !e.target.closest('#dropdownNotifPanel')) notifPanel.style.display='none'; });
+            const markAll = document.getElementById('markAllRead');
+            if (markAll) {
+              markAll.addEventListener('click', async () => {
+                try {
+                  const updates = {};
+                  Object.entries(notifCache).forEach(([id, n]) => { if (n && n.read === false) updates['notifications/' + userNow.uid + '/' + id + '/read'] = true; });
+                  if (Object.keys(updates).length > 0) await update(ref(rtdb), updates);
+                } catch {}
+              });
+            }
           }
           // Logout logic
           const logoutBtn = document.getElementById('logoutBtnNav');

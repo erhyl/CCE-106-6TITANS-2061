@@ -2,8 +2,17 @@
 <html lang="en">
   <head>
     <script type="module">
+      import { requireAdmin } from "./role-guard.js";
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-      import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+      import {
+        getAuth,
+        onAuthStateChanged,
+      } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+      import { getDatabase } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+      
+      // Protect this page - only admins can access
+      requireAdmin();
+      
       const firebaseConfig = {
         apiKey: "AIzaSyC2YE5Cn0gbiuQ5sq8lErotl01itq5-hYk",
         authDomain: "titans-8d454.firebaseapp.com",
@@ -11,14 +20,20 @@
         storageBucket: "titans-8d454.firebasestorage.app",
         messagingSenderId: "537648978979",
         appId: "1:537648978979:web:30eb90af77c7569b7be596",
-        measurementId: "G-W1D2R0Q1L1"
+        measurementId: "G-W1D2R0Q1L1",
       };
       const app = initializeApp(firebaseConfig);
       const auth = getAuth(app);
-      onAuthStateChanged(auth, (user) => {
+      const rtdb = getDatabase(app);
+      // expose to admin.js
+      window.firebaseAuth = auth;
+      window.firebaseRtdb = rtdb;
+      onAuthStateChanged(auth, async (user) => {
         if (!user) {
-          window.location.href = 'login.html';
+          window.location.href = "login.html";
+          return;
         }
+        // Role guard will handle admin-only access
       });
     </script>
     <meta charset="UTF-8" />
@@ -42,13 +57,14 @@
           <img src="images/image 67.png" alt="6Titans" class="logo-text" />
         </div>
         <ul class="nav-menu">
+           <li class="nav-item">
+              <a href="index.html" class="nav-link">Home</a>
+            </li>
           <li class="nav-item">
-            <a href="index.html" class="nav-link">Home</a>
+            <a href="admin.html" class="nav-link">Admin Dashboard</a>
           </li>
           <li class="nav-item">
-            <a href="admin.html" class="nav-link active">Admin Dashboard</a>
-          </li>
-          <li class="nav-item">
+           
             <div class="user-menu">
               <button class="user-avatar admin-avatar" id="adminMenuBtn">
                 <i class="fas fa-crown"></i>
@@ -142,17 +158,17 @@
           <div class="admin-section">
             <h2>Quick Actions</h2>
             <div class="quick-actions-grid">
-              <button class="action-card" id="addUserBtn">
+              <button class="action-card" id="addUserBtn" type="button" onclick="window.location.href='admin-users.html'">
                 <i class="fas fa-user-plus"></i>
-                <h3>Add User</h3>
-                <p>Create new user account</p>
+                <h3>Manage Users</h3>
+                <p>Approve or reject user accounts</p>
               </button>
-              <button class="action-card" id="addCoachBtn">
+              <button class="action-card" id="addCoachBtn" type="button" onclick="window.location.href='admin-coaches.html'">
                 <i class="fas fa-user-tie"></i>
-                <h3>Add Coach</h3>
-                <p>Add new coach to platform</p>
+                <h3>Manage coach</h3>
+                <p>Approve or reject coach accounts</p>
               </button>
-              <button class="action-card" id="createClassBtn">
+              <button class="action-card" id="createClassBtn" type="button" onclick="window.location.href='admin-classes.html'">
                 <i class="fas fa-calendar-plus"></i>
                 <h3>Create Class</h3>
                 <p>Schedule new fitness class</p>
@@ -478,6 +494,30 @@
       </div>
     </div>
 
+    <!-- Manage Users Modal -->
+    <div class="modal" id="manageUsersModal">
+      <div class="modal-content" style="max-width: 920px">
+        <button class="close" id="closeManageUsersModal">&times;</button>
+        <h2>Manage Users</h2>
+        <div
+          id="usersTable"
+          style="margin-top: 1rem; max-height: 60vh; overflow: auto"
+        ></div>
+      </div>
+    </div>
+
+    <!-- Manage Coaches Modal -->
+    <div class="modal" id="manageCoachesModal">
+      <div class="modal-content" style="max-width: 920px">
+        <button class="close" id="closeManageCoachesModal">&times;</button>
+        <h2>Approve Coaches</h2>
+        <div
+          id="coachesTable"
+          style="margin-top: 1rem; max-height: 60vh; overflow: auto"
+        ></div>
+      </div>
+    </div>
+
     <!-- Footer -->
     <footer class="footer">
       <div class="container">
@@ -529,5 +569,52 @@
 
     <script src="script.js"></script>
     <script src="admin.js"></script>
+    <script type="module">
+      import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+      document.addEventListener('DOMContentLoaded', () => {
+        const logoutBtn = document.getElementById('adminLogoutBtn');
+        if (logoutBtn) {
+          logoutBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            try { await signOut(getAuth()); } catch {}
+            window.location.href = 'admin-login.html';
+          });
+        }
+      });
+    </script>
+    <script>
+      // Ensure admin dropdown toggles open/close
+      document.addEventListener("DOMContentLoaded", function () {
+        const btn = document.getElementById("adminMenuBtn");
+        const dropdown = document.getElementById("adminDropdown");
+        if (!btn || !dropdown) return;
+
+        btn.addEventListener("click", function (e) {
+          e.stopPropagation();
+          dropdown.classList.toggle("active");
+        });
+
+        document.addEventListener("click", function (e) {
+          if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
+            dropdown.classList.remove("active");
+          }
+        });
+      });
+    </script>
+    <style>
+      /* Fallback styles to ensure dropdown is visible when active */
+      .user-dropdown {
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.3s ease;
+        z-index: 1000;
+      }
+      .user-dropdown.active {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+    </style>
   </body>
 </html>

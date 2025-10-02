@@ -2,13 +2,11 @@
 
 document.addEventListener("DOMContentLoaded", function () {
   const filterBtns = document.querySelectorAll(".filter-btn");
-  const classCards = document.querySelectorAll(".class-card");
   const bookingModal = document.getElementById("bookingModal");
   const bookingForm = document.getElementById("bookingForm");
   const closeModal = document.querySelector(".close");
-  const bookClassBtns = document.querySelectorAll(".book-class");
 
-  // Day filter functionality
+  // Day filter functionality (works with dynamic cards too)
   filterBtns.forEach((btn) => {
     btn.addEventListener("click", function () {
       // Remove active class from all buttons
@@ -19,7 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const selectedDay = this.getAttribute("data-day");
 
       // Filter class cards
-      classCards.forEach((card) => {
+      document.querySelectorAll('.class-card').forEach((card) => {
         if (
           selectedDay === "all" ||
           card.getAttribute("data-day") === selectedDay
@@ -33,24 +31,20 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // Book class functionality
-  bookClassBtns.forEach((btn) => {
-    btn.addEventListener("click", function () {
-      const classCard = this.closest(".class-card");
-      const className = classCard.querySelector(".class-name").textContent;
-      const classTime = classCard.querySelector(".class-time").textContent;
-      const instructor =
-        classCard.querySelector(".class-detail span").textContent;
-
-      // Populate modal with class details
-      document.getElementById("className").value = className;
-      document.getElementById("classTime").value = classTime;
-      document.getElementById("instructor").value = instructor;
-
-      // Show modal
-      bookingModal.style.display = "block";
-      document.body.style.overflow = "hidden";
-    });
+  // Book class functionality (event delegation for dynamic content)
+  document.addEventListener('click', function(e){
+    const btn = e.target.closest('.book-class');
+    if (!btn) return;
+    const classCard = btn.closest('.class-card');
+    if (!classCard) return;
+    const className = classCard.querySelector('.class-name')?.textContent || '';
+    const classTime = classCard.querySelector('.class-time')?.textContent || '';
+    const instructor = classCard.querySelector('.class-detail span')?.textContent || '';
+    document.getElementById('className').value = className;
+    document.getElementById('classTime').value = classTime;
+    document.getElementById('instructor').value = instructor;
+    bookingModal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
   });
 
   // Close modal
@@ -68,7 +62,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // Handle form submission
-  bookingForm.addEventListener("submit", function (e) {
+  bookingForm.addEventListener("submit", async function (e) {
     e.preventDefault();
 
     // Get form data
@@ -82,23 +76,83 @@ document.addEventListener("DOMContentLoaded", function () {
       memberPhone: formData.get("memberPhone"),
     };
 
-    // Show loading
+    const auth = window.firebaseAuth;
+    const rtdb = window.firebaseRtdb;
+    const { ref, set, push, get, child } = window.firebaseRT || {};
+    if (!auth || !rtdb || !ref || !set || !push) {
+      alert('Service unavailable. Please refresh.');
+      return;
+    }
+
+    const user = auth.currentUser;
+    if (!user) {
+      alert('Please log in to book classes.');
+      return;
+    }
+
+    // Membership gating
+    try {
+      if (get) {
+        const userSnap = await get(child(ref(rtdb), 'users/' + user.uid));
+        const userData = userSnap.exists() ? userSnap.val() : null;
+        if (!userData || !userData.membership || userData.membership.status !== 'active') {
+          alert('Class booking requires an active membership.');
+          return;
+        }
+      }
+    } catch {}
+
     showLoading();
+    try {
+      // Create booking in RTDB
+      const key = push(ref(rtdb, 'bookings')).key;
+      await set(ref(rtdb, `bookings/${key}`), {
+        id: key,
+        type: 'class',
+        memberId: user.uid,
+        className: bookingData.className,
+        classTime: bookingData.classTime,
+        instructor: bookingData.instructor,
+        status: 'pending',
+        createdAt: Date.now()
+      });
 
-    // Simulate API call
-    setTimeout(() => {
+      // Notification to member
+      const notifKey = push(ref(rtdb, 'notifications/' + user.uid)).key;
+      await set(ref(rtdb, `notifications/${user.uid}/${notifKey}`), {
+        type: 'class',
+        message: `Class booking requested: ${bookingData.className}`,
+        data: { bookingId: key },
+        read: false,
+        createdAt: Date.now()
+      });
+
+      // Audit event
+      const evtKey = push(ref(rtdb, 'events/' + user.uid)).key;
+      await set(ref(rtdb, `events/${user.uid}/${evtKey}`), {
+        action: 'class_booked',
+        details: { className: bookingData.className },
+        page: 'classes',
+        createdAt: Date.now()
+      });
+
       hideLoading();
-
-      // Show success message
-      alert(
-        "Class booked successfully! You will receive a confirmation email shortly."
-      );
-
-      // Close modal and reset form
+      if (window.Utils && window.Utils.showToast) {
+        window.Utils.showToast('Class booked successfully!', 'success');
+      } else {
+        alert('Class booked successfully!');
+      }
       bookingModal.style.display = "none";
       document.body.style.overflow = "auto";
       this.reset();
-    }, 2000);
+    } catch (err) {
+      hideLoading();
+      if (window.Utils && window.Utils.showToast) {
+        window.Utils.showToast('Booking failed: ' + err.message, 'error');
+      } else {
+        alert('Booking failed: ' + err.message);
+      }
+    }
   });
 
   // Add fade-in animation CSS

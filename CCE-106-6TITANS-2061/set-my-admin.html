@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Set Admin - 6Titans</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .container {
+      background: #2a2a2a;
+      border-radius: 16px;
+      padding: 40px;
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    }
+    
+    h1 {
+      color: #ffd700;
+      margin-bottom: 20px;
+    }
+    
+    .uid {
+      background: #1a1a1a;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+      font-family: monospace;
+      word-break: break-all;
+      color: #4CAF50;
+    }
+    
+    .btn {
+      background: #ffd700;
+      color: #000;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 10px;
+    }
+    
+    .btn:hover {
+      background: #ffed4e;
+    }
+    
+    #status {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 8px;
+      display: none;
+    }
+    
+    .success {
+      background: #4CAF50;
+    }
+    
+    .error {
+      background: #f44336;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>👑 Quick Admin Setup</h1>
+    <p>Setting this account as ADMIN:</p>
+    <div class="uid">h2kfTUapMyOsmNSEZGRLbQ6gOcz1</div>
+    
+    <button class="btn" onclick="setAdmin()">🚀 Set as Admin NOW</button>
+    
+    <div id="status"></div>
+    
+    <p style="margin-top: 30px; font-size: 13px; color: #888;">
+      After clicking, you'll need to:<br>
+      1. Clear browser cache<br>
+      2. Re-login<br>
+      3. See your 👑 badge!
+    </p>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+    import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC2YE5Cn0gbiuQ5sq8lErotl01itq5-hYk",
+      authDomain: "titans-8d454.firebaseapp.com",
+      projectId: "titans-8d454",
+      storageBucket: "titans-8d454.firebasestorage.app",
+      messagingSenderId: "537648978979",
+      appId: "1:537648978979:web:30eb90af77c7569b7be596",
+      measurementId: "G-W1D2R0Q1L1",
+      databaseURL: "https://titans-8d454-default-rtdb.firebaseio.com"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const rtdb = getDatabase(app);
+
+    window.setAdmin = async function() {
+      const uid = "h2kfTUapMyOsmNSEZGRLbQ6gOcz1";
+      const status = document.getElementById('status');
+      
+      try {
+        status.style.display = 'block';
+        status.className = '';
+        status.textContent = '⏳ Setting as admin...';
+        
+        // Get existing data
+        let userData = {};
+        
+        try {
+          const userDoc = await getDoc(doc(db, "users", uid));
+          if (userDoc.exists()) {
+            userData = userDoc.data();
+          }
+        } catch (e) {
+          console.log('Firestore read error:', e);
+        }
+        
+        try {
+          const snapshot = await get(ref(rtdb, 'users/' + uid));
+          if (snapshot.exists()) {
+            userData = { ...userData, ...snapshot.val() };
+          }
+        } catch (e) {
+          console.log('RTDB read error:', e);
+        }
+        
+        // Set admin in both databases
+        const adminData = {
+          ...userData,
+          uid: uid,
+          accountType: 'admin'
+        };
+        
+        // Update Firestore
+        await setDoc(doc(db, "users", uid), adminData, { merge: true });
+        
+        // Update RTDB
+        await set(ref(rtdb, 'users/' + uid), adminData);
+        
+        status.className = 'success';
+        status.innerHTML = `
+          ✅ SUCCESS! Account set as ADMIN!<br><br>
+          <strong>Next steps:</strong><br>
+          1. Press Ctrl+Shift+Delete<br>
+          2. Clear "Cached images and files"<br>
+          3. Logout and login again<br>
+          4. You'll see 👑 icon!
+        `;
+        
+      } catch (error) {
+        status.className = 'error';
+        status.textContent = '❌ Error: ' + error.message;
+        console.error('Full error:', error);
+      }
+    };
+  </script>
+</body>
+</html>
+

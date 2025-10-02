@@ -55,7 +55,73 @@
     }, 2500);
   }
 
-  window.Utils = { trapFocus, showToast };
+  async function logEvent(action, details, page) {
+    try {
+      if (!window.firebaseAuth || !window.firebaseRtdb || !window.firebaseRT) return;
+      const user = window.firebaseAuth.currentUser;
+      if (!user) return;
+      const { ref, set, push } = window.firebaseRT;
+      const rtdb = window.firebaseRtdb;
+      const key = push(ref(rtdb, 'events/' + user.uid)).key;
+      await set(ref(rtdb, `events/${user.uid}/${key}`), {
+        action,
+        details,
+        page,
+        createdAt: Date.now()
+      });
+    } catch (e) {
+      // swallow errors
+    }
+  }
+
+  // Loading overlay utilities
+  function showLoading() {
+    const existing = document.getElementById("loadingOverlay");
+    if (existing) existing.remove();
+
+    const overlay = document.createElement("div");
+    overlay.className = "loading-overlay";
+    overlay.innerHTML = '<div class="loading-spinner"></div>';
+    overlay.id = "loadingOverlay";
+    overlay.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    `;
+    document.body.appendChild(overlay);
+  }
+
+  function hideLoading() {
+    const overlay = document.getElementById("loadingOverlay");
+    if (overlay) overlay.remove();
+  }
+
+  window.Utils = { trapFocus, showToast, logEvent, showLoading, hideLoading };
+  window.showLoading = showLoading;
+  window.hideLoading = hideLoading;
 })();
 
-
+// Add loading spinner styles
+const loadingStyles = document.createElement('style');
+loadingStyles.textContent = `
+  .loading-spinner {
+    border: 6px solid #f3f3f3;
+    border-top: 6px solid #ffd700;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`;
+document.head.appendChild(loadingStyles);

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manage Coaches - 6Titans Admin</title>
+    <link rel="stylesheet" href="assets/css/styles-base.css" />
+    <link rel="stylesheet" href="assets/css/styles.css" />
+    <link rel="stylesheet" href="assets/css/admin.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <style>
+      .page-header { display:flex; align-items:center; justify-content:space-between; margin: 24px 0; }
+      .admin-card { background:#1a1a1a; border:1px solid #333; border-radius:12px; padding:16px; }
+      .admin-table { width:100%; border-collapse: collapse; }
+      .admin-table th, .admin-table td { padding: 12px; border-bottom: 1px solid #333; text-align:left; }
+      .admin-table th { color:#ffd700; }
+      .btn-sm { padding:6px 10px; border-radius:6px; border:1px solid #333; background:#2a2a2a; color:#fff; cursor:pointer; }
+      .btn-sm:hover { border-color:#ffd700; }
+      .pill { padding:2px 8px; border-radius:999px; font-size:.8rem; }
+      .pill.approved { background:#4caf50; color:#fff; }
+      .pill.pending { background:#ff9800; color:#111; }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="nav-logo">
+          <img src="images/image 66.png" alt="6Titans Logo" class="logo-icon" />
+          <img src="images/image 67.png" alt="6Titans" class="logo-text" />
+        </div>
+        <ul class="nav-menu">
+          <li class="nav-item"><a href="admin.html" class="nav-link">Dashboard</a></li>
+          <li class="nav-item"><a href="admin-users.html" class="nav-link">Users</a></li>
+          <li class="nav-item"><a href="admin-coaches.html" class="nav-link active">Coaches</a></li>
+          <li class="nav-item"><a href="admin-classes.html" class="nav-link">Classes</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <section class="admin-dashboard">
+      <div class="container">
+        <div class="page-header">
+          <h1>Manage Coaches</h1>
+          <div class="toolbar">
+            <button class="btn btn-primary" id="refreshBtn"><i class="fas fa-sync"></i> Refresh</button>
+          </div>
+        </div>
+
+        <div class="admin-card">
+          <div id="coachesTable">Loading...</div>
+        </div>
+      </div>
+    </section>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+      import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+      import { getDatabase, ref, get, child, update } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyC2YE5Cn0gbiuQ5sq8lErotl01itq5-hYk",
+        authDomain: "titans-8d454.firebaseapp.com",
+        projectId: "titans-8d454",
+        storageBucket: "titans-8d454.firebasestorage.app",
+        messagingSenderId: "537648978979",
+        appId: "1:537648978979:web:30eb90af77c7569b7be596",
+        measurementId: "G-W1D2R0Q1L1",
+        databaseURL: "https://titans-8d454-default-rtdb.firebaseio.com"
+      };
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const rtdb = getDatabase(app);
+
+      const table = document.getElementById('coachesTable');
+      const refreshBtn = document.getElementById('refreshBtn');
+
+      async function load(){
+        const snap = await get(child(ref(rtdb), 'users'));
+        const users = snap.exists() ? snap.val() : {};
+        const rows = Object.values(users)
+          .filter(u => (u.role === 'coach' || u.accountType === 'coach'))
+          .map(u => {
+            const uid = u.uid || '';
+            const email = u.email || '';
+            const name = [u.firstName, u.lastName].filter(Boolean).join(' ') || email || 'Coach';
+            const approved = u.coachApproved === true;
+            return `
+              <tr>
+                <td>${name}</td>
+                <td>${email}</td>
+                <td><span class="pill ${approved?'approved':'pending'}">${approved?'Approved':'Pending'}</span></td>
+                <td>
+                  ${approved? '': `<button class="btn-sm" data-approve="${uid}">Approve</button>`}
+                  <button class="btn-sm" data-remove="${uid}">Remove</button>
+                </td>
+              </tr>`;
+          }).join('');
+        table.innerHTML = `
+          <table class="admin-table">
+            <thead><tr><th>Name</th><th>Email</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>${rows || ''}</tbody>
+          </table>`;
+
+        table.querySelectorAll('[data-approve]').forEach(btn=>{
+          btn.addEventListener('click', async ()=>{
+            const uid = btn.getAttribute('data-approve');
+            await update(ref(rtdb, 'users/'+uid), { coachApproved: true, role: 'coach' });
+            load();
+          });
+        });
+        table.querySelectorAll('[data-remove]').forEach(btn=>{
+          btn.addEventListener('click', async ()=>{
+            const uid = btn.getAttribute('data-remove');
+            await update(ref(rtdb, 'users/'+uid), { role: 'member', coachApproved: false });
+            load();
+          });
+        });
+      }
+
+      refreshBtn.addEventListener('click', load);
+      onAuthStateChanged(auth, (u)=>{ if(!u){ window.location.href='admin-login.html'; } else { load(); } });
+    </script>
+  </body>
+  </html>
+
+

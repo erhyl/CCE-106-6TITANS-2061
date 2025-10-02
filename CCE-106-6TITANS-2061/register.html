@@ -188,7 +188,7 @@
                 <select id="accountType" name="accountType" required>
                   <option value="">Select account type</option>
                   <option value="member">Member</option>
-                  <option value="coach">Coach</option>
+                 
                 </select>
               </div>
             </div>
@@ -313,71 +313,11 @@
 
     <script src="script.js"></script>
     <script src="auth.js"></script>
-    <style>
-      .loading-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(0, 0, 0, 0.6);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 9999;
-      }
-      .loading-spinner {
-        border: 6px solid #f3f3f3;
-        border-top: 6px solid #ffd700;
-        border-radius: 50%;
-        width: 48px;
-        height: 48px;
-        animation: spin 1s linear infinite;
-      }
-      @keyframes spin {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
-          transform: rotate(360deg);
-        }
-      }
-    </style>
+    <script src="utils.js"></script>
     <script type="module">
-      function showLoading() {
-        let overlay = document.createElement("div");
-        overlay.className = "loading-overlay";
-        overlay.innerHTML = '<div class="loading-spinner"></div>';
-        overlay.id = "loadingOverlay";
-        document.body.appendChild(overlay);
-      }
-      function hideLoading() {
-        const overlay = document.getElementById("loadingOverlay");
-        if (overlay) overlay.remove();
-      }
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-      import {
-        getAuth,
-        createUserWithEmailAndPassword,
-      } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
-      import {
-        getFirestore,
-        doc,
-        setDoc,
-      } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
-
-      const firebaseConfig = {
-        apiKey: "AIzaSyC2YE5Cn0gbiuQ5sq8lErotl01itq5-hYk",
-        authDomain: "titans-8d454.firebaseapp.com",
-        projectId: "titans-8d454",
-        storageBucket: "titans-8d454.firebasestorage.app",
-        messagingSenderId: "537648978979",
-        appId: "1:537648978979:web:30eb90af77c7569b7be596",
-        measurementId: "G-W1D2R0Q1L1",
-      };
-      const app = initializeApp(firebaseConfig);
-      const auth = getAuth(app);
-      const db = getFirestore(app);
+      import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+      import { doc, setDoc } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+      import { auth, db } from "./firebase-init.js";
 
       document.addEventListener("DOMContentLoaded", () => {
         const registerForm = document.getElementById("registerForm");
@@ -388,8 +328,8 @@
             const lastName = document.getElementById("lastName").value;
             const email = document.getElementById("email").value;
             const password = document.getElementById("password").value;
-            const confirmPassword =
-              document.getElementById("confirmPassword").value;
+            const confirmPassword = document.getElementById("confirmPassword").value;
+            
             if (password !== confirmPassword) {
               alert("Passwords do not match.");
               return;
@@ -397,23 +337,16 @@
 
             // Validate password security
             const personalInfo = { firstName, lastName, email };
-            // Import the validation function from auth.js (assuming it's loaded)
-            if (
-              typeof isPasswordSecure === "function" &&
-              !isPasswordSecure(password, personalInfo)
-            ) {
+            if (typeof isPasswordSecure === "function" && !isPasswordSecure(password, personalInfo)) {
               alert(
                 "Password does not meet security requirements. Please ensure your password is at least 12 characters long, contains uppercase and lowercase letters, numbers, symbols, is not a common password, and doesn't contain personal information."
               );
               return;
             }
+            
             try {
               showLoading();
-              const userCredential = await createUserWithEmailAndPassword(
-                auth,
-                email,
-                password
-              );
+              const userCredential = await createUserWithEmailAndPassword(auth, email, password);
               const user = userCredential.user;
               await setDoc(doc(db, "users", user.uid), {
                 uid: user.uid,

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Check Admin Status - 6Titans</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .container {
+      background: #2a2a2a;
+      border-radius: 16px;
+      padding: 40px;
+      max-width: 700px;
+      width: 100%;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      border: 1px solid #333;
+    }
+    
+    h1 {
+      color: #ffd700;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .subtitle {
+      color: #888;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+    
+    .info-box {
+      background: #1a1a1a;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border-left: 4px solid #ffd700;
+    }
+    
+    .info-box h3 {
+      color: #ffd700;
+      margin-bottom: 12px;
+      font-size: 16px;
+    }
+    
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      margin: 8px 0;
+      padding: 8px;
+      background: #2a2a2a;
+      border-radius: 4px;
+    }
+    
+    .info-label {
+      color: #888;
+      font-weight: 600;
+    }
+    
+    .info-value {
+      color: #fff;
+      font-family: monospace;
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    
+    .status-admin {
+      background: #ffd700;
+      color: #000;
+    }
+    
+    .status-coach {
+      background: #4CAF50;
+      color: #fff;
+    }
+    
+    .status-member {
+      background: #2196F3;
+      color: #fff;
+    }
+    
+    .status-unknown {
+      background: #f44336;
+      color: #fff;
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      background: #ffd700;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin: 10px 10px 10px 0;
+    }
+    
+    .btn:hover {
+      background: #ffed4e;
+      transform: translateY(-2px);
+    }
+    
+    .btn-secondary {
+      background: #333;
+      color: #ffd700;
+    }
+    
+    .btn-secondary:hover {
+      background: #444;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #ffd700;
+    }
+    
+    .actions {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #333;
+    }
+    
+    pre {
+      background: #1a1a1a;
+      padding: 15px;
+      border-radius: 8px;
+      overflow-x: auto;
+      color: #0f0;
+      font-size: 13px;
+      margin-top: 10px;
+    }
+    
+    .warning {
+      background: #ff9800;
+      color: #000;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+    
+    .success {
+      background: #4CAF50;
+      color: #fff;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔍 Admin Status Checker</h1>
+    <p class="subtitle">Diagnose why your admin badge isn't showing</p>
+    
+    <div id="loading" class="loading">
+      <p>⏳ Loading your account information...</p>
+    </div>
+    
+    <div id="content" style="display: none;">
+      <div id="statusMessage"></div>
+      
+      <div class="info-box">
+        <h3>📊 Current Account Status</h3>
+        <div class="info-row">
+          <span class="info-label">Email:</span>
+          <span class="info-value" id="userEmail">-</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">UID:</span>
+          <span class="info-value" id="userUid">-</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Account Type:</span>
+          <span id="accountTypeBadge">-</span>
+        </div>
+      </div>
+      
+      <div class="info-box">
+        <h3>📦 Data Sources</h3>
+        <div class="info-row">
+          <span class="info-label">Firestore:</span>
+          <span class="info-value" id="firestoreData">-</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Realtime DB:</span>
+          <span class="info-value" id="rtdbData">-</span>
+        </div>
+      </div>
+      
+      <div id="debugInfo" style="display: none;">
+        <div class="info-box">
+          <h3>🔧 Debug Information</h3>
+          <pre id="debugOutput"></pre>
+        </div>
+      </div>
+      
+      <div class="actions">
+        <button class="btn" onclick="setAsAdmin()">🚀 Set Me as Admin Now</button>
+        <button class="btn btn-secondary" onclick="toggleDebug()">🔍 Show Debug Info</button>
+        <button class="btn btn-secondary" onclick="location.reload()">🔄 Refresh</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+    import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC2YE5Cn0gbiuQ5sq8lErotl01itq5-hYk",
+      authDomain: "titans-8d454.firebaseapp.com",
+      projectId: "titans-8d454",
+      storageBucket: "titans-8d454.firebasestorage.app",
+      messagingSenderId: "537648978979",
+      appId: "1:537648978979:web:30eb90af77c7569b7be596",
+      measurementId: "G-W1D2R0Q1L1",
+      databaseURL: "https://titans-8d454-default-rtdb.firebaseio.com"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const rtdb = getDatabase(app);
+
+    let currentUserData = {};
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        document.getElementById('loading').innerHTML = '<p style="color: #f44336;">❌ Not logged in. <a href="login.html" style="color: #ffd700;">Login here</a></p>';
+        return;
+      }
+
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('content').style.display = 'block';
+
+      // Basic info
+      document.getElementById('userEmail').textContent = user.email || 'N/A';
+      document.getElementById('userUid').textContent = user.uid;
+
+      let firestoreAccountType = null;
+      let rtdbAccountType = null;
+      let firestoreData = null;
+      let rtdbData = null;
+
+      // Check Firestore
+      try {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          firestoreData = userDoc.data();
+          firestoreAccountType = firestoreData.accountType;
+          document.getElementById('firestoreData').textContent = firestoreAccountType || 'No accountType field';
+          document.getElementById('firestoreData').style.color = firestoreAccountType ? '#4CAF50' : '#f44336';
+        } else {
+          document.getElementById('firestoreData').textContent = 'User not found';
+          document.getElementById('firestoreData').style.color = '#f44336';
+        }
+      } catch (e) {
+        document.getElementById('firestoreData').textContent = 'Error: ' + e.message;
+        document.getElementById('firestoreData').style.color = '#f44336';
+      }
+
+      // Check RTDB
+      try {
+        const snapshot = await get(ref(rtdb, 'users/' + user.uid));
+        if (snapshot.exists()) {
+          rtdbData = snapshot.val();
+          rtdbAccountType = rtdbData.accountType;
+          document.getElementById('rtdbData').textContent = rtdbAccountType || 'No accountType field';
+          document.getElementById('rtdbData').style.color = rtdbAccountType ? '#4CAF50' : '#f44336';
+        } else {
+          document.getElementById('rtdbData').textContent = 'User not found';
+          document.getElementById('rtdbData').style.color = '#f44336';
+        }
+      } catch (e) {
+        document.getElementById('rtdbData').textContent = 'Error: ' + e.message;
+        document.getElementById('rtdbData').style.color = '#f44336';
+      }
+
+      // Determine current account type
+      const accountType = firestoreAccountType || rtdbAccountType || 'member';
+      currentUserData = { ...firestoreData, ...rtdbData, accountType };
+
+      // Show badge
+      const badge = document.getElementById('accountTypeBadge');
+      badge.className = 'status-badge status-' + accountType;
+      badge.textContent = accountType.toUpperCase();
+
+      // Show status message
+      const statusMsg = document.getElementById('statusMessage');
+      if (accountType === 'admin') {
+        statusMsg.innerHTML = '<div class="success">✅ You ARE set as admin! If badge not showing, clear cache and re-login.</div>';
+      } else {
+        statusMsg.innerHTML = '<div class="warning">⚠️ You are NOT set as admin. Click "Set Me as Admin Now" below.</div>';
+      }
+
+      // Debug output
+      document.getElementById('debugOutput').textContent = JSON.stringify({
+        uid: user.uid,
+        email: user.email,
+        firestoreData: firestoreData,
+        rtdbData: rtdbData,
+        detectedAccountType: accountType
+      }, null, 2);
+    });
+
+    window.setAsAdmin = async function() {
+      const user = auth.currentUser;
+      if (!user) {
+        alert('Not logged in!');
+        return;
+      }
+
+      const confirmed = confirm(`Set ${user.email} as ADMIN?\n\nUID: ${user.uid}\n\nThis will update both Firestore and RTDB.`);
+      if (!confirmed) return;
+
+      try {
+        // Update Firestore
+        await setDoc(doc(db, "users", user.uid), {
+          ...currentUserData,
+          accountType: 'admin',
+          uid: user.uid,
+          email: user.email
+        }, { merge: true });
+
+        // Update RTDB
+        await set(ref(rtdb, 'users/' + user.uid), {
+          ...currentUserData,
+          accountType: 'admin',
+          uid: user.uid,
+          email: user.email
+        });
+
+        alert('✅ Successfully set as ADMIN!\n\nNow:\n1. Close this tab\n2. Clear browser cache (Ctrl+Shift+Delete)\n3. Re-login\n4. You should see 👑 icon!');
+        
+        setTimeout(() => location.reload(), 2000);
+      } catch (error) {
+        alert('❌ Error: ' + error.message);
+      }
+    };
+
+    window.toggleDebug = function() {
+      const debugInfo = document.getElementById('debugInfo');
+      debugInfo.style.display = debugInfo.style.display === 'none' ? 'block' : 'none';
+    };
+  </script>
+</body>
+</html>
+

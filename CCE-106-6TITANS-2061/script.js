@@ -227,3 +227,216 @@ window.addEventListener('scroll', throttledScrollHandler);
 // Console welcome message
 console.log('%c💪 Welcome to 6Titans! 💪', 'color: #ffd700; font-size: 20px; font-weight: bold;');
 console.log('%cTransform your body, transform your life!', 'color: #cccccc; font-size: 14px;');
+
+// In-app notifications listener via Realtime Database if available
+function _initNotificationsWhenReady() {
+  try {
+    if (!(window.firebaseAuth && window.firebaseRtdb && window.firebaseRT)) return false;
+        const { ref, onValue, child, get, set, update } = window.firebaseRT;
+        const rtdb = window.firebaseRtdb;
+        function attachDropdownNotifications(user){
+            try {
+                const profileMenu = document.getElementById('profileMenu') || document.querySelector('.profile-menu');
+                if (!profileMenu) return;
+                const list = profileMenu.querySelector('.profile-menu-list');
+                if (!list) return;
+                if (!list.querySelector('#openNotif')) {
+                    const li = document.createElement('li');
+                    li.innerHTML = '<a href="#" id="openNotif"><i class="fas fa-bell"></i> Notifications <span class="notif-badge" id="notifBadgeDd" style="display:none;background:#ff6b6b;color:#fff;border-radius:999px;padding:2px 8px;font-size:10px;margin-left:8px;">0</span></a>';
+                    list.prepend(li);
+                }
+                let panel = document.getElementById('dropdownNotifPanel');
+                if (!panel) {
+                    panel = document.createElement('div');
+                    panel.id = 'dropdownNotifPanel';
+                    panel.style.position = 'absolute';
+                    panel.style.right = '16px';
+                    panel.style.top = '72px';
+                    panel.style.background = '#1a1a1a';
+                    panel.style.border = '1px solid #333';
+                    panel.style.borderRadius = '8px';
+                    panel.style.padding = '10px';
+                    panel.style.minWidth = '280px';
+                    panel.style.maxHeight = '50vh';
+                    panel.style.overflow = 'auto';
+                    panel.style.display = 'none';
+                    panel.style.zIndex = '2200';
+                    panel.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;"><strong style="color:#ffd700">Notifications</strong><button id="markAllRead" style="background:#2a2a2a;border:1px solid #333;color:#fff;padding:4px 8px;border-radius:6px;cursor:pointer">Mark all read</button></div><div id="notifList" style="display:flex;flex-direction:column;gap:6px;"></div>';
+                    document.body.appendChild(panel);
+                }
+                const openNotif = document.getElementById('openNotif');
+                const badgeDd = document.getElementById('notifBadgeDd');
+                if (openNotif && user) {
+                    openNotif.onclick = (e)=>{ e.preventDefault(); panel.style.display = panel.style.display==='none'?'block':'none'; };
+                    document.addEventListener('click', (e)=>{ if (panel.style.display==='block' && !e.target.closest('#openNotif') && !e.target.closest('#dropdownNotifPanel')) panel.style.display='none'; });
+                    const listDiv = panel.querySelector('#notifList');
+                    const markBtn = panel.querySelector('#markAllRead');
+                    onValue(ref(rtdb, 'notifications/' + user.uid), (snap)=>{
+                        const data = snap.val() || {};
+                        const unread = Object.values(data).filter(n=>n && n.read===false).length;
+                        if (badgeDd) { badgeDd.style.display = unread>0 ? 'inline-block' : 'none'; badgeDd.textContent = String(unread); }
+                        if (listDiv) {
+                            const entries = Object.entries(data).slice(-10).reverse();
+                            listDiv.innerHTML = entries.map(([id,n])=>`<div style=\"padding:8px;border:1px solid #333;border-radius:6px;color:#ddd;background:${n.read?'#161616':'#202020'};\"><div style=\"color:#ffd700;font-weight:600;\">${n.type||'notice'}</div><div>${n.message||''}</div><small style=\"color:#888;\">${new Date(n.createdAt||Date.now()).toLocaleString()}</small></div>`).join('');
+                        }
+                        if (markBtn) {
+                            markBtn.onclick = async ()=>{
+                                try {
+                                    const updates = {};
+                                    Object.entries(data).forEach(([id,n])=>{ if (n && n.read===false) updates['notifications/'+user.uid+'/'+id+'/read'] = true; });
+                                    if (Object.keys(updates).length>0) await update(ref(rtdb), updates);
+                                } catch {}
+                            };
+                        }
+                    });
+                }
+            } catch {}
+        }
+        window.firebaseAuth.onAuthStateChanged((user) => {
+            if (!user) return;
+            const notifRef = ref(rtdb, 'notifications/' + user.uid);
+            onValue(notifRef, (snapshot) => {
+                const data = snapshot.val();
+                if (!data) return;
+                // Show the latest unread notifications (basic)
+                Object.values(data).slice(-3).forEach((n) => {
+                    if (window.Utils && window.Utils.showToast && n && n.read === false) {
+                        window.Utils.showToast(n.message || 'You have a new notification', 'info');
+                    }
+                });
+                // Update navbar badge count
+                try {
+                    const unread = Object.values(data).filter((n)=>n && n.read===false).length;
+                    let bell = document.getElementById('notifBell');
+                    if (!bell) {
+                        const navMenu = document.querySelector('.nav-menu');
+                        if (navMenu) {
+                            const li = document.createElement('li');
+                            li.className = 'nav-item';
+                            li.innerHTML = '<a href="#" class="nav-link" id="notifBell" style="position:relative"><i class="fas fa-bell"></i><span id="notifBadge" style="position:absolute;top:-6px;right:-10px;background:#ff6b6b;color:#fff;border-radius:999px;padding:2px 6px;font-size:10px;display:none;">0</span></a>';
+                            navMenu.appendChild(li);
+                            bell = li.querySelector('#notifBell');
+                            // Panel
+                            const panel = document.createElement('div');
+                            panel.id = 'notifPanel';
+                            panel.style.position = 'absolute';
+                            panel.style.right = '16px';
+                            panel.style.top = '64px';
+                            panel.style.background = '#1a1a1a';
+                            panel.style.border = '1px solid #333';
+                            panel.style.borderRadius = '8px';
+                            panel.style.padding = '8px';
+                            panel.style.minWidth = '260px';
+                            panel.style.maxHeight = '50vh';
+                            panel.style.overflow = 'auto';
+                            panel.style.display = 'none';
+                            panel.style.zIndex = '1200';
+                            document.body.appendChild(panel);
+                            bell.addEventListener('click', (e)=>{ e.preventDefault(); panel.style.display = panel.style.display==='none'?'block':'none'; });
+                            document.addEventListener('click', (e)=>{ if (panel.style.display==='block' && !e.target.closest('#notifBell')) panel.style.display='none'; });
+                        }
+                    }
+                    const badge = document.getElementById('notifBadge');
+                    if (badge) {
+                        if (unread>0) { badge.style.display='inline-block'; badge.textContent = String(unread); } else { badge.style.display='none'; }
+                    }
+                    // Also update any dropdown notification badges
+                    try {
+                        document.querySelectorAll('.notif-badge').forEach((el)=>{
+                            if (unread>0) { el.style.display='inline-block'; el.textContent = String(unread); }
+                            else { el.style.display='none'; }
+                        });
+                    } catch {}
+                    // Render panel list
+                    const panel = document.getElementById('notifPanel');
+                    if (panel) {
+                        const entries = Object.entries(data).slice(-10).reverse();
+                        panel.innerHTML = entries.map(([id,n])=>`<div style="padding:8px;border-bottom:1px solid #333;color:#ddd;"><div style="font-weight:600;color:#ffd700;">${n.type||'notice'}</div><div>${n.message||''}</div><small style="color:#888;">${new Date(n.createdAt||Date.now()).toLocaleString()}</small></div>`).join('');
+                    }
+                } catch{}
+            });
+            // attach dropdown notifications if a profile menu exists on this page
+            attachDropdownNotifications(user);
+        });
+    // Also observe DOM for late-loaded dropdowns and attach when they appear
+    const mo = new MutationObserver(() => {
+      const pm = document.getElementById('profileMenu');
+      const u = window.firebaseAuth.currentUser;
+      if (pm && u) attachDropdownNotifications(u);
+    });
+    mo.observe(document.body, { childList: true, subtree: true });
+    return true;
+  } catch (e) { return false; }
+}
+
+// Try immediately, then retry for late-initialized pages
+if (!_initNotificationsWhenReady()) {
+  let attempts = 0;
+  const timer = setInterval(() => {
+    attempts++;
+    if (_initNotificationsWhenReady() || attempts > 20) clearInterval(timer);
+  }, 300);
+}
+
+// Conditional Admin nav link based on RTDB role
+try {
+    if (window.firebaseAuth && window.firebaseRtdb && window.firebaseRT) {
+        const { ref, onValue, child, get } = window.firebaseRT;
+        const rtdb = window.firebaseRtdb;
+        window.firebaseAuth.onAuthStateChanged(async (user) => {
+            const navMenu = document.querySelector('.nav-menu');
+            if (!navMenu) return;
+            // Remove existing admin item if any
+            const existing = navMenu.querySelector('li.nav-item[data-admin-link="true"]');
+            if (existing) existing.remove();
+            if (!user) return;
+            try {
+                const snap = await get(child(ref(rtdb), 'users/' + user.uid));
+                const data = snap.exists() ? snap.val() : null;
+                if (data && data.role === 'admin') {
+                    const li = document.createElement('li');
+                    li.className = 'nav-item';
+                    li.setAttribute('data-admin-link', 'true');
+                    const a = document.createElement('a');
+                    a.href = 'admin.html';
+                    a.className = 'nav-link';
+                    a.textContent = 'Admin';
+                    li.appendChild(a);
+                    navMenu.appendChild(li);
+                }
+            } catch {}
+        });
+    }
+} catch {}
+
+// Membership expiry check -> create notification if within 7 days
+try {
+    if (window.firebaseAuth && window.firebaseRtdb && window.firebaseRT) {
+        const { ref, child, get, push, set, update } = window.firebaseRT;
+        const rtdb = window.firebaseRtdb;
+        async function checkExpiry(user){
+            try {
+                const snap = await get(child(ref(rtdb), 'users/' + user.uid + '/membership'));
+                if (!snap.exists()) return;
+                const m = snap.val();
+                if (!m || !m.expiry) return;
+                const daysLeft = Math.ceil((new Date(m.expiry).getTime() - Date.now()) / (1000*60*60*24));
+                if (daysLeft <= 7) {
+                    const flagSnap = await get(child(ref(rtdb), 'users/' + user.uid + '/flags/lastExpiryNoticeDate'));
+                    const todayKey = new Date().toISOString().slice(0,10);
+                    if (!flagSnap.exists() || flagSnap.val() !== todayKey) {
+                        const notifKey = push(ref(rtdb, 'notifications/' + user.uid)).key;
+                        await set(ref(rtdb, `notifications/${user.uid}/${notifKey}`), {
+                            type: 'membership',
+                            message: `Your membership expires in ${daysLeft} day${daysLeft===1?'':'s'}.`,
+                            read: false,
+                            createdAt: Date.now()
+                        });
+                        await update(ref(rtdb, 'users/' + user.uid + '/flags'), { lastExpiryNoticeDate: todayKey });
+                    }
+                }
+            } catch {}
+        }
+        window.firebaseAuth.onAuthStateChanged((user)=>{ if (user) { checkExpiry(user); setInterval(()=>checkExpiry(user), 6*60*60*1000); } });
+    }
+} catch {}

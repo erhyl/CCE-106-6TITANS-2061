@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manage Classes - 6Titans Admin</title>
+    <link rel="stylesheet" href="assets/css/styles-base.css" />
+    <link rel="stylesheet" href="assets/css/styles.css" />
+    <link rel="stylesheet" href="assets/css/admin.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <style>
+      .page-header { display:flex; align-items:center; justify-content:space-between; margin: 24px 0; }
+      .admin-card { background:#1a1a1a; border:1px solid #333; border-radius:12px; padding:16px; }
+      .admin-table { width:100%; border-collapse: collapse; }
+      .admin-table th, .admin-table td { padding: 12px; border-bottom: 1px solid #333; text-align:left; }
+      .admin-table th { color:#ffd700; }
+      .btn-sm { padding:6px 10px; border-radius:6px; border:1px solid #333; background:#2a2a2a; color:#fff; cursor:pointer; }
+      .btn-sm:hover { border-color:#ffd700; }
+      .form-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin-bottom:12px; }
+      .form-grid input, .form-grid select { padding:10px; border:1px solid #333; border-radius:8px; background:#111; color:#fff; }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="nav-logo">
+          <img src="images/image 66.png" alt="6Titans Logo" class="logo-icon" />
+          <img src="images/image 67.png" alt="6Titans" class="logo-text" />
+        </div>
+        <ul class="nav-menu">
+          <li class="nav-item"><a href="admin.html" class="nav-link">Dashboard</a></li>
+          <li class="nav-item"><a href="admin-users.html" class="nav-link">Users</a></li>
+          <li class="nav-item"><a href="admin-coaches.html" class="nav-link">Coaches</a></li>
+          <li class="nav-item"><a href="admin-classes.html" class="nav-link active">Classes</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <section class="admin-dashboard">
+      <div class="container">
+        <div class="page-header">
+          <h1>Manage Classes</h1>
+          <div class="toolbar">
+            <button class="btn btn-primary" id="refreshBtn"><i class="fas fa-sync"></i> Refresh</button>
+          </div>
+        </div>
+
+        <div class="admin-card" style="margin-bottom:16px;">
+          <h3 style="color:#ffd700; margin-bottom:8px;">Create / Update Class</h3>
+          <div class="form-grid">
+            <input id="classId" placeholder="Class ID (leave empty to create)" />
+            <input id="className" placeholder="Class name" />
+            <input id="classTime" placeholder="Time e.g. Friday 6:00 PM" />
+            <input id="instructor" placeholder="Instructor" />
+            <select id="classDay">
+              <option value="monday">Monday</option>
+              <option value="tuesday">Tuesday</option>
+              <option value="wednesday">Wednesday</option>
+              <option value="thursday">Thursday</option>
+              <option value="friday">Friday</option>
+              <option value="weekend">Week-End</option>
+            </select>
+            <input id="classDesc" placeholder="Short description (optional)" />
+          </div>
+          <button class="btn btn-primary" id="saveClassBtn"><i class="fas fa-save"></i> Save</button>
+        </div>
+
+        <div class="admin-card">
+          <div id="classesTable">Loading...</div>
+        </div>
+      </div>
+    </section>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+      import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+      import { getDatabase, ref, get, child, update, set, push } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyC2YE5Cn0gbiuQ5sq8lErotl01itq5-hYk",
+        authDomain: "titans-8d454.firebaseapp.com",
+        projectId: "titans-8d454",
+        storageBucket: "titans-8d454.firebasestorage.app",
+        messagingSenderId: "537648978979",
+        appId: "1:537648978979:web:30eb90af77c7569b7be596",
+        measurementId: "G-W1D2R0Q1L1",
+        databaseURL: "https://titans-8d454-default-rtdb.firebaseio.com"
+      };
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const rtdb = getDatabase(app);
+
+      const table = document.getElementById('classesTable');
+      const refreshBtn = document.getElementById('refreshBtn');
+      const saveClassBtn = document.getElementById('saveClassBtn');
+      const classId = document.getElementById('classId');
+      const className = document.getElementById('className');
+      const classTime = document.getElementById('classTime');
+      const instructor = document.getElementById('instructor');
+      const classDay = document.getElementById('classDay');
+      const classDesc = document.getElementById('classDesc');
+
+      async function load(){
+        const snap = await get(child(ref(rtdb), 'classes'));
+        const classes = snap.exists() ? snap.val() : {};
+        const rows = Object.values(classes).map(c=>{
+          return `
+            <tr>
+              <td>${c.id}</td>
+              <td>${c.name||''}</td>
+              <td>${c.time||''}</td>
+              <td>${c.instructor||''}</td>
+              <td>
+                <button class="btn-sm" data-edit="${c.id}">Edit</button>
+                <button class="btn-sm" data-delete="${c.id}">Delete</button>
+              </td>
+            </tr>`;
+        }).join('');
+        table.innerHTML = `
+          <table class="admin-table">
+            <thead><tr><th>ID</th><th>Name</th><th>Time</th><th>Instructor</th><th>Actions</th></tr></thead>
+            <tbody>${rows || ''}</tbody>
+          </table>`;
+
+        table.querySelectorAll('[data-edit]').forEach(btn=>{
+          btn.addEventListener('click', async ()=>{
+            const id = btn.getAttribute('data-edit');
+            const s = await get(child(ref(rtdb), 'classes/'+id));
+            if (s.exists()) {
+              const v = s.val();
+              classId.value = v.id; className.value = v.name||''; classTime.value = v.time||''; instructor.value = v.instructor||''; classDay.value = (v.day||'monday'); classDesc.value = v.description||'';
+            }
+          });
+        });
+        table.querySelectorAll('[data-delete]').forEach(btn=>{
+          btn.addEventListener('click', async ()=>{
+            const id = btn.getAttribute('data-delete');
+            await set(ref(rtdb, 'classes/'+id), null);
+            load();
+          });
+        });
+      }
+
+      saveClassBtn.addEventListener('click', async ()=>{
+        const id = classId.value || push(ref(rtdb, 'classes')).key;
+        await set(ref(rtdb, 'classes/'+id), {
+          id, name: className.value, time: classTime.value, instructor: instructor.value, day: classDay.value, description: classDesc.value
+        });
+        classId.value = className.value = classTime.value = instructor.value = classDesc.value = '';
+        load();
+      });
+
+      refreshBtn.addEventListener('click', load);
+      onAuthStateChanged(auth, (u)=>{ if(!u){ window.location.href='admin-login.html'; } else { load(); } });
+    </script>
+  </body>
+  </html>
+
+

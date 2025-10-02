@@ -115,46 +115,76 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Handle membership confirmation
-    confirmMembershipBtn.addEventListener('click', function() {
+    // Handle membership confirmation (write to Firestore)
+    confirmMembershipBtn.addEventListener('click', async function() {
         const form = document.getElementById('membershipForm');
-        const formData = new FormData(form);
         const planType = this.getAttribute('data-plan');
         
-        // Validate form
-        if (!validateMembershipForm(form)) {
+        if (!validateMembershipForm(form)) return;
+        
+        const auth = window.firebaseAuth;
+        const rtdb = window.firebaseRtdb;
+        const { ref, set, update, rtdbServerTimestamp, push } = window.firebaseRT || {};
+        if (!auth || !rtdb || !ref || !set) {
+            alert('Service not ready. Please refresh the page.');
             return;
         }
-        
-        // Show loading
-        showLoading();
-        
-        // Simulate API call
-        setTimeout(() => {
-            hideLoading();
-            
-            // Show non-intrusive success message
-            const successBanner = document.createElement('div');
-            successBanner.style.backgroundColor = '#1a1a1a';
-            successBanner.style.border = '1px solid #333';
-            successBanner.style.borderLeft = '4px solid #4CAF50';
-            successBanner.style.color = '#ffffff';
-            successBanner.style.padding = '12px 16px';
-            successBanner.style.borderRadius = '8px';
-            successBanner.style.marginTop = '1rem';
-            successBanner.textContent = `Welcome to 6Titans! Your ${planType} membership has been activated. You will receive a confirmation email shortly.`;
+        const user = auth.currentUser;
+        if (!user) {
+            alert('Please log in to purchase a membership.');
+            return;
+        }
 
-            const content = document.getElementById('modalContent');
-            if (content) {
-                content.prepend(successBanner);
+        showLoading();
+        try {
+            const uid = user.uid;
+            // Set membership under RTDB
+            await update(ref(rtdb, 'users/' + uid), {
+                uid,
+                membership: {
+                    status: 'active',
+                    plan: planType,
+                    expiry: new Date(Date.now() + 30*24*60*60*1000).toISOString()
+                }
+            });
+
+            // Audit event
+            const evtKey = push(ref(rtdb, 'events/' + uid)).key;
+            await set(ref(rtdb, `events/${uid}/${evtKey}`), {
+                action: 'membership_purchase',
+                details: { plan: planType },
+                page: 'membership',
+                createdAt: Date.now()
+            });
+
+            // Notification
+            const notifKey = push(ref(rtdb, 'notifications/' + uid)).key;
+            await set(ref(rtdb, `notifications/${uid}/${notifKey}`), {
+                type: 'membership',
+                message: `Your ${planType} membership is now active!`,
+                data: { plan: planType },
+                read: false,
+                createdAt: Date.now()
+            });
+
+            hideLoading();
+            if (window.Utils && window.Utils.showToast) {
+                window.Utils.showToast(`Membership activated: ${planType}`, 'success');
+            } else {
+                alert(`Membership activated: ${planType}`);
             }
 
-            // Close modal after short delay
-            setTimeout(() => {
-                membershipModal.style.display = 'none';
-                document.body.style.overflow = 'auto';
-            }, 1500);
-        }, 2000);
+            // Close modal
+            membershipModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        } catch (err) {
+            hideLoading();
+            if (window.Utils && window.Utils.showToast) {
+                window.Utils.showToast(`Could not activate membership: ${err.message}`, 'error');
+            } else {
+                alert('Could not activate membership: ' + err.message);
+            }
+        }
     });
 
     // Add modal styles
@@ -350,6 +380,36 @@ document.addEventListener('DOMContentLoaded', function() {
         card.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
         observer.observe(card);
     });
+
+    // Gate: if user is logged in, read membership and reflect current status on UI
+    try {
+        const auth = window.firebaseAuth;
+        const rtdb = window.firebaseRtdb;
+        const { ref, get, child } = window.firebaseRT || {};
+        if (auth && rtdb && ref && get && child) {
+            const unsub = auth.onAuthStateChanged(async (user) => {
+                if (!user) return;
+                try {
+                    const snap = await get(child(ref(rtdb), 'users/' + user.uid));
+                    const data = snap.exists() ? snap.val() : null;
+                    if (data && data.membership && data.membership.status === 'active') {
+                        // Inform user they already have an active plan
+                        const banner = document.createElement('div');
+                        banner.style.backgroundColor = '#1a1a1a';
+                        banner.style.border = '1px solid #333';
+                        banner.style.borderLeft = '4px solid #4CAF50';
+                        banner.style.color = '#ffffff';
+                        banner.style.padding = '12px 16px';
+                        banner.style.borderRadius = '8px';
+                        banner.style.margin = '1rem 0';
+                        banner.textContent = `Your membership is active: ${data.membership.plan.toUpperCase()} (expires ${new Date(data.membership.expiry).toLocaleDateString()})`;
+                        const container = document.querySelector('.membership .container');
+                        if (container) container.insertBefore(banner, container.children[2] || null);
+                    }
+                } catch {}
+            });
+        }
+    } catch {}
 });
 
 // Get plan data based on plan type

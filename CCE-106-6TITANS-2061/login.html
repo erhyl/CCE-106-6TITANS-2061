@@ -186,60 +186,10 @@
 
     <script src="script.js"></script>
     <script src="auth.js"></script>
-    <style>
-      .loading-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(0,0,0,0.6);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 9999;
-      }
-      .loading-spinner {
-        border: 6px solid #f3f3f3;
-        border-top: 6px solid #ffd700;
-        border-radius: 50%;
-        width: 48px;
-        height: 48px;
-        animation: spin 1s linear infinite;
-      }
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-      }
-    </style>
+    <script src="utils.js"></script>
     <script type="module">
-      function showLoading() {
-        let overlay = document.createElement('div');
-        overlay.className = 'loading-overlay';
-        overlay.innerHTML = '<div class="loading-spinner"></div>';
-        overlay.id = 'loadingOverlay';
-        document.body.appendChild(overlay);
-      }
-      function hideLoading() {
-        const overlay = document.getElementById('loadingOverlay');
-        if (overlay) overlay.remove();
-      }
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-      import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
-      import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
-
-      const firebaseConfig = {
-        apiKey: "AIzaSyC2YE5Cn0gbiuQ5sq8lErotl01itq5-hYk",
-        authDomain: "titans-8d454.firebaseapp.com",
-        projectId: "titans-8d454",
-        storageBucket: "titans-8d454.firebasestorage.app",
-        messagingSenderId: "537648978979",
-        appId: "1:537648978979:web:30eb90af77c7569b7be596",
-        measurementId: "G-W1D2R0Q1L1"
-      };
-      const app = initializeApp(firebaseConfig);
-      const auth = getAuth(app);
-      const db = getFirestore(app);
+      import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+      import { auth } from "./firebase-init.js";
 
       document.addEventListener('DOMContentLoaded', () => {
         const loginForm = document.getElementById('loginForm');
@@ -250,11 +200,7 @@
             const password = document.getElementById('password').value;
             try {
               showLoading();
-              const userCredential = await signInWithEmailAndPassword(auth, email, password);
-              const user = userCredential.user;
-              // Optionally fetch user data from Firestore
-              // const userDoc = await getDoc(doc(db, "users", user.uid));
-              // const userData = userDoc.exists() ? userDoc.data() : null;
+              await signInWithEmailAndPassword(auth, email, password);
               hideLoading();
               alert('Login successful!');
               window.location.href = 'user-dashboard.html';

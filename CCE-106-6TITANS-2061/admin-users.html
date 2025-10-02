@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manage Users - 6Titans Admin</title>
+    <link rel="stylesheet" href="assets/css/styles-base.css" />
+    <link rel="stylesheet" href="assets/css/styles.css" />
+    <link rel="stylesheet" href="assets/css/admin.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <style>
+      .page-header { display:flex; align-items:center; justify-content:space-between; margin: 24px 0; }
+      .toolbar { display:flex; gap:8px; flex-wrap:wrap; }
+      .admin-table { width: 100%; border-collapse: collapse; }
+      .admin-table th, .admin-table td { padding: 12px; border-bottom: 1px solid #333; text-align:left; }
+      .admin-table th { color:#ffd700; }
+      .admin-card { background:#1a1a1a; border:1px solid #333; border-radius:12px; padding:16px; }
+      .filters { display:flex; gap:10px; margin: 12px 0; flex-wrap:wrap; }
+      .btn-sm { padding:6px 10px; border-radius:6px; border:1px solid #333; background:#2a2a2a; color:#fff; cursor:pointer; }
+      .btn-sm:hover { border-color:#ffd700; }
+      .pill { padding:2px 8px; border-radius:999px; font-size:.8rem; }
+      .pill.active { background:#4caf50; color:#fff; }
+      .pill.inactive { background:#555; color:#eee; }
+      .status-dot { width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:6px; }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="nav-logo">
+          <img src="images/image 66.png" alt="6Titans Logo" class="logo-icon" />
+          <img src="images/image 67.png" alt="6Titans" class="logo-text" />
+        </div>
+        <ul class="nav-menu">
+          <li class="nav-item"><a href="admin.html" class="nav-link">Dashboard</a></li>
+          <li class="nav-item"><a href="admin-users.html" class="nav-link active">Users</a></li>
+          <li class="nav-item"><a href="admin-coaches.html" class="nav-link">Coaches</a></li>
+          <li class="nav-item"><a href="admin-classes.html" class="nav-link">Classes</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <section class="admin-dashboard">
+      <div class="container">
+        <div class="page-header">
+          <h1>Manage Users</h1>
+          <div class="toolbar">
+            <input id="searchInput" placeholder="Search name or email" style="padding:10px;border:1px solid #333;border-radius:8px;background:#111;color:#fff;min-width:240px;" />
+            <select id="planFilter" style="padding:10px;border:1px solid #333;border-radius:8px;background:#111;color:#fff;">
+              <option value="all">All plans</option>
+              <option value="none">No plan</option>
+              <option value="basic">Basic</option>
+              <option value="premium">Premium</option>
+              <option value="elite">Elite</option>
+            </select>
+            <button class="btn btn-primary" id="refreshBtn"><i class="fas fa-sync"></i> Refresh</button>
+          </div>
+        </div>
+
+        <div class="admin-card">
+          <div id="usersTable">Loading...</div>
+        </div>
+      </div>
+    </section>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+      import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+      import { getDatabase, ref, get, child, update } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyC2YE5Cn0gbiuQ5sq8lErotl01itq5-hYk",
+        authDomain: "titans-8d454.firebaseapp.com",
+        projectId: "titans-8d454",
+        storageBucket: "titans-8d454.firebasestorage.app",
+        messagingSenderId: "537648978979",
+        appId: "1:537648978979:web:30eb90af77c7569b7be596",
+        measurementId: "G-W1D2R0Q1L1",
+        databaseURL: "https://titans-8d454-default-rtdb.firebaseio.com"
+      };
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const rtdb = getDatabase(app);
+
+      const usersTable = document.getElementById('usersTable');
+      const searchInput = document.getElementById('searchInput');
+      const planFilter = document.getElementById('planFilter');
+      const refreshBtn = document.getElementById('refreshBtn');
+      let cachedUsers = {};
+
+      function render(users){
+        const term = (searchInput.value || '').toLowerCase();
+        const plan = planFilter.value;
+        const rows = Object.values(users)
+          .filter(u=>{
+            const name = [(u.firstName||''),(u.lastName||'')].join(' ').toLowerCase();
+            const email = (u.email||'').toLowerCase();
+            const p = (u.membership?.plan)||'none';
+            const byPlan = plan==='all' ? true : plan === p;
+            const byTerm = !term || name.includes(term) || email.includes(term);
+            return byPlan && byTerm;
+          })
+          .map(u=>{
+            const uid = u.uid || '';
+            const email = u.email || '';
+            const name = [u.firstName, u.lastName].filter(Boolean).join(' ') || email || 'User';
+            const plan = u.membership?.plan || 'none';
+            const status = u.membership?.status || 'inactive';
+            const expiry = u.membership?.expiry || '';
+            return `
+              <tr>
+                <td>${name}</td>
+                <td>${email}</td>
+                <td><span class="pill ${status==='active'?'active':'inactive'}">${status}</span></td>
+                <td>${plan}</td>
+                <td>
+                  <button class="btn-sm" data-upgrade="${uid}" data-plan="basic">Basic</button>
+                  <button class="btn-sm" data-upgrade="${uid}" data-plan="premium">Premium</button>
+                  <button class="btn-sm" data-upgrade="${uid}" data-plan="elite">Elite</button>
+                </td>
+                <td style="min-width:360px">
+                  <input type="date" data-expiry="${uid}" value="${expiry ? new Date(expiry).toISOString().slice(0,10) : ''}" style="padding:6px;border:1px solid #333;border-radius:6px;background:#111;color:#fff;" />
+                  <button class="btn-sm" data-save-expiry="${uid}">Save</button>
+                  <button class="btn-sm" data-extend="${uid}">+30d</button>
+                  <button class="btn-sm" data-remind="${uid}">Remind</button>
+                  <button class="btn-sm" data-notify="${uid}">Notify</button>
+                </td>
+                <td>
+                  <button class="btn-sm" data-deactivate="${uid}">Deactivate</button>
+                </td>
+              </tr>`;
+          }).join('');
+
+        usersTable.innerHTML = `
+          <table class="admin-table">
+            <thead><tr><th>Name</th><th>Email</th><th>Status</th><th>Plan</th><th>Upgrade</th><th>Expiry</th><th>Actions</th></tr></thead>
+            <tbody>${rows || ''}</tbody>
+          </table>`;
+
+        usersTable.querySelectorAll('[data-upgrade]').forEach(btn=>{
+          btn.addEventListener('click', async ()=>{
+            const uid = btn.getAttribute('data-upgrade');
+            const plan = btn.getAttribute('data-plan');
+            await update(ref(rtdb, 'users/'+uid+'/membership'),{
+              status:'active', plan, expiry: new Date(Date.now()+30*24*60*60*1000).toISOString()
+            });
+            load();
+          });
+        });
+        usersTable.querySelectorAll('[data-deactivate]').forEach(btn=>{
+          btn.addEventListener('click', async ()=>{
+            const uid = btn.getAttribute('data-deactivate');
+            await update(ref(rtdb, 'users/'+uid+'/membership'),{ status:'inactive' });
+            load();
+          });
+        });
+
+        // Save expiry
+        usersTable.querySelectorAll('[data-save-expiry]').forEach(btn=>{
+          btn.addEventListener('click', async ()=>{
+            const uid = btn.getAttribute('data-save-expiry');
+            const input = usersTable.querySelector(`[data-expiry="${uid}"]`);
+            if (!input || !input.value) return;
+            await update(ref(rtdb, 'users/'+uid+'/membership'),{ expiry: new Date(input.value+'T00:00:00').toISOString(), status: 'active' });
+            load();
+          });
+        });
+        // Extend +30 days
+        usersTable.querySelectorAll('[data-extend]').forEach(btn=>{
+          btn.addEventListener('click', async ()=>{
+            const uid = btn.getAttribute('data-extend');
+            const snap = await get(child(ref(rtdb), 'users/'+uid+'/membership'));
+            const now = Date.now();
+            let base = now;
+            if (snap.exists() && snap.val().expiry) {
+              const t = new Date(snap.val().expiry).getTime();
+              base = isNaN(t) ? now : Math.max(t, now);
+            }
+            const newExp = new Date(base + 30*24*60*60*1000).toISOString();
+            await update(ref(rtdb, 'users/'+uid+'/membership'),{ expiry: newExp, status: 'active' });
+            load();
+          });
+        });
+        // Send reminder now
+        usersTable.querySelectorAll('[data-remind]').forEach(btn=>{
+          btn.addEventListener('click', async ()=>{
+            const uid = btn.getAttribute('data-remind');
+            const { push } = await import('https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js');
+            const notifKey = push(ref(rtdb, 'notifications/'+uid)).key;
+            await update(ref(rtdb, 'notifications/'+uid+'/'+notifKey), { type:'membership', message:'Reminder: Your membership is nearing expiry.', read:false, createdAt: Date.now() });
+            alert('Reminder sent');
+          });
+        });
+        // Send custom notification
+        usersTable.querySelectorAll('[data-notify]').forEach(btn=>{
+          btn.addEventListener('click', async ()=>{
+            const uid = btn.getAttribute('data-notify');
+            const message = prompt('Enter notification message:', 'Your membership is almost expiring. Renew now.');
+            if (!message) return;
+            const title = 'membership';
+            const { push } = await import('https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js');
+            const notifKey = push(ref(rtdb, 'notifications/'+uid)).key;
+            await update(ref(rtdb, 'notifications/'+uid+'/'+notifKey), { type:title, message, read:false, createdAt: Date.now() });
+            alert('Notification sent');
+          });
+        });
+      }
+
+      async function load(){
+        const snap = await get(child(ref(rtdb), 'users'));
+        cachedUsers = snap.exists()? snap.val():{};
+        render(cachedUsers);
+      }
+
+      searchInput.addEventListener('input', ()=> render(cachedUsers));
+      planFilter.addEventListener('change', ()=> render(cachedUsers));
+      refreshBtn.addEventListener('click', load);
+
+      onAuthStateChanged(auth, (u)=>{ if(!u){ window.location.href='admin-login.html'; } else { load(); } });
+    </script>
+  </body>
+  </html>
+
+
