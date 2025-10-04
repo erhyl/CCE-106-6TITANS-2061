@@ -21,7 +21,10 @@ const PAGE_RULES = {
   public: ['index.html', 'membership.html', 'classes.html', 'workouts.html', 'coaching.html', 'online-gym.html', 'articles.html'],
   
   // Guest pages (no auth required)
-  guest: ['login.html', 'register.html', 'coach-login.html', 'coach-register.html']
+  guest: ['login.html', 'register.html', 'coach-login.html', 'coach-register.html'],
+  
+  // Pending approval page (only for pending coaches)
+  pending: ['coach-pending.html']
 };
 
 // Get current page filename
@@ -30,27 +33,35 @@ function getCurrentPage() {
   return path.split('/').pop() || 'index.html';
 }
 
-// Get user's account type from Firestore or RTDB
+// Get user's account type and approval status from Firestore or RTDB
 async function getUserAccountType(uid) {
   try {
     // Try Firestore first
     const userDoc = await getDoc(doc(db, "users", uid));
     if (userDoc.exists()) {
       const userData = userDoc.data();
-      return userData.accountType || 'member';
+      return { 
+        accountType: userData.accountType || 'member',
+        coachApproved: userData.coachApproved,
+        approvalStatus: userData.approvalStatus
+      };
     }
     
     // Fallback to RTDB
     const snap = await get(child(ref(rtdb), 'users/' + uid));
     if (snap.exists()) {
       const userData = snap.val();
-      return userData.accountType || 'member';
+      return { 
+        accountType: userData.accountType || 'member',
+        coachApproved: userData.coachApproved,
+        approvalStatus: userData.approvalStatus
+      };
     }
     
-    return 'member'; // Default to member
+    return { accountType: 'member', coachApproved: true }; // Default to member
   } catch (error) {
     console.error('Error fetching user account type:', error);
-    return 'member';
+    return { accountType: 'member', coachApproved: true };
   }
 }
 
@@ -126,8 +137,33 @@ export function initRoleGuard(options = {}) {
       return;
     }
     
-    // Get user's account type
-    const accountType = await getUserAccountType(user.uid);
+    // Get user's account type and approval status
+    const userInfo = await getUserAccountType(user.uid);
+    const accountType = userInfo.accountType;
+    
+    // CRITICAL: Check if coach is pending approval
+    // Pending coaches can ONLY access coach-pending.html, nothing else
+    if (accountType === 'coach' && userInfo.coachApproved === false) {
+      if (currentPage !== 'coach-pending.html') {
+        console.warn('Coach account pending approval - access restricted to pending page only');
+        if (redirectOnFail) {
+          window.location.href = 'coach-pending.html';
+        }
+        return;
+      }
+      // If on pending page, allow access
+      return;
+    }
+    
+    // Check if user is trying to access pending page but is not a pending coach
+    if (currentPage === 'coach-pending.html' && (accountType !== 'coach' || userInfo.coachApproved !== false)) {
+      console.warn('User is not a pending coach, redirecting to appropriate dashboard');
+      if (redirectOnFail) {
+        const redirectPage = getRedirectPage(accountType);
+        window.location.href = redirectPage;
+      }
+      return;
+    }
     
     // Check if specific roles are required
     if (allowedRoles) {
@@ -174,8 +210,8 @@ export async function hasRole(role) {
   const user = auth.currentUser;
   if (!user) return false;
   
-  const accountType = await getUserAccountType(user.uid);
-  return accountType === role;
+  const userInfo = await getUserAccountType(user.uid);
+  return userInfo.accountType === role;
 }
 
 // Export for debugging

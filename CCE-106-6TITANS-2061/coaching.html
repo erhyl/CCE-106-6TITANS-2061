@@ -1,9 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-     <style>
-      #authButtons { visibility: hidden; }
-    </style>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Meet Your Coaches - 6Titans</title>
@@ -48,8 +45,7 @@
           </li>
         </ul>
         <div class="auth-buttons" id="authButtons">
-          <a href="login.html" id="loginBtnNav">Login</a>
-          <a href="register.html" id="signupBtnNav">Sign Up</a>
+          
         </div>
         <div class="hamburger">
           <span class="bar"></span>
@@ -64,238 +60,144 @@
       <div class="container">
         <h1 class="page-title">Meet Your Coaches</h1>
 
-        <!-- Coaches Grid -->
-        <div class="coaches-grid">
-          <!-- Angelou Carino -->
-          <div class="coach-card">
-            <div class="coach-avatar">
-              <i class="fas fa-user"></i>
-            </div>
-            <h3 class="coach-name">Angelou Carino</h3>
-            <p class="coach-specialization">Yoga & Mindfulness</p>
-            <p class="coach-description">
-              Certified yoga instructor with 8 years of experience in helping
-              clients find balance and strength.
-            </p>
-            <div class="coach-badges">
-              <span class="badge">RYT_500</span>
-              <span class="badge">Pilates Certified</span>
-            </div>
-            <div class="coach-rating">
-              <div class="stars">
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-              </div>
-              <span class="rating-text">4.9 (158 reviews)</span>
-            </div>
-            <button
-              class="btn btn-primary book-session"
-              data-coach="Angelou Carino"
-            >
-              Book Session
-            </button>
-          </div>
-
-          <!-- Jerard Lavilla -->
-          <div class="coach-card">
-            <div class="coach-avatar">
-              <i class="fas fa-user"></i>
-            </div>
-            <h3 class="coach-name">Jerard Lavilla</h3>
-            <p class="coach-specialization">HIIT & Cardio</p>
-            <p class="coach-description">
-              Former competitive athlete specializing in high-intensity training
-              and fat loss programs.
-            </p>
-            <div class="coach-badges">
-              <span class="badge">NASM-CPT</span>
-              <span class="badge">HIIT Specialist</span>
-            </div>
-            <div class="coach-rating">
-              <div class="stars">
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-              </div>
-              <span class="rating-text">4.8 (98 reviews)</span>
-            </div>
-            <button
-              class="btn btn-primary book-session"
-              data-coach="Jerard Lavilla"
-            >
-              Book Session
-            </button>
-          </div>
-
-          <!-- Charles Cacam -->
-          <div class="coach-card">
-            <div class="coach-avatar">
-              <i class="fas fa-user"></i>
-            </div>
-            <h3 class="coach-name">Charles Cacam</h3>
-            <p class="coach-specialization">Strength Training</p>
-            <p class="coach-description">
-              Powerlifting coach with expertise in building raw strength and
-              muscle mass.
-            </p>
-            <div class="coach-badges">
-              <span class="badge">CSCS</span>
-              <span class="badge">Powerlifting Coach</span>
-            </div>
-            <div class="coach-rating">
-              <div class="stars">
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-              </div>
-              <span class="rating-text">4.9 (169 reviews)</span>
-            </div>
-            <button
-              class="btn btn-primary book-session"
-              data-coach="Charles Cacam"
-            >
-              Book Session
-            </button>
-          </div>
-
-          <!-- Additional Coaches -->
-          <div class="coach-card">
-            <div class="coach-avatar">
-              <i class="fas fa-user"></i>
-            </div>
-            <h3 class="coach-name">Niel Ian Villaver</h3>
-            <p class="coach-specialization">Yoga & Flexibility</p>
-            <p class="coach-description">
-              Experienced yoga instructor focused on flexibility, mobility, and
-              stress relief.
-            </p>
-            <div class="coach-badges">
-              <span class="badge">RYT_200</span>
-              <span class="badge">Flexibility Expert</span>
-            </div>
-            <div class="coach-rating">
-              <div class="stars">
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-              </div>
-              <span class="rating-text">4.7 (124 reviews)</span>
-            </div>
-            <button
-              class="btn btn-primary book-session"
-              data-coach="Niel Ian Villaver"
-            >
-              Book Session
-            </button>
-          </div>
-
-          <div class="coach-card">
-            <div class="coach-avatar">
-              <i class="fas fa-user"></i>
-            </div>
-            <h3 class="coach-name">Jude Tomonas</h3>
-            <p class="coach-specialization">Cardio & Endurance</p>
-            <p class="coach-description">
-              Marathon runner and cardio specialist helping clients build
-              endurance and stamina.
-            </p>
-            <div class="coach-badges">
-              <span class="badge">ACE-CPT</span>
-              <span class="badge">Endurance Coach</span>
-            </div>
-            <div class="coach-rating">
-              <div class="stars">
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-              </div>
-              <span class="rating-text">4.8 (87 reviews)</span>
-            </div>
-            <button
-              class="btn btn-primary book-session"
-              data-coach="Jude Tomonas"
-            >
-              Book Session
-            </button>
-          </div>
-
-          <div class="coach-card">
-            <div class="coach-avatar">
-              <i class="fas fa-user"></i>
-            </div>
-            <h3 class="coach-name">Karl Verbo</h3>
-            <p class="coach-specialization">Bodybuilding</p>
-            <p class="coach-description">
-              Competitive bodybuilder and physique coach specializing in muscle
-              building and contest prep.
-            </p>
-            <div class="coach-badges">
-              <span class="badge">IFBB Pro</span>
-              <span class="badge">Bodybuilding Coach</span>
-            </div>
-            <div class="coach-rating">
-              <div class="stars">
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-              </div>
-              <span class="rating-text">4.9 (203 reviews)</span>
-            </div>
-            <button
-              class="btn btn-primary book-session"
-              data-coach="Karl Verbo"
-            >
-              Book Session
-            </button>
-          </div>
-
-          <div class="coach-card">
-            <div class="coach-avatar">
-              <i class="fas fa-user"></i>
-            </div>
-            <h3 class="coach-name">Joshua Mortejo</h3>
-            <p class="coach-specialization">Pilates & Core</p>
-            <p class="coach-description">
-              Pilates instructor focused on core strength, posture, and
-              functional movement patterns.
-            </p>
-            <div class="coach-badges">
-              <span class="badge">PMA Certified</span>
-              <span class="badge">Core Specialist</span>
-            </div>
-            <div class="coach-rating">
-              <div class="stars">
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-              </div>
-              <span class="rating-text">4.6 (95 reviews)</span>
-            </div>
-            <button
-              class="btn btn-primary book-session"
-              data-coach="Joshua Mortejo"
-            >
-              Book Session
-            </button>
-          </div>
+        <!-- Coaches Grid - Dynamically loaded from Firebase -->
+        <div class="coaches-grid" id="coachesGrid">
+          <p style="color: #888; text-align: center; grid-column: 1 / -1;">Loading coaches...</p>
         </div>
       </div>
     </section>
+
+    <!-- Dynamic Coach Loading Script -->
+    <script type="module">
+      import { rtdb } from "./firebase-init.js";
+      import { ref, get } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+
+      // Load coaches from Firebase
+      async function loadCoaches() {
+        const coachesGrid = document.getElementById('coachesGrid');
+        
+        try {
+          const snapshot = await get(ref(rtdb, 'coachProfiles'));
+          const coaches = snapshot.val();
+
+          if (!coaches || Object.keys(coaches).length === 0) {
+            coachesGrid.innerHTML = '<p style="color: #888; text-align: center; grid-column: 1 / -1;">No coaches available at the moment. Check back soon!</p>';
+            return;
+          }
+
+          const coachesHtml = Object.entries(coaches).map(([id, coach]) => `
+            <div class="coach-card">
+              <div class="coach-avatar">
+                <i class="fas fa-user"></i>
+              </div>
+              <h3 class="coach-name">${coach.name}</h3>
+              <p class="coach-specialization">${coach.specialization}</p>
+              <p class="coach-description">
+                ${coach.description}
+              </p>
+              ${coach.certifications ? `
+                <div class="coach-badges">
+                  ${coach.certifications.split(',').map(cert => 
+                    `<span class="badge">${cert.trim()}</span>`
+                  ).join('')}
+                </div>
+              ` : ''}
+              ${coach.rating ? `
+                <div class="coach-rating">
+                  <div class="stars">
+                    ${Array(5).fill(0).map((_, i) => 
+                      i < Math.floor(coach.rating) 
+                        ? '<i class="fas fa-star"></i>' 
+                        : (i < coach.rating ? '<i class="fas fa-star-half-alt"></i>' : '<i class="far fa-star"></i>')
+                    ).join('')}
+                  </div>
+                  <span class="rating-text">${coach.rating} (${coach.reviews || 0} reviews)</span>
+                </div>
+              ` : ''}
+              <button class="btn btn-primary book-session" data-coach="${coach.name}" data-coach-id="${id}">
+                Book Session
+              </button>
+            </div>
+          `).join('');
+
+          coachesGrid.innerHTML = coachesHtml;
+
+          // Re-attach book session event listeners
+          document.querySelectorAll('.book-session').forEach(btn => {
+            btn.addEventListener('click', function() {
+              const coachName = this.getAttribute('data-coach');
+              const coachId = this.getAttribute('data-coach-id');
+              openBookingModal(coachName, coachId);
+            });
+          });
+
+        } catch (error) {
+          console.error('Error loading coaches:', error);
+          coachesGrid.innerHTML = '<p style="color: #f44336; text-align: center; grid-column: 1 / -1;">Failed to load coaches. Please refresh the page.</p>';
+        }
+      }
+
+      // Open booking modal
+      async function openBookingModal(coachName, coachId) {
+        const modal = document.getElementById('bookingModal');
+        const coachNameInput = document.getElementById('coachName');
+        const memberNameInput = document.getElementById('memberName');
+        const memberEmailInput = document.getElementById('memberEmail');
+        const memberPhoneInput = document.getElementById('memberPhone');
+        
+        if (modal && coachNameInput) {
+          coachNameInput.value = coachName;
+          coachNameInput.setAttribute('data-coach-id', coachId);
+          
+          // Auto-fill user details if logged in
+          try {
+            const { getAuth } = await import("https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js");
+            const { getFirestore, doc, getDoc } = await import("https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js");
+            const { ref: dbRef, get: dbGet, child } = await import("https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js");
+            
+            const auth = getAuth();
+            const user = auth.currentUser;
+            
+            if (user) {
+              // Try to get user data from Firestore first
+              const db = getFirestore();
+              const userDoc = await getDoc(doc(db, "users", user.uid));
+              
+              if (userDoc.exists()) {
+                const userData = userDoc.data();
+                // Auto-fill name and email
+                memberNameInput.value = `${userData.firstName || ''} ${userData.lastName || ''}`.trim() || userData.email;
+                memberEmailInput.value = userData.email || user.email;
+                // Leave phone empty for user to fill
+                memberPhoneInput.value = '';
+              } else {
+                // Fallback to Realtime Database
+                const snapshot = await dbGet(child(dbRef(rtdb), `users/${user.uid}`));
+                if (snapshot.exists()) {
+                  const userData = snapshot.val();
+                  memberNameInput.value = `${userData.firstName || ''} ${userData.lastName || ''}`.trim() || userData.email;
+                  memberEmailInput.value = userData.email || user.email;
+                  memberPhoneInput.value = '';
+                }
+              }
+            }
+          } catch (error) {
+            console.log('Could not auto-fill user data:', error);
+            // If error, just open modal without pre-filling
+          }
+          
+          modal.style.display = 'block';
+        }
+      }
+
+      // Expose function globally for coaching.js
+      window.openBookingModal = openBookingModal;
+
+      // Load coaches when page loads
+      loadCoaches();
+    </script>
+
+  
 
     <!-- Booking Modal -->
     <div id="bookingModal" class="modal">
@@ -435,6 +337,11 @@
       </div>
     </footer>
 
+    <script type="module">
+      // Initialize role guard to protect against pending coaches
+      import { initRoleGuard } from "./role-guard.js";
+      initRoleGuard({ requireAuth: false }); // Public page but check for pending coaches
+    </script>
     <script src="script.js"></script>
     <script src="coaching.js"></script>
     <script type="module">
@@ -463,7 +370,9 @@
             banner.innerHTML = `Premium feature: Booking requires an active membership. <a href="membership.html" style="color:#ffd700;text-decoration:underline">Upgrade now</a>`;
             if (container) container.insertBefore(banner, container.children[2] || null);
           }
-        } catch {}
+        } catch (err) {
+          console.error('Membership check error:', err);
+        }
       });
     </script>
   </body>

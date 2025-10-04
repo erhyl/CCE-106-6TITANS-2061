@@ -2,9 +2,13 @@
 <html lang="en">
   <head>
     <script type="module">
+      import { requireCoach } from "./role-guard.js";
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
       import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
       import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+
+      // Protect this page - only approved coaches can access
+      requireCoach();
 
       const firebaseConfig = {
         apiKey: "AIzaSyC2YE5Cn0gbiuQ5sq8lErotl01itq5-hYk",
@@ -13,25 +17,31 @@
         storageBucket: "titans-8d454.firebasestorage.app",
         messagingSenderId: "537648978979",
         appId: "1:537648978979:web:30eb90af77c7569b7be596",
-        measurementId: "G-W1D2R0Q1L1"
+        measurementId: "G-W1D2R0Q1L1",
+        databaseURL: "https://titans-8d454-default-rtdb.firebaseio.com"
       };
-      const app = initializeApp(firebaseConfig);
-      const auth = getAuth(app);
-      const db = getFirestore(app);
+      const guardApp = initializeApp(firebaseConfig);
+      const guardAuth = getAuth(guardApp);
+      const guardDb = getFirestore(guardApp);
 
       window.isLoggingOut = false;
-      onAuthStateChanged(auth, async (user) => {
+      onAuthStateChanged(guardAuth, async (user) => {
         if (!user) {
           if (window.isLoggingOut) return; // Prevent double redirect
           window.location.href = 'coach-login.html';
           return;
         }
         try {
-          const userDoc = await getDoc(doc(db, "users", user.uid));
+          const userDoc = await getDoc(doc(guardDb, "users", user.uid));
           const userData = userDoc.exists() ? userDoc.data() : null;
           if (!userData || userData.accountType !== 'coach') {
-            await signOut(auth);
+            await signOut(guardAuth);
             window.location.href = 'coach-login.html';
+            return;
+          }
+          // Check if coach is approved
+          if (userData.coachApproved === false) {
+            window.location.href = 'coach-pending.html';
             return;
           }
           // Update coach name
@@ -40,7 +50,7 @@
             coachName.textContent = userData.firstName;
           }
         } catch (err) {
-          await signOut(auth);
+          await signOut(guardAuth);
           window.location.href = 'coach-login.html';
         }
       });
@@ -118,6 +128,12 @@
               Welcome back, <span id="coachName"></span>! Manage
               your clients and sessions.
             </p>
+            <!-- New Bookings Alert -->
+            <div id="dashboardAlert" style="display: none; background: #1a2a1a; border: 1px solid #4caf50; border-left: 4px solid #4caf50; padding: 0.75rem 1rem; border-radius: 8px; margin-top: 1rem;">
+              <i class="fas fa-check-circle" style="color: #4caf50;"></i>
+              <strong style="color: #4caf50; margin-left: 0.5rem;">New booking approved!</strong>
+              <a href="coach-bookings.html" style="color: #ffd700; margin-left: 1rem; text-decoration: underline;">View Now</a>
+            </div>
           </div>
           <div class="coach-stats">
             <div class="stat-card">
@@ -156,21 +172,21 @@
           <div class="dashboard-section">
             <h2>Quick Actions</h2>
             <div class="quick-actions">
-              <button class="action-btn" id="addClientBtn">
-                <i class="fas fa-user-plus"></i>
-                <span>Add Client</span>
+              <button class="action-btn" onclick="window.location.href='coach-schedule.html'">
+                <i class="fas fa-calendar-alt"></i>
+                <span>View Schedule</span>
               </button>
-              <button class="action-btn" id="scheduleSessionBtn">
-                <i class="fas fa-calendar-plus"></i>
-                <span>Schedule Session</span>
+              <button class="action-btn" onclick="window.location.href='coach-bookings.html'">
+                <i class="fas fa-calendar-check"></i>
+                <span>Manage Bookings</span>
               </button>
-              <button class="action-btn" id="viewMessagesBtn" href="call.html">
-                <i class="fas fa-comments"></i>
-                <span>Call Client</span>
-              </button>
-              <button class="action-btn" id="updateAvailabilityBtn">
+              <button class="action-btn" onclick="window.location.href='coach-availability.html'">
                 <i class="fas fa-clock"></i>
                 <span>Update Availability</span>
+              </button>
+              <button class="action-btn" onclick="window.location.href='call.html'">
+                <i class="fas fa-video"></i>
+                <span>Video Call</span>
               </button>
             </div>
           </div>
@@ -178,39 +194,16 @@
           <!-- Today's Schedule -->
           <div class="dashboard-section">
             <h2>Today's Schedule</h2>
-            <div class="schedule-timeline">
-              <div class="timeline-item">
-                <div class="timeline-time">9:00 AM</div>
-                <div class="timeline-content">
-                  <h4>John Doe - Personal Training</h4>
-                  <p>Strength Training Session</p>
-                  <div class="timeline-status completed">Completed</div>
-                </div>
-              </div>
-              <div class="timeline-item">
-                <div class="timeline-time">10:30 AM</div>
-                <div class="timeline-content">
-                  <h4>Jane Smith - Video Call</h4>
-                  <p>Nutrition Consultation</p>
-                  <div class="timeline-status upcoming">Starting Soon</div>
-                </div>
-              </div>
-              <div class="timeline-item">
-                <div class="timeline-time">2:00 PM</div>
-                <div class="timeline-content">
-                  <h4>Mike Johnson - Group Class</h4>
-                  <p>HIIT Training</p>
-                  <div class="timeline-status upcoming">Upcoming</div>
-                </div>
-              </div>
-              <div class="timeline-item">
-                <div class="timeline-time">4:00 PM</div>
-                <div class="timeline-content">
-                  <h4>Sarah Wilson - Personal Training</h4>
-                  <p>Cardio & Strength</p>
-                  <div class="timeline-status upcoming">Upcoming</div>
-                </div>
-              </div>
+            <div class="schedule-timeline" id="todaySchedule">
+              <p style="color: #888; text-align: center;">Loading schedule...</p>
+            </div>
+          </div>
+
+          <!-- Quick Stats -->
+          <div class="dashboard-section">
+            <h2>Recent Activity</h2>
+            <div id="recentActivity">
+              <p style="color: #888; text-align: center;">Loading activity...</p>
             </div>
           </div>
 
@@ -654,6 +647,262 @@
     <script src="script.js"></script>
     <script src="auth.js"></script>
     <script src="coach-dashboard.js"></script>
+    
+    <!-- Coach Bookings Management -->
+    <script type="module">
+      import { getApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+      import { getDatabase, ref, get, update, onValue } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+      import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+      import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+
+      // Use existing Firebase app to avoid initialization conflicts
+      const app = getApp();
+      const auth = getAuth(app);
+      const rtdb = getDatabase(app, "https://titans-8d454-default-rtdb.firebaseio.com");
+      const db = getFirestore(app);
+      
+      let coachName = '';
+      let coachData = null;
+      let allBookings = [];
+      let previousConfirmedCount = 0;
+
+      // Get coach profile data
+      async function getCoachProfile(uid) {
+        try {
+          // Try to get coach profile from coachProfiles
+          const profileSnap = await get(ref(rtdb, 'coachProfiles'));
+          const profiles = profileSnap.val();
+          
+          if (profiles) {
+            // Find coach profile by matching uid or by coach data
+            for (const [profileId, profile] of Object.entries(profiles)) {
+              if (profileId === uid || profile.uid === uid) {
+                return profile;
+              }
+            }
+          }
+          
+          // Fallback: get from users collection
+          const userDoc = await getDoc(doc(db, "users", uid));
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            return {
+              name: `${userData.firstName || ''} ${userData.lastName || ''}`.trim(),
+              uid: uid
+            };
+          }
+        } catch (error) {
+          console.error('Error getting coach profile:', error);
+        }
+        return null;
+      }
+
+      // Load bookings for the current coach
+      async function loadCoachBookings() {
+        try {
+          console.log('Loading bookings for coach:', coachName, 'UID:', coachData?.uid);
+          const snapshot = await get(ref(rtdb, 'coachBookings'));
+          const bookings = snapshot.val();
+          console.log('All bookings from Firebase:', bookings);
+
+          if (!bookings) {
+            console.log('No bookings found in database');
+            allBookings = [];
+            updateSchedule();
+            updateStats();
+            updateRecentActivity();
+            return;
+          }
+
+          // Filter bookings for this coach
+          allBookings = Object.entries(bookings)
+            .map(([id, booking]) => ({ id, ...booking }))
+            .filter(booking => {
+              // Match by coach name or coachId
+              const matches = booking.coachName === coachName || 
+                     booking.coachId === coachData?.uid;
+              console.log(`Booking ${booking.id}:`, booking.coachName, 'matches:', matches);
+              return matches;
+            })
+            .sort((a, b) => {
+              // Sort by date (newest first)
+              const dateA = new Date(a.preferredDate || 0);
+              const dateB = new Date(b.preferredDate || 0);
+              return dateB - dateA;
+            });
+
+          console.log('Filtered bookings for this coach:', allBookings);
+          
+          // Check for new confirmed bookings
+          const currentConfirmedCount = allBookings.filter(b => b.status === 'confirmed').length;
+          if (previousConfirmedCount > 0 && currentConfirmedCount > previousConfirmedCount) {
+            showNewBookingAlert();
+          }
+          previousConfirmedCount = currentConfirmedCount;
+          
+          updateSchedule();
+          updateStats();
+          updateRecentActivity();
+        } catch (error) {
+          console.error('Error loading bookings:', error);
+        }
+      }
+
+      // Update today's schedule
+      function updateSchedule() {
+        const container = document.getElementById('todaySchedule');
+        const today = new Date().toISOString().split('T')[0];
+        
+        const todayBookings = allBookings.filter(b => 
+          b.preferredDate === today && b.status === 'confirmed'
+        ).sort((a, b) => {
+          const timeA = a.preferredTime || '00:00';
+          const timeB = b.preferredTime || '00:00';
+          return timeA.localeCompare(timeB);
+        });
+
+        if (todayBookings.length === 0) {
+          container.innerHTML = '<p style="color: #888; text-align: center;">No sessions scheduled for today</p>';
+          return;
+        }
+
+        const scheduleHtml = todayBookings.map(booking => `
+          <div class="timeline-item" style="display: flex; gap: 1rem; padding: 1rem; background: #1a1a1a; border-left: 3px solid #ffd700; margin-bottom: 0.5rem; border-radius: 6px;">
+            <div style="min-width: 80px; color: #ffd700; font-weight: 600;">${booking.preferredTime}</div>
+            <div style="flex: 1;">
+              <h4 style="color: #fff; margin-bottom: 0.25rem;">${booking.memberName} - ${booking.sessionType}</h4>
+              <p style="color: #888; font-size: 0.9rem; margin: 0;">${booking.goals || 'No specific goals mentioned'}</p>
+            </div>
+          </div>
+        `).join('');
+
+        container.innerHTML = scheduleHtml;
+      }
+
+      // Update stats
+      function updateStats() {
+        // Update sessions today count
+        const today = new Date().toISOString().split('T')[0];
+        const todayCount = allBookings.filter(b => 
+          b.preferredDate === today && b.status === 'confirmed'
+        ).length;
+        
+        const statCards = document.querySelectorAll('.stat-card');
+        if (statCards[1]) {
+          statCards[1].querySelector('h3').textContent = todayCount;
+        }
+
+        // Update active clients (unique confirmed bookings)
+        const uniqueClients = new Set(
+          allBookings.filter(b => b.status === 'confirmed').map(b => b.memberEmail)
+        ).size;
+        
+        if (statCards[0]) {
+          statCards[0].querySelector('h3').textContent = uniqueClients;
+        }
+      }
+
+      // Show new booking alert
+      function showNewBookingAlert() {
+        const alert = document.getElementById('dashboardAlert');
+        if (alert) {
+          alert.style.display = 'block';
+          
+          // Auto-hide after 15 seconds
+          setTimeout(() => {
+            alert.style.display = 'none';
+          }, 15000);
+        }
+      }
+
+      // Update recent activity
+      function updateRecentActivity() {
+        const container = document.getElementById('recentActivity');
+        
+        // Get recent bookings (last 5)
+        const recentBookings = allBookings.slice(0, 5);
+        
+        if (recentBookings.length === 0) {
+          container.innerHTML = '<p style="color: #888; text-align: center; padding: 2rem;">No recent activity</p>';
+          return;
+        }
+
+        const activityHtml = `
+          <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            ${recentBookings.map(booking => `
+              <div style="padding: 1rem; background: #1a1a1a; border-left: 3px solid ${getStatusColor(booking.status)}; border-radius: 6px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <strong style="color: #fff;">${booking.memberName}</strong>
+                  <p style="color: #888; font-size: 0.9rem; margin: 0.25rem 0 0 0;">
+                    ${booking.sessionType} - ${formatDate(booking.preferredDate)} at ${booking.preferredTime}
+                  </p>
+                </div>
+                <span style="padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600; background: ${getStatusColor(booking.status)}; color: ${booking.status === 'pending' ? '#000' : '#fff'};">
+                  ${booking.status.toUpperCase()}
+                </span>
+              </div>
+            `).join('')}
+          </div>
+          <div style="text-align: center; margin-top: 1rem;">
+            <a href="coach-bookings.html" style="color: #ffd700; text-decoration: none; font-weight: 600;">
+              View All Bookings <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+        `;
+
+        container.innerHTML = activityHtml;
+      }
+
+      // Helper functions
+      function formatDate(dateStr) {
+        if (!dateStr) return 'N/A';
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      }
+
+      function getStatusColor(status) {
+        const colors = {
+          pending: '#ffd700',
+          confirmed: '#4caf50',
+          completed: '#2196F3',
+          cancelled: '#f44336'
+        };
+        return colors[status] || '#888';
+      }
+
+      // Initialize when auth state changes
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          console.log('Auth state changed, user:', user.uid);
+          coachData = await getCoachProfile(user.uid);
+          console.log('Coach profile data:', coachData);
+          
+          if (coachData && coachData.name) {
+            coachName = coachData.name;
+          } else {
+            // Fallback: use user data
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            if (userDoc.exists()) {
+              const userData = userDoc.data();
+              coachName = `${userData.firstName || ''} ${userData.lastName || ''}`.trim();
+              console.log('Using fallback coach name from user data:', coachName);
+            }
+          }
+          
+          console.log('Final coach name:', coachName);
+          loadCoachBookings();
+          
+          // Listen for real-time updates
+          onValue(ref(rtdb, 'coachBookings'), (snapshot) => {
+            console.log('Real-time update received');
+            loadCoachBookings();
+          });
+        } else {
+          console.log('No authenticated user');
+        }
+      });
+    </script>
+    
     <style>
       .loading-overlay {
         position: fixed;

@@ -41,18 +41,20 @@
         
         function showUserUI(userData) {
             const authButtons = document.getElementById('authButtons');
+            const isAdmin = userData && (userData.accountType === 'admin' || userData.role === 'admin');
+            
             if (authButtons) {
                 authButtons.style.visibility = 'visible';
                 authButtons.innerHTML = `
-                    <div class="profile-dropdown" id="profileDropdown">
+                    <div class="profile-dropdown ${isAdmin ? 'admin-profile' : ''}" id="profileDropdown">
                         <button class="profile-btn" id="profileBtn">
                             <span class="profile-avatar">👤</span>
-                            <span id="navUserName">${userData && userData.firstName ? userData.firstName : 'User'}</span>
+                            <span id="navUserName">${isAdmin ? 'Admin' : (userData && userData.firstName ? userData.firstName : 'User')}</span>
                             <i class="fa fa-caret-down"></i>
                         </button>
                         <div class="profile-menu" id="profileMenu">
                             <div class="profile-menu-header">
-                                <span id="profileMenuName">${userData && userData.firstName ? userData.firstName : 'User'} ${userData && userData.lastName ? userData.lastName : ''}</span><br>
+                                <span id="profileMenuName">${isAdmin ? 'Admin' : (userData && userData.firstName ? userData.firstName : 'User')} ${!isAdmin && userData && userData.lastName ? userData.lastName : ''}</span><br>
                                 <small id="profileMenuEmail">${userData && userData.email ? userData.email : (userData && userData.uid ? userData.uid : '')}</small>
                             </div>
                             <ul class="profile-menu-list">
@@ -62,7 +64,7 @@
                                         <span class="notif-badge" id="notifBadgeDd" style="display:none;background:#ff6b6b;color:#fff;border-radius:999px;padding:2px 8px;font-size:10px;margin-left:8px;">0</span>
                                     </a>
                                 </li>
-                                <li><a href="user-dashboard.html">Dashboard</a></li>
+                                <li><a href="${isAdmin ? 'admin.html' : 'user-dashboard.html'}">${isAdmin ? 'Admin Panel' : 'Dashboard'}</a></li>
                                 <li><a href="#" id="profileViewBtn">View Profile</a></li>
                                 <li><button id="logoutBtnNav">Logout</button></li>
                             </ul>
@@ -80,6 +82,25 @@
                     document.addEventListener('click', (e) => {
                         if (!dropdown.contains(e.target)) dropdown.classList.remove('open');
                     });
+                }
+                
+                // Add Admin link to nav-menu if admin
+                if (isAdmin) {
+                    const navMenu = document.querySelector('.nav-menu');
+                    if (navMenu) {
+                        const existing = navMenu.querySelector('li.nav-item[data-admin-link="true"]');
+                        if (existing) existing.remove();
+                        
+                        const li = document.createElement('li');
+                        li.className = 'nav-item';
+                        li.setAttribute('data-admin-link', 'true');
+                        const a = document.createElement('a');
+                        a.href = 'admin.html';
+                        a.className = 'nav-link';
+                        a.textContent = 'Admin';
+                        li.appendChild(a);
+                        navMenu.appendChild(li);
+                    }
                 }
                 // Dropdown notifications panel
                 let notifPanel = document.getElementById('dropdownNotifPanel');
@@ -445,6 +466,11 @@
         </div>
     </footer>
 
+    <script type="module">
+        // Initialize role guard to protect against pending coaches
+        import { initRoleGuard } from "./role-guard.js";
+        initRoleGuard({ requireAuth: false }); // Public page but check for pending coaches
+    </script>
     <script src="script.js"></script>
     <script src="workouts.js"></script>
 </body>

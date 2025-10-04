@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Availability - Coach Dashboard</title>
+  <link rel="stylesheet" href="assets/css/styles-base.css">
+  <link rel="stylesheet" href="assets/css/admin.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: #0a0a0a;
+      color: #fff;
+    }
+    
+    .availability-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 120px 2rem 4rem;
+    }
+
+    .page-header {
+      margin-bottom: 2rem;
+    }
+
+    .page-header h1 {
+      color: #ffd700;
+      margin-bottom: 0.5rem;
+    }
+
+    .availability-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .availability-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+
+    .card h2 {
+      color: #ffd700;
+      margin-bottom: 1.5rem;
+      font-size: 1.3rem;
+    }
+
+    .day-schedule {
+      margin-bottom: 1.5rem;
+    }
+
+    .day-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #333;
+    }
+
+    .day-name {
+      font-weight: 600;
+      color: #ffd700;
+      font-size: 1.1rem;
+    }
+
+    .day-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 50px;
+      height: 24px;
+      background: #333;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .toggle-switch.active {
+      background: #4caf50;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.3s;
+    }
+
+    .toggle-switch.active .toggle-slider {
+      transform: translateX(26px);
+    }
+
+    .time-slots {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      padding-left: 1rem;
+    }
+
+    .time-slot {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .time-slot input {
+      padding: 0.5rem;
+      background: #0a0a0a;
+      border: 1px solid #333;
+      border-radius: 6px;
+      color: #fff;
+      flex: 1;
+    }
+
+    .time-slot button {
+      padding: 0.5rem;
+      background: #f44336;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .add-slot-btn {
+      padding: 0.5rem 1rem;
+      background: #ffd700;
+      color: #000;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      margin-top: 0.5rem;
+    }
+
+    .unavailable-dates {
+      margin-top: 1rem;
+    }
+
+    .date-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .date-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem;
+      background: #0a0a0a;
+      border: 1px solid #333;
+      border-radius: 6px;
+    }
+
+    .date-item button {
+      padding: 0.4rem 0.8rem;
+      background: #f44336;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .add-date-form {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .add-date-form input {
+      flex: 1;
+      padding: 0.75rem;
+      background: #0a0a0a;
+      border: 1px solid #333;
+      border-radius: 6px;
+      color: #fff;
+    }
+
+    .add-date-form button {
+      padding: 0.75rem 1.5rem;
+      background: #ffd700;
+      color: #000;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .save-btn {
+      width: 100%;
+      padding: 1rem;
+      background: #ffd700;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .save-btn:hover {
+      background: #ffed4e;
+      transform: translateY(-2px);
+    }
+
+    .info-box {
+      background: #1a2a1a;
+      border: 1px solid #4caf50;
+      border-left: 4px solid #4caf50;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+    }
+
+    .info-box i {
+      color: #4caf50;
+      margin-right: 0.5rem;
+    }
+
+    .session-duration {
+      margin-bottom: 1.5rem;
+    }
+
+    .session-duration label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #ffd700;
+      font-weight: 600;
+    }
+
+    .session-duration select {
+      width: 100%;
+      padding: 0.75rem;
+      background: #0a0a0a;
+      border: 1px solid #333;
+      border-radius: 6px;
+      color: #fff;
+    }
+
+    .max-bookings {
+      margin-bottom: 1.5rem;
+    }
+
+    .max-bookings label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #ffd700;
+      font-weight: 600;
+    }
+
+    .max-bookings input {
+      width: 100%;
+      padding: 0.75rem;
+      background: #0a0a0a;
+      border: 1px solid #333;
+      border-radius: 6px;
+      color: #fff;
+    }
+
+    .success-message {
+      position: fixed;
+      top: 100px;
+      right: 20px;
+      padding: 1rem 1.5rem;
+      background: #4caf50;
+      color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      z-index: 10000;
+      animation: slideIn 0.3s;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <img src="images/image 66.png" alt="6Titans Logo" class="logo-icon">
+        <img src="images/image 67.png" alt="6Titans" class="logo-text">
+      </div>
+      <ul class="nav-menu">
+        <li class="nav-item"><a href="coach-dashboard.html" class="nav-link">Dashboard</a></li>
+        <li class="nav-item"><a href="coach-schedule.html" class="nav-link">Schedule</a></li>
+        <li class="nav-item"><a href="coach-bookings.html" class="nav-link">Bookings</a></li>
+        <li class="nav-item"><a href="coach-availability.html" class="nav-link active">Availability</a></li>
+      </ul>
+      <div class="user-menu">
+        <button class="user-avatar coach-avatar" id="coachMenuBtn">
+          <i class="fas fa-user-tie"></i>
+        </button>
+        <div class="user-dropdown" id="coachDropdown">
+          <a href="coach-dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+          <a href="#" id="coachLogoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Availability Content -->
+  <div class="availability-container">
+    <div class="page-header">
+      <h1><i class="fas fa-clock"></i> Availability Settings</h1>
+      <p style="color: #888;">Manage your working hours and availability</p>
+    </div>
+
+    <div class="info-box">
+      <i class="fas fa-info-circle"></i>
+      Set your available hours for each day. Clients can only book sessions during these times.
+    </div>
+
+    <div class="availability-grid">
+      <!-- Weekly Schedule -->
+      <div class="card">
+        <h2><i class="fas fa-calendar-week"></i> Weekly Schedule</h2>
+        
+        <div id="weeklySchedule">
+          <!-- Will be dynamically generated -->
+        </div>
+      </div>
+
+      <!-- Settings & Unavailable Dates -->
+      <div>
+        <div class="card" style="margin-bottom: 2rem;">
+          <h2><i class="fas fa-cog"></i> Session Settings</h2>
+          
+          <div class="session-duration">
+            <label>Default Session Duration</label>
+            <select id="sessionDuration">
+              <option value="30">30 minutes</option>
+              <option value="45">45 minutes</option>
+              <option value="60" selected>60 minutes (1 hour)</option>
+              <option value="90">90 minutes (1.5 hours)</option>
+              <option value="120">120 minutes (2 hours)</option>
+            </select>
+          </div>
+
+          <div class="max-bookings">
+            <label>Maximum Bookings Per Day</label>
+            <input type="number" id="maxBookingsPerDay" min="1" max="20" value="8" placeholder="Enter max bookings">
+          </div>
+
+          <div class="max-bookings">
+            <label>Buffer Time Between Sessions (minutes)</label>
+            <input type="number" id="bufferTime" min="0" max="60" value="15" placeholder="Enter buffer time">
+          </div>
+        </div>
+
+        <div class="card">
+          <h2><i class="fas fa-calendar-times"></i> Unavailable Dates</h2>
+          <p style="color: #888; font-size: 0.9rem; margin-bottom: 1rem;">
+            Mark days when you're unavailable (vacation, holidays, etc.)
+          </p>
+
+          <div class="date-list" id="unavailableDates">
+            <!-- Will be dynamically generated -->
+          </div>
+
+          <div class="add-date-form">
+            <input type="date" id="newUnavailableDate" min="">
+            <button onclick="addUnavailableDate()">
+              <i class="fas fa-plus"></i> Add
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="save-btn" onclick="saveAvailability()">
+      <i class="fas fa-save"></i> Save Availability Settings
+    </button>
+  </div>
+
+  <script type="module">
+    import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+    import { getDatabase, ref, get, set, update } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC2YE5Cn0gbiuQ5sq8lErotl01itq5-hYk",
+      authDomain: "titans-8d454.firebaseapp.com",
+      projectId: "titans-8d454",
+      storageBucket: "titans-8d454.firebasestorage.app",
+      messagingSenderId: "537648978979",
+      appId: "1:537648978979:web:30eb90af77c7569b7be596",
+      measurementId: "G-W1D2R0Q1L1",
+      databaseURL: "https://titans-8d454-default-rtdb.firebaseio.com"
+    };
+
+    const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+    const auth = getAuth(app);
+    const rtdb = getDatabase(app);
+
+    let currentUserId = null;
+    let unavailableDates = [];
+
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+    // Initialize
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = 'coach-login.html';
+        return;
+      }
+
+      currentUserId = user.uid;
+      
+      // Initialize default schedule first
+      initializeDefaultSchedule();
+      
+      // Load saved availability (this may override defaults)
+      await loadAvailability();
+      
+      // Render UI
+      renderWeeklySchedule();
+      renderUnavailableDates();
+
+      // Set min date for unavailable dates
+      const dateInput = document.getElementById('newUnavailableDate');
+      if (dateInput) {
+        dateInput.min = new Date().toISOString().split('T')[0];
+      }
+    });
+
+    // Initialize default weekly schedule
+    function initializeDefaultSchedule() {
+      if (!window.weeklySchedule) {
+        window.weeklySchedule = {};
+        days.forEach(day => {
+          window.weeklySchedule[day] = {
+            enabled: false,
+            slots: [{ start: '09:00', end: '17:00' }]
+          };
+        });
+      }
+    }
+
+    // Load existing availability
+    async function loadAvailability() {
+      try {
+        const snapshot = await get(ref(rtdb, `coachAvailability/${currentUserId}`));
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          
+          if (data.weeklySchedule) {
+            window.weeklySchedule = data.weeklySchedule;
+          } else {
+            initializeDefaultSchedule();
+          }
+          if (data.unavailableDates) {
+            unavailableDates = data.unavailableDates;
+          }
+          if (data.sessionDuration) {
+            document.getElementById('sessionDuration').value = data.sessionDuration;
+          }
+          if (data.maxBookingsPerDay) {
+            document.getElementById('maxBookingsPerDay').value = data.maxBookingsPerDay;
+          }
+          if (data.bufferTime !== undefined) {
+            document.getElementById('bufferTime').value = data.bufferTime;
+          }
+        } else {
+          initializeDefaultSchedule();
+        }
+      } catch (error) {
+        console.error('Error loading availability:', error);
+        initializeDefaultSchedule();
+      }
+    }
+
+    // Render weekly schedule
+    function renderWeeklySchedule() {
+      const container = document.getElementById('weeklySchedule');
+      
+      if (!container) {
+        console.error('Weekly schedule container not found');
+        return;
+      }
+      
+      // Ensure schedule is initialized
+      if (!window.weeklySchedule) {
+        initializeDefaultSchedule();
+      }
+
+      container.innerHTML = days.map(day => {
+        const dayData = window.weeklySchedule[day];
+        return `
+          <div class="day-schedule">
+            <div class="day-header">
+              <span class="day-name">${day}</span>
+              <div class="day-toggle">
+                <span style="color: #888; font-size: 0.9rem;">${dayData.enabled ? 'Available' : 'Unavailable'}</span>
+                <div class="toggle-switch ${dayData.enabled ? 'active' : ''}" onclick="toggleDay('${day}')">
+                  <div class="toggle-slider"></div>
+                </div>
+              </div>
+            </div>
+            ${dayData.enabled ? `
+              <div class="time-slots" id="slots-${day}">
+                ${dayData.slots.map((slot, index) => `
+                  <div class="time-slot">
+                    <input type="time" value="${slot.start}" onchange="updateSlot('${day}', ${index}, 'start', this.value)">
+                    <span style="color: #888;">to</span>
+                    <input type="time" value="${slot.end}" onchange="updateSlot('${day}', ${index}, 'end', this.value)">
+                    ${dayData.slots.length > 1 ? `
+                      <button onclick="removeSlot('${day}', ${index})">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    ` : ''}
+                  </div>
+                `).join('')}
+                <button class="add-slot-btn" onclick="addSlot('${day}')">
+                  <i class="fas fa-plus"></i> Add Time Slot
+                </button>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Toggle day availability
+    window.toggleDay = function(day) {
+      window.weeklySchedule[day].enabled = !window.weeklySchedule[day].enabled;
+      renderWeeklySchedule();
+    };
+
+    // Add time slot
+    window.addSlot = function(day) {
+      window.weeklySchedule[day].slots.push({ start: '09:00', end: '17:00' });
+      renderWeeklySchedule();
+    };
+
+    // Remove time slot
+    window.removeSlot = function(day, index) {
+      window.weeklySchedule[day].slots.splice(index, 1);
+      renderWeeklySchedule();
+    };
+
+    // Update time slot
+    window.updateSlot = function(day, index, field, value) {
+      window.weeklySchedule[day].slots[index][field] = value;
+    };
+
+    // Render unavailable dates
+    function renderUnavailableDates() {
+      const container = document.getElementById('unavailableDates');
+      
+      if (unavailableDates.length === 0) {
+        container.innerHTML = '<p style="color: #888; text-align: center; padding: 1rem;">No unavailable dates set</p>';
+        return;
+      }
+
+      container.innerHTML = unavailableDates.sort().map(date => `
+        <div class="date-item">
+          <span>${new Date(date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+          <button onclick="removeUnavailableDate('${date}')">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      `).join('');
+    }
+
+    // Add unavailable date
+    window.addUnavailableDate = function() {
+      const input = document.getElementById('newUnavailableDate');
+      const date = input.value;
+      
+      if (!date) {
+        alert('Please select a date');
+        return;
+      }
+
+      if (unavailableDates.includes(date)) {
+        alert('This date is already marked as unavailable');
+        return;
+      }
+
+      unavailableDates.push(date);
+      input.value = '';
+      renderUnavailableDates();
+    };
+
+    // Remove unavailable date
+    window.removeUnavailableDate = function(date) {
+      unavailableDates = unavailableDates.filter(d => d !== date);
+      renderUnavailableDates();
+    };
+
+    // Save availability
+    window.saveAvailability = async function() {
+      const sessionDuration = document.getElementById('sessionDuration').value;
+      const maxBookingsPerDay = document.getElementById('maxBookingsPerDay').value;
+      const bufferTime = document.getElementById('bufferTime').value;
+
+      const data = {
+        weeklySchedule: window.weeklySchedule,
+        unavailableDates: unavailableDates,
+        sessionDuration: parseInt(sessionDuration),
+        maxBookingsPerDay: parseInt(maxBookingsPerDay),
+        bufferTime: parseInt(bufferTime),
+        updatedAt: Date.now()
+      };
+
+      try {
+        await set(ref(rtdb, `coachAvailability/${currentUserId}`), data);
+        
+        // Show success message
+        const message = document.createElement('div');
+        message.className = 'success-message';
+        message.innerHTML = '<i class="fas fa-check-circle"></i> Availability settings saved successfully!';
+        document.body.appendChild(message);
+        
+        setTimeout(() => {
+          message.remove();
+        }, 3000);
+      } catch (error) {
+        alert('Failed to save availability: ' + error.message);
+      }
+    };
+
+    // Logout
+    document.getElementById('coachLogoutBtn').addEventListener('click', async () => {
+      try {
+        await signOut(auth);
+        window.location.href = 'coach-login.html';
+      } catch (error) {
+        alert('Logout failed: ' + error.message);
+      }
+    });
+  </script>
+</body>
+</html>
+

@@ -189,7 +189,9 @@
     <script src="utils.js"></script>
     <script type="module">
       import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
-      import { auth } from "./firebase-init.js";
+      import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+      import { ref, get, child } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+      import { auth, db, rtdb } from "./firebase-init.js";
 
       document.addEventListener('DOMContentLoaded', () => {
         const loginForm = document.getElementById('loginForm');
@@ -200,10 +202,70 @@
             const password = document.getElementById('password').value;
             try {
               showLoading();
-              await signInWithEmailAndPassword(auth, email, password);
+              
+              // Step 1: Sign in the user
+              const userCredential = await signInWithEmailAndPassword(auth, email, password);
+              const user = userCredential.user;
+              
+              // Step 2: Fetch user's account type and approval status from database
+              let accountType = 'member'; // default
+              let coachApproved = true; // default
+              
+              try {
+                // Try Firestore first
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists()) {
+                  const userData = userDoc.data();
+                  accountType = userData.accountType || 'member';
+                  coachApproved = userData.coachApproved !== false; // Check if explicitly false
+                } else {
+                  // Fallback to RTDB
+                  const snap = await get(child(ref(rtdb), 'users/' + user.uid));
+                  if (snap.exists()) {
+                    const userData = snap.val();
+                    accountType = userData.accountType || userData.role || 'member';
+                    coachApproved = userData.coachApproved !== false; // Check if explicitly false
+                  }
+                }
+              } catch (dbError) {
+                console.error('Error fetching user role:', dbError);
+                // Continue with default 'member' role
+              }
+              
               hideLoading();
-              alert('Login successful!');
-              window.location.href = 'user-dashboard.html';
+              
+              // Step 3: Check if coach is pending approval
+              if (accountType === 'coach' && !coachApproved) {
+                if (window.Utils && window.Utils.showToast) {
+                  window.Utils.showToast('Login successful! Your account is pending approval.', 'info');
+                }
+                window.location.href = 'coach-pending.html';
+                return;
+              }
+              
+              // Step 4: Redirect to appropriate dashboard based on role
+              let redirectUrl;
+              switch (accountType) {
+                case 'admin':
+                  redirectUrl = 'admin.html';
+                  break;
+                case 'coach':
+                  redirectUrl = 'coach-dashboard.html';
+                  break;
+                case 'member':
+                default:
+                  redirectUrl = 'user-dashboard.html';
+                  break;
+              }
+              
+              // Show success message
+              if (window.Utils && window.Utils.showToast) {
+                window.Utils.showToast('Login successful! Welcome back!', 'success');
+              }
+              
+              // Redirect to correct dashboard
+              window.location.href = redirectUrl;
+              
             } catch (error) {
               hideLoading();
               alert('Login failed: ' + error.message);

@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Coach Profiles - 6Titans Admin</title>
+  <link rel="stylesheet" href="assets/css/styles-base.css">
+  <link rel="stylesheet" href="assets/css/admin.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+    .btn-add {
+      background: #ffd700;
+      color: #000;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .btn-add:hover {
+      background: #ffed4e;
+      transform: translateY(-2px);
+    }
+    .coaches-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+    .coach-profile-card {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: all 0.3s;
+    }
+    .coach-profile-card:hover {
+      border-color: #ffd700;
+      transform: translateY(-5px);
+    }
+    .coach-profile-header {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .coach-profile-avatar {
+      width: 60px;
+      height: 60px;
+      background: #333;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: #ffd700;
+    }
+    .coach-profile-info h3 {
+      color: #ffd700;
+      margin: 0 0 0.25rem 0;
+    }
+    .coach-profile-info p {
+      color: #888;
+      margin: 0;
+      font-size: 0.9rem;
+    }
+    .coach-profile-badges {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin: 1rem 0;
+    }
+    .badge {
+      background: #333;
+      color: #ccc;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.8rem;
+    }
+    .coach-profile-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    .btn-edit, .btn-delete {
+      flex: 1;
+      padding: 0.5rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    .btn-edit {
+      background: #4CAF50;
+      color: white;
+    }
+    .btn-delete {
+      background: #f44336;
+      color: white;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.9);
+      z-index: 99999;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal.active {
+      display: flex !important;
+    }
+    .modal-content {
+      background: #1a1a1a !important;
+      border: 2px solid #ffd700 !important;
+      border-radius: 16px;
+      padding: 2rem;
+      max-width: 600px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      z-index: 1000000;
+      box-shadow: 0 10px 40px rgba(255, 215, 0, 0.3);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .modal-header h2 {
+      color: #ffd700;
+      margin: 0;
+    }
+    .close-modal {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    .form-group label {
+      display: block;
+      color: #ccc;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%;
+      padding: 0.75rem;
+      background: #0a0a0a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 1rem;
+    }
+    .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+    .btn-submit {
+      width: 100%;
+      padding: 0.75rem;
+      background: #ffd700;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .btn-submit:hover {
+      background: #ffed4e;
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <img src="images/image 66.png" alt="6Titans Logo" class="logo-icon" />
+        <img src="images/image 67.png" alt="6Titans" class="logo-text" />
+      </div>
+      <ul class="nav-menu">
+        <li class="nav-item"><a href="admin.html" class="nav-link">Dashboard</a></li>
+        <li class="nav-item"><a href="admin-users.html" class="nav-link">Users</a></li>
+        <li class="nav-item"><a href="admin-coaches.html" class="nav-link">Coaches</a></li>
+        <li class="nav-item"><a href="admin-classes.html" class="nav-link ">Classes</a></li>
+        
+        <li class="nav-item"><a href="admin-coach-profiles.html" class="nav-link active">Coach Profiles</a></li>
+        <li class="nav-item"><a href="admin-bookings.html" class="nav-link">Bookings</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="admin-dashboard" style="padding: 120px 0 80px;">
+    <div class="container">
+      <div class="page-header">
+        <div>
+          <h1 style="color: #ffd700;">Manage Coach Profiles</h1>
+          <p style="color: #888;">Add and manage coaches displayed on the website</p>
+          <p style="color: #ffd700; font-size: 0.9rem; margin-top: 0.5rem;">
+            <i class="fas fa-info-circle"></i> Only approved coaches can be added here. 
+            <a href="admin-coaches.html" style="color: #ffd700; text-decoration: underline;">Approve coaches first</a>
+          </p>
+        </div>
+        <button class="btn-add" id="addCoachBtn">
+          <i class="fas fa-plus"></i> Add New Coach
+        </button>
+      </div>
+
+      <div class="coaches-list" id="coachesList">
+        <p style="color: #888;">Loading coaches...</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Add/Edit Coach Modal -->
+  <div class="modal" id="coachModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitle">Add New Coach</h2>
+        <button class="close-modal" onclick="closeModal()">&times;</button>
+      </div>
+      <form id="coachForm">
+        <input type="hidden" id="coachId">
+        <input type="hidden" id="coachUid">
+        
+        <div class="form-group" id="coachSelectGroup">
+          <label for="coachSelect">Select Approved Coach *</label>
+          <select id="coachSelect" required>
+            <option value="">-- Select a coach --</option>
+          </select>
+          <small style="color: #888; display: block; margin-top: 0.5rem;">
+            <i class="fas fa-info-circle"></i> Only approved coaches who aren't already listed are shown
+          </small>
+        </div>
+        
+        <div class="form-group" id="coachNameGroup" style="display: none;">
+          <label for="coachName">Coach Name *</label>
+          <input type="text" id="coachName" readonly>
+        </div>
+
+        <div class="form-group">
+          <label for="specialization">Specialization *</label>
+          <input type="text" id="specialization" placeholder="e.g., Yoga & Mindfulness" required>
+        </div>
+
+        <div class="form-group">
+          <label for="description">Description *</label>
+          <textarea id="description" placeholder="Brief bio about the coach" required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="certifications">Certifications (comma separated)</label>
+          <input type="text" id="certifications" placeholder="e.g., RYT 500, Pilates Certified">
+        </div>
+
+        <div class="form-group">
+          <label for="experience">Years of Experience</label>
+          <input type="number" id="experience" min="0" placeholder="e.g., 8">
+        </div>
+
+        <div class="form-group">
+          <label for="rating">Rating (0-5)</label>
+          <input type="number" id="rating" min="0" max="5" step="0.1" placeholder="4.9">
+        </div>
+
+        <div class="form-group">
+          <label for="reviews">Number of Reviews</label>
+          <input type="number" id="reviews" min="0" placeholder="158">
+        </div>
+
+        <button type="submit" class="btn-submit">
+          <i class="fas fa-save"></i> Save Coach Profile
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+    import { getDatabase, ref, push, set, get, remove, update } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+    import { requireAdmin } from "./role-guard.js";
+
+    // Protect this page
+    requireAdmin();
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC2YE5Cn0gbiuQ5sq8lErotl01itq5-hYk",
+      authDomain: "titans-8d454.firebaseapp.com",
+      projectId: "titans-8d454",
+      storageBucket: "titans-8d454.firebasestorage.app",
+      messagingSenderId: "537648978979",
+      appId: "1:537648978979:web:30eb90af77c7569b7be596",
+      measurementId: "G-W1D2R0Q1L1",
+      databaseURL: "https://titans-8d454-default-rtdb.firebaseio.com"
+    };
+
+    // Use a unique app name to avoid conflicts with role-guard.js initialization
+    const app = initializeApp(firebaseConfig, 'admin-coach-profiles-app');
+    const db = getDatabase(app);
+
+    let editingCoachId = null;
+
+    // Load coaches
+    async function loadCoaches() {
+      const coachesList = document.getElementById('coachesList');
+      try {
+        const snapshot = await get(ref(db, 'coachProfiles'));
+        const coaches = snapshot.val();
+
+        if (!coaches) {
+          coachesList.innerHTML = '<p style="color: #888;">No coaches added yet. Click "Add New Coach" to get started.</p>';
+          return;
+        }
+
+        const coachesHtml = Object.entries(coaches).map(([id, coach]) => `
+          <div class="coach-profile-card">
+            <div class="coach-profile-header">
+              <div class="coach-profile-avatar">
+                <i class="fas fa-user"></i>
+              </div>
+              <div class="coach-profile-info">
+                <h3>${coach.name}</h3>
+                <p>${coach.specialization}</p>
+              </div>
+            </div>
+            <p style="color: #ccc; font-size: 0.9rem;">${coach.description}</p>
+            ${coach.certifications ? `
+              <div class="coach-profile-badges">
+                ${coach.certifications.split(',').map(cert => 
+                  `<span class="badge">${cert.trim()}</span>`
+                ).join('')}
+              </div>
+            ` : ''}
+            <p style="color: #888; font-size: 0.85rem;">
+              ${coach.experience ? `${coach.experience} years experience • ` : ''}
+              ${coach.rating ? `⭐ ${coach.rating} (${coach.reviews || 0} reviews)` : ''}
+            </p>
+            <div class="coach-profile-actions">
+              <button class="btn-edit" onclick="editCoach('${id}')">
+                <i class="fas fa-edit"></i> Edit
+              </button>
+              <button class="btn-delete" onclick="deleteCoach('${id}', '${coach.name}')">
+                <i class="fas fa-trash"></i> Delete
+              </button>
+            </div>
+          </div>
+        `).join('');
+
+        coachesList.innerHTML = coachesHtml;
+      } catch (error) {
+        console.error('Error loading coaches:', error);
+        coachesList.innerHTML = '<p style="color: #f44336;">Error loading coaches. Please try again.</p>';
+      }
+    }
+
+    // Load approved coaches into dropdown
+    async function loadApprovedCoaches() {
+      console.log('loadApprovedCoaches called');
+      try {
+        // Get all approved coaches from users
+        console.log('Fetching users from Firebase...');
+        const usersSnapshot = await get(ref(db, 'users'));
+        const users = usersSnapshot.val();
+        console.log('Users fetched:', users ? Object.keys(users).length : 0);
+        
+        // Get existing coach profiles
+        console.log('Fetching existing coach profiles...');
+        const profilesSnapshot = await get(ref(db, 'coachProfiles'));
+        const existingProfiles = profilesSnapshot.val() || {};
+        console.log('Existing profiles:', existingProfiles ? Object.keys(existingProfiles).length : 0);
+        
+        // Get UIDs of coaches who already have profiles
+        const existingCoachUids = Object.values(existingProfiles)
+          .map(profile => profile.coachUid)
+          .filter(uid => uid); // Filter out undefined
+        console.log('Existing coach UIDs:', existingCoachUids);
+        
+        const approvedCoaches = [];
+        
+        if (users) {
+          Object.entries(users).forEach(([uid, userData]) => {
+            // Only include approved coaches who don't already have profiles
+            if ((userData.accountType === 'coach' || userData.role === 'coach') && 
+                userData.coachApproved === true &&
+                !existingCoachUids.includes(uid)) {
+              approvedCoaches.push({
+                uid: uid,
+                name: `${userData.firstName || ''} ${userData.lastName || ''}`.trim() || userData.email,
+                email: userData.email
+              });
+            }
+          });
+        }
+        
+        console.log('Approved coaches found:', approvedCoaches.length, approvedCoaches);
+        
+        const coachSelect = document.getElementById('coachSelect');
+        if (!coachSelect) {
+          console.error('Coach select element not found!');
+          return;
+        }
+        
+        coachSelect.innerHTML = '<option value="">-- Select a coach --</option>';
+        
+        if (approvedCoaches.length === 0) {
+          coachSelect.innerHTML = '<option value="">No available coaches (approve coaches first)</option>';
+          coachSelect.disabled = true;
+          console.log('No approved coaches available');
+          return;
+        }
+        
+        coachSelect.disabled = false;
+        approvedCoaches.forEach(coach => {
+          const option = document.createElement('option');
+          option.value = coach.uid;
+          option.textContent = `${coach.name} (${coach.email})`;
+          coachSelect.appendChild(option);
+        });
+        
+        console.log('Coach select populated successfully');
+        
+      } catch (error) {
+        console.error('Error loading approved coaches:', error);
+        alert('Error loading coaches: ' + error.message);
+      }
+    }
+
+    // Handle coach selection
+    function setupCoachSelectListener() {
+      const coachSelect = document.getElementById('coachSelect');
+      if (!coachSelect) {
+        console.error('Coach select element not found for listener!');
+        return;
+      }
+      
+      coachSelect.addEventListener('change', async function() {
+        const selectedUid = this.value;
+        console.log('Coach selected:', selectedUid);
+        if (!selectedUid) return;
+        
+        try {
+          // Load coach data from users
+          const snapshot = await get(ref(db, `users/${selectedUid}`));
+          const userData = snapshot.val();
+          console.log('Coach data loaded:', userData);
+          
+          if (userData) {
+            // Pre-fill some fields if available
+            const fullName = `${userData.firstName || ''} ${userData.lastName || ''}`.trim() || userData.email;
+            document.getElementById('coachName').value = fullName;
+            
+            // Pre-fill experience if available
+            if (userData.experience) {
+              document.getElementById('experience').value = userData.experience;
+            }
+            
+            // Pre-fill bio if available
+            if (userData.bio) {
+              document.getElementById('description').value = userData.bio;
+            }
+            
+            console.log('Form pre-filled with coach data');
+          }
+        } catch (error) {
+          console.error('Error loading coach data:', error);
+        }
+      });
+      
+      console.log('Coach select listener setup complete');
+    }
+    
+    // Call setup after DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setupCoachSelectListener);
+    } else {
+      setupCoachSelectListener();
+    }
+
+    // Open modal for adding new coach
+    function setupAddCoachButton() {
+      const addCoachBtn = document.getElementById('addCoachBtn');
+      console.log('Setting up add coach button:', addCoachBtn);
+      
+      if (!addCoachBtn) {
+        console.error('Add coach button not found!');
+        return;
+      }
+      
+      addCoachBtn.addEventListener('click', async () => {
+        console.log('Add coach button clicked!');
+        editingCoachId = null;
+        document.getElementById('modalTitle').textContent = 'Add New Coach';
+        document.getElementById('coachForm').reset();
+        
+        // Show select dropdown, hide name input
+        document.getElementById('coachSelectGroup').style.display = 'block';
+        document.getElementById('coachNameGroup').style.display = 'none';
+        document.getElementById('coachSelect').required = true;
+        document.getElementById('coachName').required = false;
+        
+        console.log('Loading approved coaches...');
+        await loadApprovedCoaches();
+        
+        const modal = document.getElementById('coachModal');
+        console.log('Modal element:', modal);
+        console.log('Modal current classes:', modal ? modal.className : 'NOT FOUND');
+        
+        if (modal) {
+          // NUCLEAR OPTION: Remove modal from DOM and re-append to body with fresh styling
+          modal.remove(); // Remove from current location
+          
+          // Clear all styles and classes
+          modal.className = '';
+          modal.style.cssText = '';
+          
+          // Apply fresh inline styles
+          modal.style.cssText = `
+            display: flex !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 2147483647 !important;
+            background: rgba(0, 0, 0, 0.95) !important;
+            align-items: center !important;
+            justify-content: center !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            transform: none !important;
+            pointer-events: auto !important;
+          `;
+          
+          // Style modal-content with PROFESSIONAL styling
+          const modalContent = modal.querySelector('.modal-content');
+          if (modalContent) {
+            modalContent.style.cssText = `
+              display: block !important;
+              position: relative !important;
+              background: #1a1a1a !important;
+              border: 3px solid #ffd700 !important;
+              padding: 2.5rem !important;
+              border-radius: 16px !important;
+              width: 600px !important;
+              max-height: 85vh !important;
+              overflow-y: auto !important;
+              color: #ffffff !important;
+              font-size: 16px !important;
+              opacity: 1 !important;
+              visibility: visible !important;
+              transform: none !important;
+              box-shadow: 0 10px 50px rgba(255, 215, 0, 0.3) !important;
+            `;
+            console.log('Modal content styled professionally');
+            
+            // Style all form elements inside
+            const labels = modalContent.querySelectorAll('label');
+            labels.forEach(label => {
+              label.style.color = '#ffd700';
+              label.style.fontWeight = '600';
+              label.style.marginBottom = '0.5rem';
+              label.style.display = 'block';
+            });
+            
+            const inputs = modalContent.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+              input.style.background = '#0a0a0a';
+              input.style.border = '1px solid #333';
+              input.style.borderRadius = '8px';
+              input.style.padding = '0.75rem';
+              input.style.color = '#fff';
+              input.style.width = '100%';
+              input.style.fontSize = '1rem';
+            });
+            
+            const submitBtn = modalContent.querySelector('.btn-submit');
+            if (submitBtn) {
+              submitBtn.style.cssText = `
+                background: #ffd700 !important;
+                color: #000 !important;
+                padding: 0.75rem 1.5rem !important;
+                border: none !important;
+                border-radius: 8px !important;
+                font-weight: 700 !important;
+                font-size: 1.1rem !important;
+                cursor: pointer !important;
+                width: 100% !important;
+                margin-top: 1rem !important;
+              `;
+            }
+            
+            const closeBtn = modalContent.querySelector('.close-modal');
+            if (closeBtn) {
+              closeBtn.style.cssText = `
+                background: none !important;
+                border: none !important;
+                color: #fff !important;
+                font-size: 2rem !important;
+                cursor: pointer !important;
+                padding: 0 !important;
+                line-height: 1 !important;
+              `;
+            }
+          }
+          
+          // Re-append to body (fresh start)
+          document.body.appendChild(modal);
+          document.body.style.overflow = 'hidden';
+          window.scrollTo(0, 0);
+          
+          console.log('Modal removed and re-appended to body with nuclear styling!');
+          console.log('If you still dont see a BRIGHT RED box, your browser has rendering issues.');
+        } else {
+          console.error('MODAL NOT FOUND IN DOM!');
+        }
+      });
+      
+      console.log('Add coach button setup complete!');
+    }
+    
+    // Call setup after DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setupAddCoachButton);
+    } else {
+      setupAddCoachButton();
+    }
+
+    // Edit coach
+    window.editCoach = async function(id) {
+      editingCoachId = id;
+      document.getElementById('modalTitle').textContent = 'Edit Coach Profile';
+      
+      const snapshot = await get(ref(db, `coachProfiles/${id}`));
+      const coach = snapshot.val();
+      
+      // Hide select dropdown, show name input (readonly when editing)
+      document.getElementById('coachSelectGroup').style.display = 'none';
+      document.getElementById('coachNameGroup').style.display = 'block';
+      document.getElementById('coachSelect').required = false;
+      document.getElementById('coachName').required = true;
+      
+      document.getElementById('coachId').value = id;
+      document.getElementById('coachUid').value = coach.coachUid || '';
+      document.getElementById('coachName').value = coach.name;
+      document.getElementById('specialization').value = coach.specialization;
+      document.getElementById('description').value = coach.description;
+      document.getElementById('certifications').value = coach.certifications || '';
+      document.getElementById('experience').value = coach.experience || '';
+      document.getElementById('rating').value = coach.rating || '';
+      document.getElementById('reviews').value = coach.reviews || '';
+      
+      document.getElementById('coachModal').classList.add('active');
+    };
+
+    // Delete coach
+    window.deleteCoach = async function(id, name) {
+      if (confirm(`Are you sure you want to delete ${name}? This cannot be undone.`)) {
+        try {
+          await remove(ref(db, `coachProfiles/${id}`));
+          alert('Coach deleted successfully!');
+          loadCoaches();
+        } catch (error) {
+          console.error('Error deleting coach:', error);
+          alert('Failed to delete coach. Please try again.');
+        }
+      }
+    };
+
+    // Close modal
+    window.closeModal = function() {
+      const modal = document.getElementById('coachModal');
+      modal.classList.remove('active');
+      modal.style.display = 'none'; // Also hide via inline style
+      document.getElementById('coachForm').reset();
+      editingCoachId = null;
+    };
+
+    // Save coach
+    document.getElementById('coachForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      // Get coach UID (from select when adding, from hidden field when editing)
+      let coachUid = document.getElementById('coachUid').value;
+      if (!editingCoachId) {
+        coachUid = document.getElementById('coachSelect').value;
+        if (!coachUid) {
+          alert('Please select a coach');
+          return;
+        }
+      }
+      
+      const coachData = {
+        coachUid: coachUid, // Link to the user account
+        name: document.getElementById('coachName').value,
+        specialization: document.getElementById('specialization').value,
+        description: document.getElementById('description').value,
+        certifications: document.getElementById('certifications').value,
+        experience: document.getElementById('experience').value || null,
+        rating: parseFloat(document.getElementById('rating').value) || null,
+        reviews: parseInt(document.getElementById('reviews').value) || 0,
+        updatedAt: new Date().toISOString()
+      };
+
+      try {
+        if (editingCoachId) {
+          // Update existing coach
+          await update(ref(db, `coachProfiles/${editingCoachId}`), coachData);
+          alert('Coach profile updated successfully!');
+        } else {
+          // Add new coach
+          coachData.createdAt = new Date().toISOString();
+          const newCoachRef = push(ref(db, 'coachProfiles'));
+          await set(newCoachRef, coachData);
+          alert('New coach added successfully!');
+        }
+        
+        closeModal();
+        loadCoaches();
+      } catch (error) {
+        console.error('Error saving coach:', error);
+        alert('Failed to save coach. Please try again.');
+      }
+    });
+
+    // Initial load
+    loadCoaches();
+  </script>
+</body>
+</html>
+

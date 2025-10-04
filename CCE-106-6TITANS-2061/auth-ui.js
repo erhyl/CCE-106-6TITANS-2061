@@ -11,7 +11,8 @@ export function showUserUI(userData) {
   if (!authButtons) return;
 
   // Determine dashboard link based on account type
-  const accountType = userData?.accountType || 'member';
+  const accountType = userData?.accountType || userData?.role || 'member';
+  const isAdmin = accountType === 'admin';
   let dashboardLink = 'user-dashboard.html';
   let dashboardIcon = 'fa-tachometer-alt';
   let dashboardLabel = 'Dashboard';
@@ -25,34 +26,27 @@ export function showUserUI(userData) {
     dashboardIcon = 'fa-chalkboard-teacher';
     dashboardLabel = 'Coach Dashboard';
   }
-  
-  // Show account type badge
-  const roleBadge = accountType === 'admin' 
-    ? '<span style="background:#ffd700;color:#000;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:bold;margin-left:6px;">ADMIN</span>'
-    : accountType === 'coach'
-    ? '<span style="background:#4CAF50;color:#fff;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:bold;margin-left:6px;">COACH</span>'
-    : '';
 
   authButtons.style.visibility = "visible";
   authButtons.innerHTML = `
-    <div class="profile-dropdown" id="profileDropdown">
+    <div class="profile-dropdown ${isAdmin ? 'admin-profile' : ''}" id="profileDropdown">
       <button class="profile-btn" id="profileBtn">
-        <span class="profile-avatar">${accountType === 'admin' ? '👑' : accountType === 'coach' ? '🎯' : '👤'}</span>
-        <span id="navUserName">${userData?.firstName || "User"}${roleBadge}</span>
+        <span class="profile-avatar">👤</span>
+        <span id="navUserName">${isAdmin ? 'Admin' : (userData?.firstName || "User")}</span>
         <i class="fa fa-caret-down"></i>
       </button>
       <div class="profile-menu" id="profileMenu">
         <div class="profile-menu-header">
-          <span id="profileMenuName">${userData?.firstName || "User"} ${userData?.lastName || ""}</span><br>
+          <span id="profileMenuName">${isAdmin ? 'Admin' : (userData?.firstName || "User")} ${!isAdmin && userData?.lastName ? userData.lastName : ''}</span><br>
           <small id="profileMenuEmail">${userData?.email || userData?.uid || ""}</small>
         </div>
         <ul class="profile-menu-list">
-          ${accountType !== 'admin' ? `<li>
+          <li>
             <a href="#" id="openNotif">
               <i class="fas fa-bell"></i> Notifications
               <span class="notif-badge" id="notifBadgeDd" style="display:none;background:#ff6b6b;color:#fff;border-radius:999px;padding:2px 8px;font-size:10px;margin-left:8px;">0</span>
             </a>
-          </li>` : ''}
+          </li>
           <li><a href="${dashboardLink}"><i class="fas ${dashboardIcon}"></i> ${dashboardLabel}</a></li>
           <li><a href="#" id="profileViewBtn"><i class="fas fa-user"></i> View Profile</a></li>
           <li><button id="logoutBtnNav"><i class="fas fa-sign-out-alt"></i> Logout</button></li>
@@ -63,13 +57,30 @@ export function showUserUI(userData) {
 
   setupDropdown();
   
-  // Only setup notifications for non-admin users
-  if (accountType !== 'admin') {
-    setupNotifications(userData);
-  }
+  // Setup notifications for all users
+  setupNotifications(userData);
   
   setupLogout();
   setupProfileModal(userData);
+  
+  // Add Admin link to nav-menu if admin
+  if (isAdmin) {
+    const navMenu = document.querySelector('.nav-menu');
+    if (navMenu) {
+      const existing = navMenu.querySelector('li.nav-item[data-admin-link="true"]');
+      if (existing) existing.remove();
+      
+      const li = document.createElement('li');
+      li.className = 'nav-item';
+      li.setAttribute('data-admin-link', 'true');
+      const a = document.createElement('a');
+      a.href = 'admin.html';
+      a.className = 'nav-link';
+      a.textContent = 'Admin';
+      li.appendChild(a);
+      navMenu.appendChild(li);
+    }
+  }
 }
 
 // Show guest UI (Login/Sign Up buttons)

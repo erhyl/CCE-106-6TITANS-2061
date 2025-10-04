@@ -47,6 +47,89 @@
       rel="stylesheet"
     />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      /* Admin dropdown styles */
+      .user-menu {
+        position: relative;
+        display: inline-block;
+      }
+      
+      .user-avatar {
+        cursor: pointer;
+        border: none;
+        background: transparent;
+      }
+      
+      .admin-avatar {
+        background-color: #ff6b35;
+        color: #ffffff;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        border: none;
+        outline: none;
+        padding: 0;
+        pointer-events: all;
+        position: relative;
+        z-index: 100;
+      }
+      
+      .admin-avatar:hover {
+        background-color: #ff8c5a;
+        transform: scale(1.1);
+      }
+      
+      .user-dropdown {
+        position: absolute;
+        top: calc(100% + 10px);
+        right: 0;
+        background-color: #1a1a1a;
+        border: 1px solid #ffd700;
+        border-radius: 8px;
+        min-width: 220px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.3s ease;
+        z-index: 9999;
+        padding: 0.5rem 0;
+      }
+      
+      .user-dropdown.active {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+      
+      .user-dropdown a {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.875rem 1.25rem;
+        color: #cccccc;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        border-left: 3px solid transparent;
+      }
+      
+      .user-dropdown a:hover {
+        background-color: #2a2a2a;
+        color: #ffd700;
+        border-left-color: #ffd700;
+      }
+      
+      .user-dropdown a i {
+        width: 18px;
+        text-align: center;
+        font-size: 1rem;
+      }
+    </style>
   </head>
   <body>
     <!-- Navigation -->
@@ -78,6 +161,12 @@
                 >
                 <a href="admin-coaches.html"
                   ><i class="fas fa-user-tie"></i> Manage Coaches</a
+                >
+                <a href="admin-coach-profiles.html"
+                  ><i class="fas fa-id-card"></i> Coach Profiles</a
+                >
+                <a href="admin-bookings.html"
+                  ><i class="fas fa-calendar-check"></i> Bookings</a
                 >
                 <a href="admin-settings.html"
                   ><i class="fas fa-cog"></i> Settings</a
@@ -112,6 +201,26 @@
             </button>
             <button class="btn btn-secondary" id="exportDataBtn">
               <i class="fas fa-download"></i> Export Data
+            </button>
+          </div>
+        </div>
+
+        <!-- Pending Coach Approval Alert -->
+        <div id="pendingCoachAlert" style="display: none; background: linear-gradient(135deg, #ffd700, #f0c000); border-radius: 12px; padding: 1.2rem; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);">
+          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <div style="font-size: 2rem;">⚠️</div>
+              <div>
+                <h3 style="margin: 0; color: #000; font-size: 1.2rem; font-weight: 700;">
+                  <span id="pendingCoachCount">0</span> Coach Registration<span id="pendingCoachPlural">s</span> Pending Approval
+                </h3>
+                <p style="margin: 0.3rem 0 0 0; color: #333; font-size: 0.95rem;">
+                  New coaches are waiting for your approval to access their accounts
+                </p>
+              </div>
+            </div>
+            <button onclick="window.location.href='admin-coaches.html'" style="background: #000; color: #ffd700; border: none; padding: 0.8rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s; white-space: nowrap;">
+              <i class="fas fa-user-check"></i> Review Coaches
             </button>
           </div>
         </div>
@@ -172,6 +281,16 @@
                 <i class="fas fa-calendar-plus"></i>
                 <h3>Create Class</h3>
                 <p>Schedule new fitness class</p>
+              </button>
+              <button class="action-card" id="manageBookingsBtn" type="button" onclick="window.location.href='admin-bookings.html'">
+                <i class="fas fa-calendar-check"></i>
+                <h3>Coach Bookings</h3>
+                <p>View and manage bookings</p>
+              </button>
+              <button class="action-card" id="manageCoachProfilesBtn" type="button" onclick="window.location.href='admin-coach-profiles.html'">
+                <i class="fas fa-id-card"></i>
+                <h3>Coach Profiles</h3>
+                <p>Manage coach listings</p>
               </button>
               <button class="action-card" id="viewReportsBtn">
                 <i class="fas fa-chart-bar"></i>
@@ -569,6 +688,47 @@
 
     <script src="script.js"></script>
     <script src="admin.js"></script>
+    
+    <!-- Inline script for admin dropdown - guaranteed to work -->
+    <script>
+      console.log('Inline admin dropdown script loading...');
+      
+      document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM loaded, setting up admin dropdown...');
+        
+        const adminMenuBtn = document.getElementById('adminMenuBtn');
+        const adminDropdown = document.getElementById('adminDropdown');
+        
+        console.log('Elements found:', {
+          button: adminMenuBtn,
+          dropdown: adminDropdown
+        });
+        
+        if (adminMenuBtn && adminDropdown) {
+          console.log('Adding click listener to admin button...');
+          
+          adminMenuBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Crown clicked! Current classes:', adminDropdown.className);
+            adminDropdown.classList.toggle('active');
+            console.log('After toggle:', adminDropdown.className);
+          });
+          
+          // Close on outside click
+          document.addEventListener('click', function(e) {
+            if (!adminDropdown.contains(e.target) && !adminMenuBtn.contains(e.target)) {
+              adminDropdown.classList.remove('active');
+            }
+          });
+          
+          console.log('Admin dropdown setup complete!');
+        } else {
+          console.error('Could not find admin dropdown elements!');
+        }
+      });
+    </script>
+    
     <script type="module">
       import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
       document.addEventListener('DOMContentLoaded', () => {
@@ -582,39 +742,5 @@
         }
       });
     </script>
-    <script>
-      // Ensure admin dropdown toggles open/close
-      document.addEventListener("DOMContentLoaded", function () {
-        const btn = document.getElementById("adminMenuBtn");
-        const dropdown = document.getElementById("adminDropdown");
-        if (!btn || !dropdown) return;
-
-        btn.addEventListener("click", function (e) {
-          e.stopPropagation();
-          dropdown.classList.toggle("active");
-        });
-
-        document.addEventListener("click", function (e) {
-          if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
-            dropdown.classList.remove("active");
-          }
-        });
-      });
-    </script>
-    <style>
-      /* Fallback styles to ensure dropdown is visible when active */
-      .user-dropdown {
-        opacity: 0;
-        visibility: hidden;
-        transform: translateY(-10px);
-        transition: all 0.3s ease;
-        z-index: 1000;
-      }
-      .user-dropdown.active {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0);
-      }
-    </style>
   </body>
 </html>

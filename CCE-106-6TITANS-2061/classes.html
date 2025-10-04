@@ -254,6 +254,11 @@
         } catch {}
       });
     </script>
+    <script type="module">
+      // Initialize role guard to protect against pending coaches
+      import { initRoleGuard } from "./role-guard.js";
+      initRoleGuard({ requireAuth: false }); // Public page but check for pending coaches
+    </script>
     <script src="script.js"></script>
   </body>
 </html>

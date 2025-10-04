@@ -22,7 +22,8 @@
   transition: background 0.18s, border 0.18s, color 0.18s;
   outline: none;
 }
-.profile-btn:focus, .profile-btn:hover {
+.profile-btn:focus,
+.profile-btn:hover {
   background: #ffd700;
   color: #181818;
   border-color: #ffd700;
@@ -75,7 +76,8 @@
 .profile-menu-list li:last-child {
   border-bottom: none;
 }
-.profile-menu-list a, .profile-menu-list button {
+.profile-menu-list a,
+.profile-menu-list button {
   display: block;
   width: 100%;
   padding: 1rem 1.3rem;
@@ -89,12 +91,50 @@
   text-decoration: none;
   border-radius: 0;
 }
-.profile-menu-list a:hover, .profile-menu-list button:hover, .profile-menu-list a:focus, .profile-menu-list button:focus {
+.profile-menu-list a:hover,
+.profile-menu-list button:hover,
+.profile-menu-list a:focus,
+.profile-menu-list button:focus {
   background: #ffd700;
   color: #181818;
   outline: none;
 }
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Admin Profile Styles - Gold Theme */
+.admin-profile .profile-btn {
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.15);
+}
+
+.admin-profile .profile-btn:hover,
+.admin-profile .profile-btn:focus {
+  box-shadow: 0 6px 16px rgba(255, 215, 0, 0.25);
+}
+
+.admin-profile.open .profile-btn {
+  box-shadow: 0 8px 20px rgba(255, 215, 0, 0.3);
+}
+
+.admin-profile .profile-menu {
+  animation: slideDownAdmin 0.22s ease-out;
+}
+
+@keyframes slideDownAdmin {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }

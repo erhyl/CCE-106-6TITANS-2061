@@ -94,17 +94,27 @@ document.addEventListener("DOMContentLoaded", function () {
 
     showLoading();
     try {
-      // Create booking in RTDB
-      const key = push(ref(rtdb, 'bookings')).key;
-      await set(ref(rtdb, `bookings/${key}`), {
+      // Get coach ID from the form
+      const coachNameInput = document.getElementById('coachName');
+      const coachId = coachNameInput ? coachNameInput.getAttribute('data-coach-id') : null;
+      
+      // Create booking in RTDB under coachBookings
+      const key = push(ref(rtdb, 'coachBookings')).key;
+      await set(ref(rtdb, `coachBookings/${key}`), {
         id: key,
-        type: 'coach',
-        memberId: user.uid,
+        coachId: coachId, // Link to coach profile
         coachName: bookingData.coachName,
         sessionType: bookingData.sessionType,
-        dateISO: bookingData.preferredDate,
-        timeSlot: bookingData.preferredTime,
+        preferredDate: bookingData.preferredDate,
+        preferredTime: bookingData.preferredTime,
+        memberName: bookingData.memberName,
+        memberEmail: bookingData.memberEmail,
+        memberPhone: bookingData.memberPhone,
+        goals: bookingData.goals || '',
+        experience: bookingData.experience || '',
+        memberId: user.uid,
         status: 'pending',
+        bookingDate: new Date().toISOString(),
         createdAt: Date.now()
       });
 

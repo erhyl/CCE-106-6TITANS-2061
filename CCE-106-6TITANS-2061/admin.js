@@ -18,30 +18,109 @@ function initializeAdminDashboard() {
     console.log('Admin dashboard initialized');
     
     // Set current user info (adminName now static or from Firebase)
-    document.getElementById('userName').textContent = 'Admin';
+    const userNameElement = document.getElementById('userName');
+    if (userNameElement) {
+        userNameElement.textContent = 'Admin';
+    }
+    
+    // Check for pending coach approvals
+    checkPendingCoaches();
     
     // Initialize tooltips and other UI elements
     initializeTooltips();
 }
 
+// Check for pending coach registrations and display notification
+async function checkPendingCoaches() {
+    try {
+        // Check if running in module context with Firebase
+        if (typeof window.firebaseRtdb === 'undefined') {
+            console.log('Firebase not initialized yet, skipping pending coach check');
+            return;
+        }
+        
+        const { ref, get, child } = await import('https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js');
+        const rtdb = window.firebaseRtdb;
+        
+        // Get all users
+        const snap = await get(child(ref(rtdb), 'users'));
+        if (!snap.exists()) return;
+        
+        const users = snap.val();
+        
+        // Count pending coaches
+        const pendingCoaches = Object.values(users).filter(u => 
+            (u.accountType === 'coach' || u.role === 'coach') && u.coachApproved === false
+        );
+        
+        const pendingCount = pendingCoaches.length;
+        
+        // Show/hide alert based on pending count
+        const alertElement = document.getElementById('pendingCoachAlert');
+        const countElement = document.getElementById('pendingCoachCount');
+        const pluralElement = document.getElementById('pendingCoachPlural');
+        
+        if (alertElement && countElement && pendingCount > 0) {
+            countElement.textContent = pendingCount;
+            pluralElement.textContent = pendingCount === 1 ? '' : 's';
+            alertElement.style.display = 'block';
+            
+            // Add subtle animation
+            alertElement.style.animation = 'slideDown 0.4s ease-out';
+        }
+        
+    } catch (error) {
+        console.error('Error checking pending coaches:', error);
+    }
+}
+
+// Add animation keyframes for the alert
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+`;
+document.head.appendChild(style);
+
 // Set up event listeners
 function setupEventListeners() {
     // Admin menu toggle
-const adminMenuBtn = document.getElementById('adminMenuBtn');
-const adminDropdown = document.getElementById('adminDropdown');
+    const adminMenuBtn = document.getElementById('adminMenuBtn');
+    const adminDropdown = document.getElementById('adminDropdown');
 
-if (adminMenuBtn && adminDropdown) {
-    adminMenuBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        adminDropdown.classList.toggle('active');
+    console.log('Setting up admin dropdown:', {
+        adminMenuBtn: adminMenuBtn,
+        adminDropdown: adminDropdown
     });
-}
 
-document.addEventListener('click', function(e) {
-    if (adminDropdown && !adminDropdown.contains(e.target) && e.target !== adminMenuBtn) {
-        adminDropdown.classList.remove('active');
+    if (adminMenuBtn && adminDropdown) {
+        adminMenuBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Admin button clicked! Toggling dropdown...');
+            adminDropdown.classList.toggle('active');
+            console.log('Dropdown classes:', adminDropdown.className);
+        });
+        
+        document.addEventListener('click', function(e) {
+            if (adminDropdown && !adminDropdown.contains(e.target) && e.target !== adminMenuBtn && !adminMenuBtn.contains(e.target)) {
+                adminDropdown.classList.remove('active');
+            }
+        });
+    } else {
+        console.error('Admin dropdown elements not found!', {
+            adminMenuBtn: adminMenuBtn,
+            adminDropdown: adminDropdown
+        });
     }
-});
     
     // Quick action buttons
     setupQuickActionButtons();
@@ -307,10 +386,20 @@ async function renderCoachesTable() {
             btn.addEventListener('click', async () => {
                 const uid = btn.getAttribute('data-approve');
                 try {
-                    await update(ref(rtdb, 'users/' + uid), { coachApproved: true });
-                    showNotification('Coach approved', 'success');
+                    // Import Firestore functions
+                    const { getFirestore, doc, updateDoc } = await import('https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js');
+                    const db = getFirestore();
+                    
+                    // Update both RTDB and Firestore for consistency
+                    await update(ref(rtdb, 'users/' + uid), { coachApproved: true, accountType: 'coach', role: 'coach' });
+                    await updateDoc(doc(db, 'users', uid), { coachApproved: true, accountType: 'coach', approvalStatus: 'approved' });
+                    
+                    showNotification('Coach approved successfully!', 'success');
                     renderCoachesTable();
-                } catch (e) { showNotification('Approval failed: ' + e.message, 'error'); }
+                } catch (e) { 
+                    console.error('Approval error:', e);
+                    showNotification('Approval failed: ' + e.message, 'error'); 
+                }
             });
         });
     } catch (e) { container.innerHTML = '<p style="color:#ff6b6b">Failed to load coaches</p>'; }

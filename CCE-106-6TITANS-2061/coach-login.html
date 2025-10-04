@@ -174,7 +174,8 @@
     <script type="module">
       import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
       import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
-      import { auth, db } from "./firebase-init.js";
+      import { ref, get, child } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+      import { auth, db, rtdb } from "./firebase-init.js";
 
       document.addEventListener('DOMContentLoaded', () => {
         const coachLoginForm = document.getElementById('coachLoginForm');
@@ -189,12 +190,33 @@
               const userCredential = await signInWithEmailAndPassword(auth, emailOrId, password);
               const user = userCredential.user;
               
-              // Check if user is a coach in Firestore
+              // Check user data from Firestore first
+              let userData = null;
+              let coachApproved = true;
+              
               const userDoc = await getDoc(doc(db, "users", user.uid));
-              const userData = userDoc.exists() ? userDoc.data() : null;
+              if (userDoc.exists()) {
+                userData = userDoc.data();
+                coachApproved = userData.coachApproved !== false;
+              } else {
+                // Fallback to RTDB
+                const snap = await get(child(ref(rtdb), 'users/' + user.uid));
+                if (snap.exists()) {
+                  userData = snap.val();
+                  coachApproved = userData.coachApproved !== false;
+                }
+              }
               
               if (userData && userData.accountType === 'coach') {
                 hideLoading();
+                
+                // Check if coach is approved
+                if (!coachApproved) {
+                  alert('Your coach account is pending admin approval. You will be notified once approved.');
+                  window.location.href = 'coach-pending.html';
+                  return;
+                }
+                
                 alert('Login successful!');
                 window.location.href = 'coach-dashboard.html';
               } else {

@@ -348,17 +348,29 @@
               showLoading();
               const userCredential = await createUserWithEmailAndPassword(auth, email, password);
               const user = userCredential.user;
+              
+              // Set default account type as member
+              const accountType = "member";
+              
               await setDoc(doc(db, "users", user.uid), {
                 uid: user.uid,
                 email: email,
                 firstName: firstName,
                 lastName: lastName,
-                accountType: "member",
+                accountType: accountType,
                 createdAt: new Date().toISOString(),
               });
+              
               hideLoading();
-              alert("Registration successful!");
-              window.location.href = "user-dashboard.html";
+              
+              // Show success message
+              if (window.Utils && window.Utils.showToast) {
+                window.Utils.showToast("Registration successful! Welcome to 6Titans!", "success");
+              } else {
+                alert("Registration successful!");
+              }
+              
+              window.location.href = 'user-dashboard.html';
             } catch (error) {
               hideLoading();
               alert("Registration failed: " + error.message);

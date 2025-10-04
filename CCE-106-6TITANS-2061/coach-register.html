@@ -67,7 +67,13 @@
           <div class="auth-header">
             <img src="images/image 66.png" alt="6Titans Logo" class="logo-icon" />
             <h1>Coach Registration</h1>
-            <p>Apply for a coach account</p>
+            <p>Apply for a coach account - Admin approval required</p>
+            <div style="background: #2a2a2a; border-left: 4px solid #ffd700; padding: 0.8rem; margin-top: 1rem; border-radius: 4px; text-align: left;">
+              <small style="color: #ccc; font-size: 0.9rem;">
+                <i class="fas fa-info-circle" style="color: #ffd700;"></i>
+                Your coach account will be reviewed by our admin team. You'll receive access once approved (typically within 24-48 hours).
+              </small>
+            </div>
           </div>
 
           <form id="coachRegisterForm" class="auth-form">
@@ -226,9 +232,17 @@
               return;
             }
             try {
+              // Show loading overlay
+              let loadingOverlay = document.createElement('div');
+              loadingOverlay.className = 'loading-overlay';
+              loadingOverlay.innerHTML = '<div class="loading-spinner"></div>';
+              document.body.appendChild(loadingOverlay);
+
               const userCredential = await createUserWithEmailAndPassword(auth, email, password);
               const user = userCredential.user;
-              await setDoc(doc(db, "users", user.uid), {
+              
+              // Prepare coach data with pending approval status
+              const coachData = {
                 uid: user.uid,
                 email: email,
                 firstName: firstName,
@@ -236,11 +250,29 @@
                 experience: experience,
                 bio: bio,
                 accountType: 'coach',
+                coachApproved: false, // Requires admin approval
+                approvalStatus: 'pending',
                 createdAt: new Date().toISOString()
-              });
-              alert('Coach registration successful! You can now log in.');
-              window.location.href = 'coach-login.html';
+              };
+              
+              // Save to Firestore
+              await setDoc(doc(db, "users", user.uid), coachData);
+              
+              // Also save to Realtime Database for consistency
+              const { getDatabase, ref, set } = await import("https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js");
+              const rtdb = getDatabase(app);
+              await set(ref(rtdb, 'users/' + user.uid), coachData);
+              
+              // Remove loading overlay
+              loadingOverlay.remove();
+              
+              alert('Coach registration successful! Your account is pending admin approval. You will be notified once approved.');
+              window.location.href = 'coach-pending.html';
             } catch (error) {
+              // Remove loading overlay if it exists
+              const loadingOverlay = document.querySelector('.loading-overlay');
+              if (loadingOverlay) loadingOverlay.remove();
+              
               alert('Registration failed: ' + error.message);
             }
           });

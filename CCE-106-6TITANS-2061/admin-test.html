@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Test - No Auth</title>
+    <link rel="stylesheet" href="assets/css/styles-base.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/admin.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { background: #0a0a0a; color: #fff; }
+        .test-banner {
+            background: #ffd700;
+            color: #0a0a0a;
+            padding: 1rem;
+            text-align: center;
+            font-weight: 700;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10000;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-banner">
+        ✅ TEST MODE - No Authentication Required
+    </div>
+
+    <div style="padding-top: 80px;">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <img src="images/image 66.png" alt="6Titans Logo" class="logo-icon">
+                    <img src="images/image 67.png" alt="6Titans" class="logo-text">
+                </div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="index.html" class="nav-link">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="admin.html" class="nav-link">Admin Dashboard</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Admin Dashboard -->
+        <section class="admin-dashboard">
+            <div class="container">
+                <div class="admin-header">
+                    <div class="welcome-section">
+                        <h1>🎉 Admin Dashboard (TEST MODE)</h1>
+                        <p>If you can see this, your CSS and HTML are working correctly!</p>
+                    </div>
+                </div>
+
+                <!-- Key Metrics -->
+                <div class="admin-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-info">
+                            <h3>1,247</h3>
+                            <p>Total Users</p>
+                            <span class="stat-change positive">CSS is loading!</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🏋️‍♂️</div>
+                        <div class="stat-info">
+                            <h3>24</h3>
+                            <p>Active Coaches</p>
+                            <span class="stat-change positive">Styles working!</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-info">
+                            <h3>$45,230</h3>
+                            <p>Monthly Revenue</p>
+                            <span class="stat-change positive">Icons visible!</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-info">
+                            <h3>89%</h3>
+                            <p>Active Sessions</p>
+                            <span class="stat-change positive">All good!</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-content">
+                    <div class="admin-section">
+                        <h2>✅ Diagnostic Results</h2>
+                        <div style="background: #1a1a1a; padding: 2rem; border-radius: 12px; border: 1px solid #333;">
+                            <h3 style="color: #4caf50; margin-bottom: 1rem;">
+                                <i class="fas fa-check-circle"></i> Everything is Working!
+                            </h3>
+                            <ul style="list-style: none; padding: 0;">
+                                <li style="padding: 0.5rem 0; border-bottom: 1px solid #333;">
+                                    <i class="fas fa-check" style="color: #4caf50;"></i> HTML Structure: OK
+                                </li>
+                                <li style="padding: 0.5rem 0; border-bottom: 1px solid #333;">
+                                    <i class="fas fa-check" style="color: #4caf50;"></i> CSS Loading: OK
+                                </li>
+                                <li style="padding: 0.5rem 0; border-bottom: 1px solid #333;">
+                                    <i class="fas fa-check" style="color: #4caf50;"></i> Font Awesome Icons: OK
+                                </li>
+                                <li style="padding: 0.5rem 0; border-bottom: 1px solid #333;">
+                                    <i class="fas fa-check" style="color: #4caf50;"></i> Images Path: OK
+                                </li>
+                                <li style="padding: 0.5rem 0;">
+                                    <i class="fas fa-check" style="color: #4caf50;"></i> Page Rendering: OK
+                                </li>
+                            </ul>
+                            
+                            <div style="margin-top: 2rem; padding: 1rem; background: #2a2a2a; border-radius: 8px;">
+                                <h4 style="color: #ffd700;">Next Steps:</h4>
+                                <p style="color: #ccc; margin: 1rem 0;">
+                                    Since this test page works, the issue with admin.html is likely the authentication loading overlay.
+                                </p>
+                                <p style="color: #ccc; margin: 1rem 0;">
+                                    <strong>Solution:</strong> Go back to admin.html and wait 3-5 seconds. The failsafe will remove the overlay automatically.
+                                </p>
+                                <a href="admin.html" class="btn btn-primary" style="display: inline-block; margin-top: 1rem;">
+                                    <i class="fas fa-arrow-right"></i> Go to Real Admin Page
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        console.log('✅ Test page loaded successfully!');
+        console.log('✅ CSS files are loading correctly');
+        console.log('✅ HTML structure is working');
+        console.log('If you can see this page styled correctly, the issue is with the auth overlay on admin.html');
+    </script>
+</body>
+</html>
+

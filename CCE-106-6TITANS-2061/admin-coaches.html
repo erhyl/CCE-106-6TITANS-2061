@@ -32,7 +32,10 @@
           <li class="nav-item"><a href="admin.html" class="nav-link">Dashboard</a></li>
           <li class="nav-item"><a href="admin-users.html" class="nav-link">Users</a></li>
           <li class="nav-item"><a href="admin-coaches.html" class="nav-link active">Coaches</a></li>
+          
           <li class="nav-item"><a href="admin-classes.html" class="nav-link">Classes</a></li>
+          <li class="nav-item"><a href="admin-coach-profiles.html" class="nav-link">Coach Profiles</a></li>
+          <li class="nav-item"><a href="admin-bookings.html" class="nav-link">Bookings</a></li>
         </ul>
       </div>
     </nav>
@@ -56,6 +59,7 @@
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
       import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
       import { getDatabase, ref, get, child, update } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+      import { getFirestore, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyC2YE5Cn0gbiuQ5sq8lErotl01itq5-hYk",
@@ -70,6 +74,7 @@
       const app = initializeApp(firebaseConfig);
       const auth = getAuth(app);
       const rtdb = getDatabase(app);
+      const db = getFirestore(app);
 
       const table = document.getElementById('coachesTable');
       const refreshBtn = document.getElementById('refreshBtn');
@@ -104,15 +109,31 @@
         table.querySelectorAll('[data-approve]').forEach(btn=>{
           btn.addEventListener('click', async ()=>{
             const uid = btn.getAttribute('data-approve');
-            await update(ref(rtdb, 'users/'+uid), { coachApproved: true, role: 'coach' });
-            load();
+            try {
+              // Update both RTDB and Firestore
+              await update(ref(rtdb, 'users/'+uid), { coachApproved: true, accountType: 'coach', role: 'coach' });
+              await updateDoc(doc(db, 'users', uid), { coachApproved: true, accountType: 'coach', approvalStatus: 'approved' });
+              alert('Coach approved successfully!');
+              load();
+            } catch (error) {
+              console.error('Error approving coach:', error);
+              alert('Failed to approve coach: ' + error.message);
+            }
           });
         });
         table.querySelectorAll('[data-remove]').forEach(btn=>{
           btn.addEventListener('click', async ()=>{
             const uid = btn.getAttribute('data-remove');
-            await update(ref(rtdb, 'users/'+uid), { role: 'member', coachApproved: false });
-            load();
+            try {
+              // Update both RTDB and Firestore
+              await update(ref(rtdb, 'users/'+uid), { accountType: 'member', role: 'member', coachApproved: false, approvalStatus: 'rejected' });
+              await updateDoc(doc(db, 'users', uid), { accountType: 'member', coachApproved: false, approvalStatus: 'rejected' });
+              alert('Coach removed successfully!');
+              load();
+            } catch (error) {
+              console.error('Error removing coach:', error);
+              alert('Failed to remove coach: ' + error.message);
+            }
           });
         });
       }
