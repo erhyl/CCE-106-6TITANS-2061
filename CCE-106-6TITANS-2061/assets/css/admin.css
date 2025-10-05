@@ -66,6 +66,29 @@
   overflow: hidden;
 }
 
+/* Real-time live indicator */
+.stat-card::after {
+  content: "●";
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  color: #4caf50;
+  font-size: 12px;
+  animation: pulse-live 2s infinite;
+  opacity: 0.8;
+}
+
+@keyframes pulse-live {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
 .stat-card::before {
   content: "";
   position: absolute;
@@ -124,6 +147,21 @@
 .stat-change.negative {
   color: #f44336;
   background-color: rgba(244, 67, 54, 0.1);
+}
+
+.stat-change.neutral {
+  color: #999;
+  background-color: rgba(153, 153, 153, 0.1);
+}
+
+/* Stat value animation */
+.stat-info h3 {
+  transition: all 0.3s ease;
+}
+
+.stat-info h3.updating {
+  color: #ffd700;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
 }
 
 /* Admin Content */

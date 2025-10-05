@@ -83,25 +83,6 @@
                         if (!dropdown.contains(e.target)) dropdown.classList.remove('open');
                     });
                 }
-                
-                // Add Admin link to nav-menu if admin
-                if (isAdmin) {
-                    const navMenu = document.querySelector('.nav-menu');
-                    if (navMenu) {
-                        const existing = navMenu.querySelector('li.nav-item[data-admin-link="true"]');
-                        if (existing) existing.remove();
-                        
-                        const li = document.createElement('li');
-                        li.className = 'nav-item';
-                        li.setAttribute('data-admin-link', 'true');
-                        const a = document.createElement('a');
-                        a.href = 'admin.html';
-                        a.className = 'nav-link';
-                        a.textContent = 'Admin';
-                        li.appendChild(a);
-                        navMenu.appendChild(li);
-                    }
-                }
                 // Dropdown notifications panel
                 let notifPanel = document.getElementById('dropdownNotifPanel');
                 if (!notifPanel) {

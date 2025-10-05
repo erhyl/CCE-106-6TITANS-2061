@@ -21,7 +21,7 @@ const firebaseConfig = {
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-const rtdb = getDatabase(app, "https://titans-8d454-default-rtdb.firebaseio.com");
+const rtdb = getDatabase(app); // Use databaseURL from config
 
 // Export for use in other modules
 export { app, auth, db, rtdb };

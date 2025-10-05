@@ -378,36 +378,7 @@ if (!_initNotificationsWhenReady()) {
   }, 300);
 }
 
-// Conditional Admin nav link based on RTDB role
-try {
-    if (window.firebaseAuth && window.firebaseRtdb && window.firebaseRT) {
-        const { ref, onValue, child, get } = window.firebaseRT;
-        const rtdb = window.firebaseRtdb;
-        window.firebaseAuth.onAuthStateChanged(async (user) => {
-            const navMenu = document.querySelector('.nav-menu');
-            if (!navMenu) return;
-            // Remove existing admin item if any
-            const existing = navMenu.querySelector('li.nav-item[data-admin-link="true"]');
-            if (existing) existing.remove();
-            if (!user) return;
-            try {
-                const snap = await get(child(ref(rtdb), 'users/' + user.uid));
-                const data = snap.exists() ? snap.val() : null;
-                if (data && data.role === 'admin') {
-                    const li = document.createElement('li');
-                    li.className = 'nav-item';
-                    li.setAttribute('data-admin-link', 'true');
-                    const a = document.createElement('a');
-                    a.href = 'admin.html';
-                    a.className = 'nav-link';
-                    a.textContent = 'Admin';
-                    li.appendChild(a);
-                    navMenu.appendChild(li);
-                }
-            } catch {}
-        });
-    }
-} catch {}
+// Admin nav link removed - admins can access via profile dropdown or direct URL
 
 // Membership expiry check -> create notification if within 7 days
 try {

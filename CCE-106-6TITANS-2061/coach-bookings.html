@@ -146,6 +146,11 @@
       color: #fff;
     }
 
+    .status-pending_coach_approval {
+      background: #ffa726;
+      color: #000;
+    }
+
     .action-btns {
       display: flex;
       gap: 0.5rem;
@@ -342,6 +347,10 @@
         <h3 id="totalBookings">0</h3>
         <p>Total Bookings</p>
       </div>
+      <div class="stat-box" style="border: 2px solid #ffa726;">
+        <h3 id="pendingApprovalBookings" style="color: #ffa726;">0</h3>
+        <p><strong>Needs My Approval</strong></p>
+      </div>
       <div class="stat-box">
         <h3 id="confirmedBookings">0</h3>
         <p>Confirmed</p>
@@ -360,10 +369,10 @@
     <div class="filters">
       <select id="statusFilter">
         <option value="">All Statuses</option>
-        <option value="pending">Pending</option>
-        <option value="confirmed" selected>Confirmed</option>
-        <option value="completed">Completed</option>
-        <option value="cancelled">Cancelled</option>
+        <option value="pending_coach_approval">⏳ Needs My Approval</option>
+        <option value="confirmed" selected>✅ Confirmed</option>
+        <option value="completed">✔️ Completed</option>
+        <option value="cancelled">❌ Cancelled</option>
       </select>
       <select id="sessionTypeFilter">
         <option value="">All Session Types</option>
@@ -391,6 +400,37 @@
         <button class="close-modal" onclick="closeModal()">&times;</button>
       </div>
       <div id="bookingDetails"></div>
+    </div>
+  </div>
+
+  <!-- Reschedule Modal -->
+  <div class="modal" id="rescheduleModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Reschedule Booking</h2>
+        <button class="close-modal" onclick="closeRescheduleModal()">&times;</button>
+      </div>
+      <div id="rescheduleDetails">
+        <p style="color: #888; margin-bottom: 1.5rem;">Suggest a new date and time for this booking:</p>
+        <div class="detail-grid">
+          <div class="detail-label">New Date:</div>
+          <div class="detail-value"><input type="date" id="newDate" style="width: 100%; padding: 0.5rem; background: #222; color: #fff; border: 1px solid #333; border-radius: 6px;"></div>
+          
+          <div class="detail-label">New Time:</div>
+          <div class="detail-value"><input type="time" id="newTime" style="width: 100%; padding: 0.5rem; background: #222; color: #fff; border: 1px solid #333; border-radius: 6px;"></div>
+          
+          <div class="detail-label">Reason (optional):</div>
+          <div class="detail-value"><textarea id="rescheduleReason" rows="3" placeholder="Let the client know why you're rescheduling..." style="width: 100%; padding: 0.5rem; background: #222; color: #fff; border: 1px solid #333; border-radius: 6px;"></textarea></div>
+        </div>
+        <div class="modal-actions">
+          <button id="confirmRescheduleBtn" style="flex: 1; background: #ffa726; color: #000;">
+            <i class="fas fa-calendar-alt"></i> Propose New Time
+          </button>
+          <button onclick="closeRescheduleModal()" style="flex: 1; background: #333; color: #fff;">
+            Cancel
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -472,6 +512,11 @@
     // Update stats
     function updateStats() {
       document.getElementById('totalBookings').textContent = allBookings.length;
+      
+      // Count pending coach approval
+      const pendingApproval = allBookings.filter(b => b.status === 'pending_coach_approval').length;
+      document.getElementById('pendingApprovalBookings').textContent = pendingApproval;
+      
       document.getElementById('confirmedBookings').textContent = 
         allBookings.filter(b => b.status === 'confirmed').length;
       document.getElementById('completedBookings').textContent = 
@@ -551,12 +596,20 @@
                     <button class="btn-sm btn-view" onclick='viewBooking(${JSON.stringify(booking)})' title="View Details">
                       <i class="fas fa-eye"></i>
                     </button>
+                    ${booking.status === 'pending_coach_approval' ? `
+                      <button class="btn-sm btn-confirm" onclick="acceptBooking('${booking.id}')" title="Accept" style="background: #4caf50; color: #fff;">
+                        <i class="fas fa-check"></i> Accept
+                      </button>
+                      <button class="btn-sm" onclick="openRescheduleModal('${booking.id}', '${booking.memberName}')" title="Reschedule" style="background: #ffa726; color: #000;">
+                        <i class="fas fa-calendar-alt"></i> Reschedule
+                      </button>
+                    ` : ''}
                     ${booking.status === 'confirmed' ? `
                       <button class="btn-sm btn-complete" onclick="completeBooking('${booking.id}')" title="Mark Complete">
                         <i class="fas fa-check"></i>
                       </button>
                     ` : ''}
-                    ${booking.status !== 'cancelled' && booking.status !== 'completed' ? `
+                    ${booking.status !== 'cancelled' && booking.status !== 'completed' && booking.status !== 'pending_coach_approval' ? `
                       <button class="btn-sm btn-cancel" onclick="cancelBooking('${booking.id}')" title="Cancel">
                         <i class="fas fa-times"></i>
                       </button>
@@ -617,12 +670,20 @@
         ` : ''}
 
         <div class="modal-actions">
+          ${booking.status === 'pending_coach_approval' ? `
+            <button class="btn-sm btn-confirm" onclick="acceptBooking('${booking.id}'); closeModal();" style="flex: 1; background: #4caf50; color: #fff;">
+              <i class="fas fa-check"></i> Accept Booking
+            </button>
+            <button class="btn-sm" onclick="openRescheduleModal('${booking.id}', '${booking.memberName}'); closeModal();" style="flex: 1; background: #ffa726; color: #000;">
+              <i class="fas fa-calendar-alt"></i> Reschedule
+            </button>
+          ` : ''}
           ${booking.status === 'confirmed' ? `
             <button class="btn-sm btn-complete" onclick="completeBooking('${booking.id}'); closeModal();" style="flex: 1;">
               <i class="fas fa-check"></i> Mark as Complete
             </button>
           ` : ''}
-          ${booking.status !== 'cancelled' && booking.status !== 'completed' ? `
+          ${booking.status !== 'cancelled' && booking.status !== 'completed' && booking.status !== 'pending_coach_approval' ? `
             <button class="btn-sm btn-cancel" onclick="cancelBooking('${booking.id}'); closeModal();" style="flex: 1;">
               <i class="fas fa-times"></i> Cancel Booking
             </button>
@@ -670,6 +731,131 @@
         alert('Failed to cancel booking: ' + error.message);
       }
     };
+
+    // Accept booking (Coach approval - Stage 3)
+    window.acceptBooking = async function(id) {
+      if (!confirm('Accept this booking? The client will be notified.')) return;
+
+      try {
+        // Get booking details
+        const bookingSnapshot = await get(ref(rtdb, `coachBookings/${id}`));
+        const booking = bookingSnapshot.val();
+        
+        if (!booking) {
+          alert('Booking not found!');
+          return;
+        }
+
+        // Update booking status to confirmed (Final stage)
+        await update(ref(rtdb, `coachBookings/${id}`), {
+          status: 'confirmed',
+          workflowStage: 'confirmed',
+          coachApprovedAt: Date.now(),
+          coachApprovedBy: auth.currentUser.uid,
+          updatedAt: Date.now()
+        });
+
+        // Notify member
+        if (booking.memberId) {
+          const { push, set } = await import('https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js');
+          const memberNotifRef = push(ref(rtdb, `notifications/${booking.memberId}`));
+          await set(memberNotifRef, {
+            type: 'booking_confirmed',
+            message: `Your booking with ${booking.coachName} on ${booking.preferredDate} at ${booking.preferredTime} has been confirmed!`,
+            data: { bookingId: id },
+            read: false,
+            createdAt: Date.now()
+          });
+        }
+
+        alert('Booking accepted! Client has been notified.');
+        loadBookings();
+      } catch (error) {
+        console.error('Error accepting booking:', error);
+        alert('Failed to accept booking: ' + error.message);
+      }
+    };
+
+    // Open reschedule modal
+    let currentRescheduleBookingId = null;
+    window.openRescheduleModal = function(bookingId, memberName) {
+      currentRescheduleBookingId = bookingId;
+      document.getElementById('rescheduleModal').classList.add('active');
+      
+      // Set minimum date to tomorrow
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      document.getElementById('newDate').min = tomorrow.toISOString().split('T')[0];
+    };
+
+    window.closeRescheduleModal = function() {
+      document.getElementById('rescheduleModal').classList.remove('active');
+      currentRescheduleBookingId = null;
+      document.getElementById('newDate').value = '';
+      document.getElementById('newTime').value = '';
+      document.getElementById('rescheduleReason').value = '';
+    };
+
+    // Confirm reschedule
+    document.getElementById('confirmRescheduleBtn').addEventListener('click', async function() {
+      const newDate = document.getElementById('newDate').value;
+      const newTime = document.getElementById('newTime').value;
+      const reason = document.getElementById('rescheduleReason').value;
+
+      if (!newDate || !newTime) {
+        alert('Please select both date and time');
+        return;
+      }
+
+      try {
+        // Get booking details
+        const bookingSnapshot = await get(ref(rtdb, `coachBookings/${currentRescheduleBookingId}`));
+        const booking = bookingSnapshot.val();
+        
+        if (!booking) {
+          alert('Booking not found!');
+          return;
+        }
+
+        const oldDate = booking.preferredDate;
+        const oldTime = booking.preferredTime;
+
+        // Update booking with new date/time
+        await update(ref(rtdb, `coachBookings/${currentRescheduleBookingId}`), {
+          preferredDate: newDate,
+          preferredTime: newTime,
+          originalDate: oldDate,
+          originalTime: oldTime,
+          rescheduledBy: 'coach',
+          rescheduleReason: reason || 'Coach requested reschedule',
+          rescheduledAt: Date.now(),
+          status: 'confirmed', // Auto-confirm on reschedule
+          workflowStage: 'confirmed',
+          coachApprovedAt: Date.now(),
+          updatedAt: Date.now()
+        });
+
+        // Notify member about reschedule
+        if (booking.memberId) {
+          const { push, set } = await import('https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js');
+          const memberNotifRef = push(ref(rtdb, `notifications/${booking.memberId}`));
+          await set(memberNotifRef, {
+            type: 'booking_rescheduled',
+            message: `Your booking with ${booking.coachName} has been rescheduled from ${oldDate} ${oldTime} to ${newDate} ${newTime}. ${reason ? 'Reason: ' + reason : ''}`,
+            data: { bookingId: currentRescheduleBookingId, oldDate, oldTime, newDate, newTime },
+            read: false,
+            createdAt: Date.now()
+          });
+        }
+
+        alert('Booking rescheduled successfully! Client has been notified.');
+        closeRescheduleModal();
+        loadBookings();
+      } catch (error) {
+        console.error('Error rescheduling booking:', error);
+        alert('Failed to reschedule booking: ' + error.message);
+      }
+    });
 
     window.closeModal = function() {
       document.getElementById('bookingModal').classList.remove('active');

@@ -9,6 +9,8 @@
         onAuthStateChanged,
       } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
       import { getDatabase } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+      import { getFirestore } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+      import { RealtimeAdminStats } from "./admin-realtime-stats.js";
       
       // Protect this page - only admins can access
       requireAdmin();
@@ -21,19 +23,42 @@
         messagingSenderId: "537648978979",
         appId: "1:537648978979:web:30eb90af77c7569b7be596",
         measurementId: "G-W1D2R0Q1L1",
+        databaseURL: "https://titans-8d454-default-rtdb.firebaseio.com"
       };
       const app = initializeApp(firebaseConfig);
       const auth = getAuth(app);
       const rtdb = getDatabase(app);
+      const db = getFirestore(app);
+      
       // expose to admin.js
       window.firebaseAuth = auth;
       window.firebaseRtdb = rtdb;
+      window.firebaseDb = db;
+      
+      // Initialize real-time stats
+      let statsManager = null;
+      
       onAuthStateChanged(auth, async (user) => {
         if (!user) {
           window.location.href = "login.html";
           return;
         }
+        
         // Role guard will handle admin-only access
+        // Initialize real-time statistics after auth confirmed
+        if (!statsManager) {
+          statsManager = new RealtimeAdminStats(auth, rtdb, db);
+          await statsManager.initialize();
+          window.adminStatsManager = statsManager; // Expose for admin.js
+          console.log('✅ Real-time admin dashboard initialized');
+        }
+      });
+      
+      // Cleanup on page unload
+      window.addEventListener('beforeunload', () => {
+        if (statsManager) {
+          statsManager.destroy();
+        }
       });
     </script>
     <meta charset="UTF-8" />
@@ -323,8 +348,9 @@
                 <canvas id="revenueChart"></canvas>
               </div>
               <div class="chart-card">
-                <h3>Class Bookings</h3>
+                <h3>Coach Bookings Status</h3>
                 <canvas id="bookingsChart"></canvas>
+                <p style="color: #888; font-size: 0.85rem; margin-top: 0.5rem; text-align: center;">Real-time data from Firebase</p>
               </div>
               <div class="chart-card">
                 <h3>User Activity</h3>
@@ -333,163 +359,64 @@
             </div>
           </div>
 
-          <!-- Recent Activity -->
-          <div class="admin-section">
-            <h2>Recent Activity</h2>
-            <div class="activity-feed">
-              <div class="activity-item">
-                <div class="activity-icon">👤</div>
-                <div class="activity-content">
-                  <h4>New user registered</h4>
-                  <p>Sarah Johnson joined the platform</p>
-                  <span class="activity-time">2 minutes ago</span>
-                </div>
-                <div class="activity-status new">New</div>
-              </div>
-              <div class="activity-item">
-                <div class="activity-icon">🏋️‍♂️</div>
-                <div class="activity-content">
-                  <h4>Class completed</h4>
-                  <p>HIIT Training with 15 participants</p>
-                  <span class="activity-time">15 minutes ago</span>
-                </div>
-                <div class="activity-status completed">Completed</div>
-              </div>
-              <div class="activity-item">
-                <div class="activity-icon">💰</div>
-                <div class="activity-content">
-                  <h4>Payment received</h4>
-                  <p>Monthly subscription from John Doe</p>
-                  <span class="activity-time">1 hour ago</span>
-                </div>
-                <div class="activity-status success">Success</div>
-              </div>
-              <div class="activity-item">
-                <div class="activity-icon">📝</div>
-                <div class="activity-content">
-                  <h4>Coach profile updated</h4>
-                  <p>Charles Cacam updated availability</p>
-                  <span class="activity-time">2 hours ago</span>
-                </div>
-                <div class="activity-status updated">Updated</div>
-              </div>
-            </div>
-          </div>
+          
 
-          <!-- User Management Preview -->
-          <div class="admin-section">
-            <h2>User Management</h2>
-            <div class="management-preview">
-              <div class="preview-header">
-                <h3>Recent Users</h3>
-                <a href="admin-users.html" class="view-all-btn">View All</a>
-              </div>
-              <div class="users-table">
-                <div class="table-header">
-                  <div class="table-cell">User</div>
-                  <div class="table-cell">Email</div>
-                  <div class="table-cell">Status</div>
-                  <div class="table-cell">Join Date</div>
-                  <div class="table-cell">Actions</div>
-                </div>
-                <div class="table-row">
-                  <div class="table-cell">
-                    <div class="user-info">
-                      <div class="user-avatar-small">SJ</div>
-                      <span>Sarah Johnson</span>
-                    </div>
-                  </div>
-                  <div class="table-cell">sarah.j@email.com</div>
-                  <div class="table-cell">
-                    <span class="status-badge active">Active</span>
-                  </div>
-                  <div class="table-cell">Today</div>
-                  <div class="table-cell">
-                    <button class="btn-sm btn-primary">Edit</button>
-                  </div>
-                </div>
-                <div class="table-row">
-                  <div class="table-cell">
-                    <div class="user-info">
-                      <div class="user-avatar-small">JD</div>
-                      <span>John Doe</span>
-                    </div>
-                  </div>
-                  <div class="table-cell">john.doe@email.com</div>
-                  <div class="table-cell">
-                    <span class="status-badge active">Active</span>
-                  </div>
-                  <div class="table-cell">2 days ago</div>
-                  <div class="table-cell">
-                    <button class="btn-sm btn-primary">Edit</button>
-                  </div>
-                </div>
-                <div class="table-row">
-                  <div class="table-cell">
-                    <div class="user-info">
-                      <div class="user-avatar-small">MJ</div>
-                      <span>Mike Johnson</span>
-                    </div>
-                  </div>
-                  <div class="table-cell">mike.j@email.com</div>
-                  <div class="table-cell">
-                    <span class="status-badge inactive">Inactive</span>
-                  </div>
-                  <div class="table-cell">1 week ago</div>
-                  <div class="table-cell">
-                    <button class="btn-sm btn-primary">Edit</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          
 
           <!-- System Status -->
           <div class="admin-section">
             <h2>System Status</h2>
             <div class="system-status-grid">
-              <div class="status-card">
+              <div class="status-card" id="serverStatusCard">
                 <div class="status-header">
                   <h3>Server Status</h3>
-                  <span class="status-indicator online">Online</span>
+                  <span class="status-indicator online" id="serverStatusIndicator">
+                    <i class="fas fa-spinner fa-spin"></i>
+                  </span>
                 </div>
-                <p>All systems operational</p>
+                <p id="serverStatusText">Checking status...</p>
                 <div class="status-details">
-                  <span>Uptime: 99.9%</span>
-                  <span>Response: 45ms</span>
+                  <span id="serverUptime">Uptime: --</span>
+                  <span id="serverResponse">Response: --</span>
                 </div>
               </div>
-              <div class="status-card">
+              <div class="status-card" id="databaseStatusCard">
                 <div class="status-header">
                   <h3>Database</h3>
-                  <span class="status-indicator online">Healthy</span>
+                  <span class="status-indicator online" id="databaseStatusIndicator">
+                    <i class="fas fa-spinner fa-spin"></i>
+                  </span>
                 </div>
-                <p>Database performance optimal</p>
+                <p id="databaseStatusText">Checking connection...</p>
                 <div class="status-details">
-                  <span>Connections: 45/100</span>
-                  <span>Query time: 12ms</span>
+                  <span id="databaseUsers">Users: --</span>
+                  <span id="databaseResponse">Response: --</span>
                 </div>
               </div>
-              <div class="status-card">
+              <div class="status-card" id="storageStatusCard">
                 <div class="status-header">
-                  <h3>Storage</h3>
-                  <span class="status-indicator warning">Warning</span>
+                  <h3>Firebase Storage</h3>
+                  <span class="status-indicator online" id="storageStatusIndicator">
+                    <i class="fas fa-spinner fa-spin"></i>
+                  </span>
                 </div>
-                <p>Storage usage at 85%</p>
+                <p id="storageStatusText">Checking storage...</p>
                 <div class="status-details">
-                  <span>Used: 850GB/1TB</span>
-                  <span>Available: 150GB</span>
+                  <span id="storageUsed">Data: --</span>
+                  <span id="storageFiles">Files: --</span>
                 </div>
               </div>
-              <div class="status-card">
+              <div class="status-card" id="authStatusCard">
                 <div class="status-header">
-                  <h3>Backup</h3>
-                  <span class="status-indicator online">Current</span>
+                  <h3>Authentication</h3>
+                  <span class="status-indicator online" id="authStatusIndicator">
+                    <i class="fas fa-spinner fa-spin"></i>
+                  </span>
                 </div>
-                <p>Last backup: 2 hours ago</p>
+                <p id="authStatusText">Checking auth...</p>
                 <div class="status-details">
-                  <span>Next: 22 hours</span>
-                  <span>Size: 2.3GB</span>
+                  <span id="authUsers">Active: --</span>
+                  <span id="authMethod">Method: Firebase Auth</span>
                 </div>
               </div>
             </div>
@@ -691,42 +618,78 @@
     
     <!-- Inline script for admin dropdown - guaranteed to work -->
     <script>
-      console.log('Inline admin dropdown script loading...');
+      console.log('👑 Inline admin dropdown script loading...');
       
-      document.addEventListener('DOMContentLoaded', function() {
-        console.log('DOM loaded, setting up admin dropdown...');
+      // Try immediately
+      function setupAdminDropdown() {
+        console.log('🔧 Setting up admin dropdown...');
         
         const adminMenuBtn = document.getElementById('adminMenuBtn');
         const adminDropdown = document.getElementById('adminDropdown');
         
-        console.log('Elements found:', {
+        console.log('📋 Elements found:', {
           button: adminMenuBtn,
-          dropdown: adminDropdown
+          dropdown: adminDropdown,
+          buttonExists: !!adminMenuBtn,
+          dropdownExists: !!adminDropdown
         });
         
         if (adminMenuBtn && adminDropdown) {
-          console.log('Adding click listener to admin button...');
+          console.log('✅ Adding click listener to admin button...');
           
-          adminMenuBtn.addEventListener('click', function(e) {
+          // Remove any existing listeners by cloning
+          const newBtn = adminMenuBtn.cloneNode(true);
+          adminMenuBtn.parentNode.replaceChild(newBtn, adminMenuBtn);
+          
+          newBtn.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            console.log('Crown clicked! Current classes:', adminDropdown.className);
-            adminDropdown.classList.toggle('active');
-            console.log('After toggle:', adminDropdown.className);
+            console.log('👑 Crown clicked! Toggling dropdown...');
+            
+            const dropdown = document.getElementById('adminDropdown');
+            const isActive = dropdown.classList.contains('active');
+            console.log('Current state:', isActive ? 'open' : 'closed');
+            
+            dropdown.classList.toggle('active');
+            console.log('New state:', dropdown.classList.contains('active') ? 'open' : 'closed');
           });
           
           // Close on outside click
           document.addEventListener('click', function(e) {
-            if (!adminDropdown.contains(e.target) && !adminMenuBtn.contains(e.target)) {
-              adminDropdown.classList.remove('active');
+            const dropdown = document.getElementById('adminDropdown');
+            const button = document.getElementById('adminMenuBtn');
+            
+            if (dropdown && button && 
+                !dropdown.contains(e.target) && 
+                !button.contains(e.target)) {
+              dropdown.classList.remove('active');
             }
           });
           
-          console.log('Admin dropdown setup complete!');
+          // Test the button is clickable
+          console.log('🧪 Button properties:', {
+            disabled: newBtn.disabled,
+            display: window.getComputedStyle(newBtn).display,
+            visibility: window.getComputedStyle(newBtn).visibility,
+            pointerEvents: window.getComputedStyle(newBtn).pointerEvents
+          });
+          
+          console.log('✅ Admin dropdown setup complete!');
         } else {
-          console.error('Could not find admin dropdown elements!');
+          console.error('❌ Could not find admin dropdown elements!');
         }
-      });
+      }
+      
+      // Try on DOM load
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setupAdminDropdown);
+      } else {
+        // DOM is already loaded
+        setupAdminDropdown();
+      }
+      
+      // Also try after a short delay to ensure everything is ready
+      setTimeout(setupAdminDropdown, 500);
     </script>
     
     <script type="module">

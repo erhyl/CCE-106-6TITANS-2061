@@ -113,35 +113,56 @@ document.addEventListener("DOMContentLoaded", function () {
         goals: bookingData.goals || '',
         experience: bookingData.experience || '',
         memberId: user.uid,
-        status: 'pending',
+        userId: user.uid, // Added for messaging compatibility
+        status: 'pending_admin_approval', // Stage 1: Waiting for admin confirmation
+        workflowStage: 'admin_review',
         bookingDate: new Date().toISOString(),
-        createdAt: Date.now()
+        createdAt: Date.now(),
+        updatedAt: Date.now()
       });
 
       // Notification to member
       const notifKey = push(ref(rtdb, 'notifications/' + user.uid)).key;
       await set(ref(rtdb, `notifications/${user.uid}/${notifKey}`), {
         type: 'booking',
-        message: `Session request with ${bookingData.coachName} submitted`,
+        message: `Session request with ${bookingData.coachName} submitted - Awaiting admin approval`,
         data: { bookingId: key },
         read: false,
         createdAt: Date.now()
       });
 
+      // Notification to all admins
+      const usersSnap = await get(ref(rtdb, 'users'));
+      if (usersSnap.exists()) {
+        const users = usersSnap.val();
+        for (const [uid, userData] of Object.entries(users)) {
+          if (userData.role === 'admin') {
+            const adminNotifKey = push(ref(rtdb, `notifications/${uid}`)).key;
+            await set(ref(rtdb, `notifications/${uid}/${adminNotifKey}`), {
+              type: 'booking_pending',
+              message: `New booking request from ${bookingData.memberName} for ${bookingData.coachName}`,
+              data: { bookingId: key, memberId: user.uid },
+              read: false,
+              createdAt: Date.now()
+            });
+          }
+        }
+      }
+
       // Audit event
       const evtKey = push(ref(rtdb, 'events/' + user.uid)).key;
       await set(ref(rtdb, `events/${user.uid}/${evtKey}`), {
         action: 'booking_created',
-        details: { type: 'coach', coachName: bookingData.coachName },
+        details: { type: 'coach', coachName: bookingData.coachName, status: 'pending_admin_approval' },
         page: 'coaching',
         createdAt: Date.now()
       });
 
       hideLoading();
       if (window.Utils && window.Utils.showToast) {
-        window.Utils.showToast(`Session booked with ${bookingData.coachName}`, 'success');
+        window.Utils.showToast(`Booking request submitted! Awaiting admin confirmation.`, 'success');
       } else {
-        alert(`Session booked with ${bookingData.coachName}`);
+        alert(`Booking request submitted! An admin will review your request shortly.`);
       }
       bookingModal.style.display = "none";
       document.body.style.overflow = "auto";

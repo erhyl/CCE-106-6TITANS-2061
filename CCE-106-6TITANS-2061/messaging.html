@@ -1,0 +1,1530 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Messages - 6Titans</title>
+    <link rel="stylesheet" href="assets/css/styles-base.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      body {
+        background: #0a0a0a;
+        color: #fff;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      .messaging-container {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        height: calc(100vh - 80px);
+        margin-top: 80px;
+        max-width: 1400px;
+        margin-left: auto;
+        margin-right: auto;
+        gap: 0;
+      }
+
+      /* Contacts Sidebar */
+      .contacts-sidebar {
+        background: #1a1a1a;
+        border-right: 1px solid #333;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .sidebar-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid #333;
+      }
+
+      .sidebar-header h2 {
+        color: #ffd700;
+        font-size: 1.5rem;
+        margin: 0;
+      }
+
+      .search-box {
+        padding: 1rem;
+        border-bottom: 1px solid #333;
+      }
+
+      .search-box input {
+        width: 100%;
+        padding: 0.75rem;
+        background: #0a0a0a;
+        border: 1px solid #333;
+        border-radius: 8px;
+        color: #fff;
+        font-size: 0.9rem;
+      }
+
+      .contacts-list {
+        flex: 1;
+        overflow-y: auto;
+      }
+
+      .contact-item {
+        padding: 1rem;
+        border-bottom: 1px solid #333;
+        cursor: pointer;
+        transition: background 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .contact-item:hover {
+        background: #2a2a2a;
+      }
+
+      .contact-item.active {
+        background: rgba(255, 215, 0, 0.1);
+        border-left: 3px solid #ffd700;
+      }
+
+      .contact-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #ffd700, #ff6b35);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+      }
+
+      .contact-info {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .contact-name {
+        font-weight: 600;
+        color: #fff;
+        margin-bottom: 0.25rem;
+      }
+
+      .contact-last-message {
+        font-size: 0.85rem;
+        color: #888;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .contact-status {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #4caf50;
+        flex-shrink: 0;
+      }
+
+      .contact-status.offline {
+        background: #888;
+      }
+
+      /* Chat Area */
+      .chat-area {
+        display: flex;
+        flex-direction: column;
+        background: #0a0a0a;
+      }
+
+      .chat-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid #333;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #1a1a1a;
+      }
+
+      .chat-user-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .chat-actions {
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      .action-btn {
+        padding: 0.75rem 1.25rem;
+        background: rgba(255, 215, 0, 0.1);
+        border: 1px solid #ffd700;
+        border-radius: 8px;
+        color: #ffd700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .action-btn:hover {
+        background: #ffd700;
+        color: #000;
+      }
+
+      .action-btn i {
+        font-size: 1rem;
+      }
+
+      .messages-container {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .message {
+        display: flex;
+        gap: 0.75rem;
+        max-width: 70%;
+      }
+
+      .message.sent {
+        margin-left: auto;
+        flex-direction: row-reverse;
+      }
+
+      .message-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #ffd700, #ff6b35);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        font-weight: 600;
+        flex-shrink: 0;
+      }
+
+      .message-content {
+        flex: 1;
+      }
+
+      .message-bubble {
+        background: #1a1a1a;
+        padding: 0.75rem 1rem;
+        border-radius: 12px;
+        color: #fff;
+        word-wrap: break-word;
+      }
+
+      .message.sent .message-bubble {
+        background: rgba(255, 215, 0, 0.15);
+        border: 1px solid rgba(255, 215, 0, 0.3);
+      }
+
+      .message-time {
+        font-size: 0.75rem;
+        color: #888;
+        margin-top: 0.25rem;
+      }
+
+      .message-input-container {
+        padding: 1.5rem;
+        border-top: 1px solid #333;
+        background: #1a1a1a;
+      }
+
+      .message-input-wrapper {
+        display: flex;
+        gap: 0.75rem;
+        align-items: flex-end;
+      }
+
+      .message-input {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        background: #0a0a0a;
+        border: 1px solid #333;
+        border-radius: 8px;
+        color: #fff;
+        font-size: 0.95rem;
+        resize: none;
+        min-height: 44px;
+        max-height: 120px;
+      }
+
+      .send-btn {
+        padding: 0.75rem 1.5rem;
+        background: #ffd700;
+        border: none;
+        border-radius: 8px;
+        color: #000;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .send-btn:hover {
+        background: #ffed4e;
+        transform: translateY(-2px);
+      }
+
+      .empty-state {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #888;
+        gap: 1rem;
+      }
+
+      .empty-state i {
+        font-size: 4rem;
+        color: #333;
+      }
+
+      /* Loading */
+      .loading {
+        text-align: center;
+        padding: 2rem;
+        color: #ffd700;
+      }
+
+      .spinner {
+        border: 3px solid rgba(255, 215, 0, 0.1);
+        border-left-color: #ffd700;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .messaging-container {
+          grid-template-columns: 1fr;
+        }
+
+        .contacts-sidebar {
+          display: none;
+        }
+
+        .contacts-sidebar.mobile-show {
+          display: flex;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar">
+      <div class="nav-container">
+        <a href="index.html" class="logo">6TITANS</a>
+        <ul class="nav-menu">
+          <li class="nav-item">
+            <a href="index.html" class="nav-link">Home</a>
+          </li>
+          <li class="nav-item">
+            <a href="user-dashboard.html" class="nav-link">Dashboard</a>
+          </li>
+          <li class="nav-item">
+            <a href="messaging.html" class="nav-link active">Messages</a>
+          </li>
+          <li class="nav-item">
+            <button
+              onclick="handleLogout()"
+              style="
+                background: none;
+                border: 1px solid #ffd700;
+                color: #ffd700;
+                padding: 0.5rem 1rem;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 0.9rem;
+              "
+            >
+              <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="messaging-container">
+      <!-- Contacts Sidebar -->
+      <div class="contacts-sidebar">
+        <div class="sidebar-header">
+          <h2>💬 Messages</h2>
+          <p style="color: #888; font-size: 0.85rem; margin-top: 0.5rem">
+            Chat with your booked coaches
+          </p>
+        </div>
+        <div class="search-box">
+          <input
+            type="text"
+            placeholder="Search coaches..."
+            id="searchInput"
+            onkeyup="filterContacts(this.value)"
+          />
+        </div>
+        <div class="contacts-list" id="contactsList">
+          <div class="loading">
+            <div class="spinner"></div>
+            <p>Loading your coaches...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat Area -->
+      <div class="chat-area">
+        <div class="chat-header" id="chatHeader" style="display: none">
+          <div class="chat-user-info">
+            <div class="contact-avatar" id="chatAvatar">U</div>
+            <div>
+              <div class="contact-name" id="chatName">
+                Select a conversation
+              </div>
+              <div class="contact-last-message" id="chatStatus">Online</div>
+            </div>
+          </div>
+          <div class="chat-actions">
+            <button class="action-btn" onclick="startVideoCall()">
+              <i class="fas fa-video"></i>
+              <span>Video Call</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="messages-container" id="messagesContainer">
+          <div class="empty-state">
+            <i class="fas fa-comments"></i>
+            <h3>Select a conversation to start messaging</h3>
+            <p>Choose from your existing conversations or start a new one</p>
+          </div>
+        </div>
+
+        <div
+          class="message-input-container"
+          id="messageInputContainer"
+          style="display: none"
+        >
+          <div class="message-input-wrapper">
+            <textarea
+              class="message-input"
+              id="messageInput"
+              placeholder="Type a message..."
+              rows="1"
+            ></textarea>
+            <button class="send-btn" onclick="sendMessage()">
+              <i class="fas fa-paper-plane"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import {
+        initializeApp,
+        getApps,
+      } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+      import {
+        getAuth,
+        onAuthStateChanged,
+      } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+      import {
+        getDatabase,
+        ref,
+        onValue,
+        push,
+        set,
+        query,
+        orderByChild,
+        get,
+      } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+      import {
+        getFirestore,
+        doc,
+        getDoc,
+      } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+
+      // Firebase config - MUST MATCH firebase-init.js
+      const firebaseConfig = {
+        apiKey: "AIzaSyC2YE5Cn0gbiuQ5sq8lErotl01itq5-hYk",
+        authDomain: "titans-8d454.firebaseapp.com",
+        databaseURL: "https://titans-8d454-default-rtdb.firebaseio.com",
+        projectId: "titans-8d454",
+        storageBucket: "titans-8d454.firebasestorage.app",
+        messagingSenderId: "537648978979",
+        appId: "1:537648978979:web:30eb90af77c7569b7be596",
+        measurementId: "G-W1D2R0Q1L1",
+      };
+
+      // Initialize Firebase (avoid duplicate initialization)
+      let app;
+      if (!getApps().length) {
+        app = initializeApp(firebaseConfig);
+      } else {
+        app = getApps()[0];
+      }
+
+      const auth = getAuth(app);
+      const db = getDatabase(app);
+      const firestore = getFirestore(app);
+
+      let currentUser = null;
+      let currentUserData = null;
+      let currentChatId = null;
+      let currentChatPartner = null;
+      let allUsers = {};
+      let isLoggingOut = false;
+      let authCheckComplete = false;
+      let isCoachUser = false;
+      let coachIdMapping = {}; // Maps coach profile IDs to auth UIDs
+      let currentUserCoachProfileIds = []; // List of coach profile IDs for current user
+
+      console.log("💬 Messaging page loaded, waiting for auth...");
+
+      // Set auth persistence to LOCAL (stays logged in after browser close)
+      import("https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js")
+        .then(({ setPersistence, browserLocalPersistence }) => {
+          return setPersistence(auth, browserLocalPersistence);
+        })
+        .then(() => {
+          console.log("✅ Auth persistence set to LOCAL");
+        })
+        .catch((error) => {
+          console.warn("⚠️ Could not set auth persistence:", error);
+        });
+
+      // Auth check with better error handling
+      onAuthStateChanged(auth, async (user) => {
+        authCheckComplete = true;
+        console.log("🔐 Auth state changed:", user ? user.uid : "no user");
+
+        if (!user) {
+          if (isLoggingOut) {
+            console.log("User is logging out, skipping redirect");
+            return;
+          }
+
+          // Double-check: wait a moment and verify user is really not logged in
+          console.log("⏳ No user detected, double-checking...");
+          await new Promise((resolve) => setTimeout(resolve, 500));
+
+          const currentUser = auth.currentUser;
+          if (!currentUser) {
+            console.log(
+              "❌ Confirmed: No authenticated user, redirecting to login..."
+            );
+            window.location.href = "login.html";
+          } else {
+            console.log("✅ User found after double-check:", currentUser.uid);
+          }
+          return;
+        }
+
+        try {
+          currentUser = user;
+          console.log("✅ User authenticated:", user.uid);
+
+          // Get user data to determine if coach or member
+          const userDoc = await getDoc(doc(firestore, "users", user.uid));
+          if (userDoc.exists()) {
+            currentUserData = userDoc.data();
+            isCoachUser =
+              currentUserData.accountType === "coach" ||
+              currentUserData.role === "coach";
+            console.log("👤 User type:", isCoachUser ? "Coach" : "Member");
+          } else {
+            console.warn("⚠️ User document not found in Firestore");
+          }
+
+          // Update sidebar header based on user type
+          updateSidebarForUserType();
+
+          // Load all users first
+          await loadAllUsers();
+
+          // Load user's conversations
+          await loadConversations();
+
+          // Listen for incoming video calls
+          listenForIncomingCalls();
+
+          console.log("✅ Messaging system initialized successfully");
+        } catch (error) {
+          console.error("❌ Error initializing messaging:", error);
+          const contactsList = document.getElementById("contactsList");
+          if (contactsList) {
+            contactsList.innerHTML = `
+                        <div style="padding: 2rem; text-align: center; color: #f44336;">
+                            <p>Error loading messages</p>
+                            <p style="font-size: 0.85rem; color: #888; margin-top: 0.5rem;">${error.message}</p>
+                        </div>
+                    `;
+          }
+        }
+      });
+
+      function updateSidebarForUserType() {
+        const sidebarHeader = document.querySelector(".sidebar-header");
+        const searchInput = document.getElementById("searchInput");
+        const loadingText = document.querySelector(".contacts-list .loading p");
+
+        if (isCoachUser) {
+          // Update for coach view
+          if (sidebarHeader) {
+            sidebarHeader.innerHTML = `
+                        <h2>💬 Messages</h2>
+                        <p style="color: #888; font-size: 0.85rem; margin-top: 0.5rem;">Chat with your clients</p>
+                    `;
+          }
+          if (searchInput) {
+            searchInput.placeholder = "Search clients...";
+          }
+          if (loadingText) {
+            loadingText.textContent = "Loading your clients...";
+          }
+        } else {
+          // Update for member view
+          if (sidebarHeader) {
+            sidebarHeader.innerHTML = `
+                        <h2>💬 Messages</h2>
+                        <p style="color: #888; font-size: 0.85rem; margin-top: 0.5rem;">Chat with your booked coaches</p>
+                    `;
+          }
+          if (searchInput) {
+            searchInput.placeholder = "Search coaches...";
+          }
+          if (loadingText) {
+            loadingText.textContent = "Loading your coaches...";
+          }
+        }
+      }
+
+      async function loadAllUsers() {
+        try {
+          // Load both users and coach profiles
+          const usersRef = ref(db, "users");
+          const coachProfilesRef = ref(db, "coachProfiles");
+
+          const [usersSnapshot, coachProfilesSnapshot] = await Promise.all([
+            get(usersRef),
+            get(coachProfilesRef),
+          ]);
+
+          // Load regular users
+          if (usersSnapshot.exists()) {
+            allUsers = usersSnapshot.val();
+            console.log("📋 Loaded users:", Object.keys(allUsers).length);
+          } else {
+            allUsers = {};
+          }
+
+          // Load coach profiles and merge them
+          if (coachProfilesSnapshot.exists()) {
+            const coachProfiles = coachProfilesSnapshot.val();
+            console.log(
+              "🏋️ Loaded coach profiles:",
+              Object.keys(coachProfiles).length
+            );
+
+            // Reset current user coach profile IDs
+            currentUserCoachProfileIds = [];
+
+            // Add coach profiles to allUsers (they might have different structure)
+            Object.entries(coachProfiles).forEach(([coachId, coach]) => {
+              // If coach has a uid, use that as the key, otherwise use the profile id
+              const userId = coach.uid || coachId;
+
+              // Create mapping: coachProfileId -> authUID
+              coachIdMapping[coachId] = userId;
+              if (userId !== coachId) {
+                coachIdMapping[userId] = userId; // Also map UID to itself
+              }
+
+              // Check if this coach profile belongs to the current user
+              // Match by: UID, profile ID, or email
+              const matchesCurrentUser =
+                currentUser &&
+                (userId === currentUser.uid ||
+                  coachId === currentUser.uid ||
+                  (coach.email &&
+                    currentUser.email &&
+                    coach.email === currentUser.email));
+
+              if (matchesCurrentUser) {
+                currentUserCoachProfileIds.push(coachId);
+                console.log(
+                  `   👤 Current user's coach profile: ${coachId} (matched by ${
+                    userId === currentUser.uid
+                      ? "UID"
+                      : coachId === currentUser.uid
+                      ? "Profile ID"
+                      : "Email"
+                  })`
+                );
+              }
+
+              console.log(`   🗺️ Mapping: ${coachId} → ${userId}`);
+
+              if (!allUsers[userId]) {
+                // Coach not in users collection, add from profile
+                allUsers[userId] = {
+                  firstName:
+                    coach.name?.split(" ")[0] || coach.firstName || "Coach",
+                  lastName:
+                    coach.name?.split(" ").slice(1).join(" ") ||
+                    coach.lastName ||
+                    "",
+                  email: coach.email || "",
+                  accountType: "coach",
+                  role: "coach",
+                };
+              } else {
+                // Update existing user record with coach info
+                allUsers[userId].accountType = "coach";
+                allUsers[userId].role = "coach";
+              }
+
+              // Also add by profile ID if different from uid
+              if (coach.uid && coachId !== coach.uid) {
+                allUsers[coachId] = allUsers[userId];
+              }
+            });
+
+            console.log(
+              "✅ Total users + coaches:",
+              Object.keys(allUsers).length
+            );
+            console.log("🗺️ Coach ID mappings:", coachIdMapping);
+            console.log(
+              "👤 Current user coach profile IDs:",
+              currentUserCoachProfileIds
+            );
+          }
+        } catch (error) {
+          console.error("Error loading users:", error);
+        }
+      }
+
+      async function loadConversations() {
+        const contactsList = document.getElementById("contactsList");
+
+        try {
+          console.log("📥 Loading conversations for user:", currentUser.uid);
+          console.log("👤 User type:", isCoachUser ? "Coach" : "Member");
+
+          const contactsData = new Map(); // Store contact info with booking details
+
+          // Check BOTH 'bookings' and 'coachBookings' collections
+          const bookingsRef = ref(db, "bookings");
+          const coachBookingsRef = ref(db, "coachBookings");
+
+          const [bookingsSnapshot, coachBookingsSnapshot] = await Promise.all([
+            get(bookingsRef),
+            get(coachBookingsRef),
+          ]);
+
+          // Process regular bookings (class bookings)
+          if (bookingsSnapshot.exists()) {
+            const bookings = bookingsSnapshot.val();
+            console.log(
+              "📋 Found regular bookings:",
+              Object.keys(bookings).length
+            );
+
+            Object.entries(bookings).forEach(([bookingId, booking]) => {
+              let contactId = null;
+              let isCoach = false;
+
+              if (
+                booking.userId === currentUser.uid ||
+                booking.memberId === currentUser.uid
+              ) {
+                // Current user is the member, contact is the coach
+                // CRITICAL: Map coach profile ID to auth UID
+                contactId = coachIdMapping[booking.coachId] || booking.coachId;
+                isCoach = true;
+              } else {
+                // Check if current user is the coach (with mapping and profile IDs)
+                const mappedCoachId =
+                  coachIdMapping[booking.coachId] || booking.coachId;
+                if (
+                  mappedCoachId === currentUser.uid ||
+                  booking.coachId === currentUser.uid ||
+                  currentUserCoachProfileIds.includes(booking.coachId)
+                ) {
+                  // Current user is the coach, contact is the member
+                  contactId = booking.userId || booking.memberId;
+                  isCoach = false;
+                }
+              }
+
+              if (contactId) {
+                if (!contactsData.has(contactId)) {
+                  contactsData.set(contactId, {
+                    isCoach: isCoach,
+                    bookingCount: 0,
+                    latestBooking: null,
+                    status: booking.status || "pending",
+                  });
+                }
+
+                const contactInfo = contactsData.get(contactId);
+                contactInfo.bookingCount++;
+
+                if (
+                  !contactInfo.latestBooking ||
+                  booking.createdAt > contactInfo.latestBooking.createdAt
+                ) {
+                  contactInfo.latestBooking = booking;
+                }
+              }
+            });
+          }
+
+          // Process coach bookings (coaching sessions)
+          if (coachBookingsSnapshot.exists()) {
+            const coachBookings = coachBookingsSnapshot.val();
+            console.log(
+              "🏋️ Found coach bookings:",
+              Object.keys(coachBookings).length
+            );
+            console.log("🔍 Current user UID:", currentUser.uid);
+
+            Object.entries(coachBookings).forEach(([bookingId, booking]) => {
+              let contactId = null;
+              let isCoach = false;
+
+              console.log(`   📋 Checking booking ${bookingId}:`, {
+                memberId: booking.memberId || booking.userId,
+                coachId: booking.coachId,
+                currentUserUid: currentUser.uid,
+              });
+
+              if (
+                booking.userId === currentUser.uid ||
+                booking.memberId === currentUser.uid
+              ) {
+                // Current user is the member, contact is the coach
+                // CRITICAL: Map coach profile ID to auth UID
+                contactId = coachIdMapping[booking.coachId] || booking.coachId;
+                isCoach = true;
+                console.log("   ✅ Member sees coach:", booking.coachId, "→", contactId);
+              } else {
+                // Check if current user is the coach
+                // The coachId in booking might be a profile ID, so check the mapping
+                const mappedCoachId =
+                  coachIdMapping[booking.coachId] || booking.coachId;
+
+                console.log(
+                  `   🗺️ Coach ID mapping: ${booking.coachId} → ${mappedCoachId}`
+                );
+                console.log(
+                  `   🔍 Checking against current user UID: ${currentUser.uid}`
+                );
+                console.log(
+                  `   🔍 Checking against coach profile IDs:`,
+                  currentUserCoachProfileIds
+                );
+
+                // Check if booking.coachId matches:
+                // 1. Direct UID match
+                // 2. Mapped UID match
+                // 3. Any of current user's coach profile IDs
+                if (
+                  mappedCoachId === currentUser.uid ||
+                  booking.coachId === currentUser.uid ||
+                  currentUserCoachProfileIds.includes(booking.coachId)
+                ) {
+                  // Current user is the coach, contact is the member
+                  contactId = booking.userId || booking.memberId;
+                  isCoach = false;
+                  console.log("   ✅ Coach sees member:", contactId);
+                } else {
+                  console.log("   ❌ No match for this booking");
+                }
+              }
+
+              if (contactId) {
+                if (!contactsData.has(contactId)) {
+                  contactsData.set(contactId, {
+                    isCoach: isCoach,
+                    bookingCount: 0,
+                    latestBooking: null,
+                    status: booking.status || "pending",
+                  });
+                }
+
+                const contactInfo = contactsData.get(contactId);
+                contactInfo.bookingCount++;
+
+                if (
+                  !contactInfo.latestBooking ||
+                  booking.createdAt > contactInfo.latestBooking.createdAt
+                ) {
+                  contactInfo.latestBooking = booking;
+                }
+              }
+            });
+          }
+
+          // Check if we have any contacts
+          if (contactsData.size === 0) {
+            console.log("❌ No contacts found");
+            contactsList.innerHTML = isCoachUser
+              ? `
+                        <div style="padding: 2rem; text-align: center; color: #888;">
+                            <i class="fas fa-calendar-times" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+                            <p><strong>No bookings yet</strong></p>
+                            <p style="font-size: 0.85rem; margin-top: 0.5rem;">You'll see your clients here once they book sessions with you!</p>
+                        </div>
+                    `
+              : `
+                        <div style="padding: 2rem; text-align: center; color: #888;">
+                            <i class="fas fa-calendar-times" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+                            <p><strong>No bookings yet</strong></p>
+                            <p style="font-size: 0.85rem; margin-top: 0.5rem;">Book a coach session to start messaging!</p>
+                        </div>
+                    `;
+            return;
+          }
+
+          console.log("✅ Total unique contacts found:", contactsData.size);
+          console.log(
+            "📊 Contact details:",
+            Array.from(contactsData.entries()).map(([id, info]) => ({
+              contactId: id,
+              contactName: allUsers[id]
+                ? `${allUsers[id].firstName} ${allUsers[id].lastName}`
+                : "Unknown",
+              isCoach: info.isCoach,
+              bookingCount: info.bookingCount,
+              status: info.status,
+            }))
+          );
+
+          // Render contacts with booking info
+          contactsList.innerHTML = "";
+
+          // Sort: Different logic for coaches vs members
+          const sortedContacts = Array.from(contactsData.entries()).sort(
+            (a, b) => {
+              if (isCoachUser) {
+                // For coaches: just sort by booking count (most active clients first)
+                return b[1].bookingCount - a[1].bookingCount;
+              } else {
+                // For members: coaches first, then by booking count
+                if (a[1].isCoach && !b[1].isCoach) return -1;
+                if (!a[1].isCoach && b[1].isCoach) return 1;
+                return b[1].bookingCount - a[1].bookingCount;
+              }
+            }
+          );
+
+          for (const [userId, contactInfo] of sortedContacts) {
+            const user = allUsers[userId];
+            if (user) {
+              renderContactItem(userId, user, contactInfo);
+            }
+          }
+
+          console.log("✅ Loaded", contactsData.size, "contacts");
+        } catch (error) {
+          console.error("❌ Error loading conversations:", error);
+          contactsList.innerHTML = `
+                    <div style="padding: 2rem; text-align: center; color: #f44336;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                        <p>Error loading conversations</p>
+                        <p style="font-size: 0.8rem; margin-top: 0.5rem;">${error.message}</p>
+                    </div>
+                `;
+        }
+      }
+
+      function renderContactItem(userId, user, contactInfo) {
+        const contactsList = document.getElementById("contactsList");
+        const initials = getInitials(user.firstName, user.lastName);
+
+        const contactDiv = document.createElement("div");
+        contactDiv.className = "contact-item";
+        contactDiv.onclick = () => openChat(userId, user, contactInfo);
+
+        // Determine role and display info based on current user type
+        const contactIsCoach =
+          contactInfo?.isCoach ||
+          user.accountType === "coach" ||
+          user.role === "coach";
+
+        let roleIcon, roleText;
+        if (isCoachUser) {
+          // Current user is coach, showing members/clients
+          roleIcon = "👤";
+          roleText = "Your Client";
+        } else {
+          // Current user is member, showing coaches
+          roleIcon = contactIsCoach ? "🏋️‍♂️" : "👤";
+          roleText = contactIsCoach ? "Your Coach" : "Member";
+        }
+
+        // Show booking count if available
+        let subText = roleText;
+        if (contactInfo && contactInfo.bookingCount > 1) {
+          subText += ` • ${contactInfo.bookingCount} sessions`;
+        } else if (contactInfo && contactInfo.bookingCount === 1) {
+          subText += ` • 1 session`;
+        }
+
+        // Add booking status indicator
+        let statusBadge = "";
+        if (contactInfo?.status) {
+          const statusColors = {
+            confirmed: "#4caf50",
+            pending: "#ff9800",
+            completed: "#2196f3",
+            cancelled: "#888",
+          };
+          const color =
+            statusColors[contactInfo.status.toLowerCase()] || "#888";
+          statusBadge = `<span style="background: ${color}; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; margin-left: 0.25rem;">${contactInfo.status}</span>`;
+        }
+
+        // Determine avatar color based on role
+        const avatarColor = isCoachUser
+          ? "linear-gradient(135deg, #2196f3, #21cbf3)" // Blue for clients (from coach's view)
+          : contactIsCoach
+          ? "linear-gradient(135deg, #ffd700, #ff6b35)" // Gold for coaches (from member's view)
+          : "linear-gradient(135deg, #2196f3, #21cbf3)"; // Blue for members
+
+        contactDiv.innerHTML = `
+                <div class="contact-avatar" style="background: ${avatarColor}">${initials}</div>
+                <div class="contact-info">
+                    <div class="contact-name">
+                        ${roleIcon} ${user.firstName} ${user.lastName}
+                    </div>
+                    <div class="contact-last-message">
+                        ${subText}${statusBadge}
+                    </div>
+                </div>
+                <div class="contact-status"></div>
+            `;
+
+        contactsList.appendChild(contactDiv);
+      }
+
+      function openChat(userId, user, contactInfo) {
+        // CRITICAL FIX: For coaches, map profile ID to auth UID
+        let partnerAuthUid = userId;
+        
+        // If partner is a coach and userId looks like a profile ID, map it to auth UID
+        const isPartnerCoach = contactInfo?.isCoach || user.accountType === 'coach' || user.role === 'coach';
+        if (isPartnerCoach && coachIdMapping[userId]) {
+          partnerAuthUid = coachIdMapping[userId];
+          console.log(`🔄 Mapped coach profile ${userId} → auth UID ${partnerAuthUid}`);
+        }
+        
+        currentChatPartner = { id: partnerAuthUid, ...user, contactInfo };
+        currentChatId = getChatId(currentUser.uid, partnerAuthUid);
+
+        console.log("💬 Opening chat with:", user.firstName, user.lastName);
+        console.log("🔑 Chat ID:", currentChatId);
+        console.log("👤 Current user UID:", currentUser.uid);
+        console.log("👤 Partner user ID (original):", userId);
+        console.log("👤 Partner user ID (mapped):", partnerAuthUid);
+        console.log("📊 Chat path:", `chats/${currentChatId}/messages`);
+
+        // Update UI
+        document
+          .querySelectorAll(".contact-item")
+          .forEach((item) => item.classList.remove("active"));
+        event.currentTarget.classList.add("active");
+
+        // Show chat header and input
+        document.getElementById("chatHeader").style.display = "flex";
+        document.getElementById("messageInputContainer").style.display =
+          "block";
+
+        // Update chat header
+        const initials = getInitials(user.firstName, user.lastName);
+        const contactIsCoach =
+          contactInfo?.isCoach ||
+          user.accountType === "coach" ||
+          user.role === "coach";
+
+        let roleIcon, roleLabel;
+        if (isCoachUser) {
+          // Current user is coach, talking to a client
+          roleIcon = "👤";
+          roleLabel = "Client";
+        } else {
+          // Current user is member, talking to coach
+          roleIcon = contactIsCoach ? "🏋️‍♂️" : "👤";
+          roleLabel = contactIsCoach ? "Your Coach" : "Member";
+        }
+
+        // Determine avatar color
+        const avatarColor = isCoachUser
+          ? "linear-gradient(135deg, #2196f3, #21cbf3)"
+          : contactIsCoach
+          ? "linear-gradient(135deg, #ffd700, #ff6b35)"
+          : "linear-gradient(135deg, #2196f3, #21cbf3)";
+
+        document.getElementById("chatAvatar").textContent = initials;
+        document.getElementById("chatAvatar").style.background = avatarColor;
+        document.getElementById(
+          "chatName"
+        ).textContent = `${roleIcon} ${user.firstName} ${user.lastName}`;
+
+        // Show detailed status
+        let statusText = roleLabel;
+        if (contactInfo) {
+          if (contactInfo.bookingCount > 1) {
+            statusText += ` • ${contactInfo.bookingCount} sessions booked`;
+          } else if (contactInfo.bookingCount === 1) {
+            statusText += ` • 1 session booked`;
+          }
+        }
+
+        // Add context-specific availability text
+        if (isCoachUser) {
+          statusText += " • Ready to chat";
+        } else if (contactIsCoach) {
+          statusText += " • Available for psyche check";
+        }
+
+        document.getElementById("chatStatus").textContent = statusText;
+
+        // Load messages
+        loadMessages();
+      }
+
+      function loadMessages() {
+        const messagesContainer = document.getElementById("messagesContainer");
+        messagesContainer.innerHTML =
+          '<div class="loading"><div class="spinner"></div><p>Loading messages...</p></div>';
+
+        console.log("📥 Loading messages from:", `chats/${currentChatId}/messages`);
+
+        const messagesRef = ref(db, `chats/${currentChatId}/messages`);
+
+        onValue(messagesRef, (snapshot) => {
+          console.log("📬 Message snapshot received");
+          console.log("   Exists:", snapshot.exists());
+          if (snapshot.exists()) {
+            const messages = snapshot.val();
+            console.log("   Message count:", Object.keys(messages).length);
+            console.log("   Messages:", messages);
+          }
+
+          messagesContainer.innerHTML = "";
+
+          if (!snapshot.exists()) {
+            const contactIsCoach =
+              currentChatPartner.contactInfo?.isCoach ||
+              currentChatPartner.accountType === "coach";
+
+            let emptyStateContent;
+            if (isCoachUser) {
+              // Coach viewing member/client
+              emptyStateContent = `
+                            <div class="empty-state">
+                                <i class="fas fa-comment-dots" style="color: #ffd700;"></i>
+                                <h3>Start a conversation with ${currentChatPartner.firstName}</h3>
+                                <p style="margin-top: 1rem; color: #ccc; line-height: 1.6;">
+                                    👤 This is your client! You can:<br>
+                                    • Check in on their progress<br>
+                                    • Provide motivation and guidance<br>
+                                    • Schedule training sessions<br>
+                                    • Start a video call for psyche check
+                                </p>
+                                <button onclick="startVideoCall()" style="margin-top: 1rem; background: #ffd700; color: #000; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                                    <i class="fas fa-video"></i> Start Video Call
+                                </button>
+                            </div>
+                        `;
+            } else if (contactIsCoach) {
+              // Member viewing coach
+              emptyStateContent = `
+                            <div class="empty-state">
+                                <i class="fas fa-comment-dots" style="color: #ffd700;"></i>
+                                <h3>Start a conversation with ${currentChatPartner.firstName}</h3>
+                                <p style="margin-top: 1rem; color: #ccc; line-height: 1.6;">
+                                    💪 This is your coach! You can:<br>
+                                    • Chat about your fitness goals<br>
+                                    • Schedule a psyche check session<br>
+                                    • Ask questions about your workout plan<br>
+                                    • Start a video call for 1-on-1 coaching
+                                </p>
+                                <button onclick="startVideoCall()" style="margin-top: 1rem; background: #ffd700; color: #000; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                                    <i class="fas fa-video"></i> Start Video Call
+                                </button>
+                            </div>
+                        `;
+            } else {
+              // Generic
+              emptyStateContent = `
+                            <div class="empty-state">
+                                <i class="fas fa-comment-dots" style="color: #ffd700;"></i>
+                                <h3>Start a conversation with ${currentChatPartner.firstName}</h3>
+                                <p>Send a message to begin your conversation</p>
+                            </div>
+                        `;
+            }
+
+            messagesContainer.innerHTML = emptyStateContent;
+            return;
+          }
+
+          const messages = snapshot.val();
+          Object.entries(messages).forEach(([id, message]) => {
+            renderMessage(message);
+          });
+
+          // Scroll to bottom
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        });
+      }
+
+      function renderMessage(message) {
+        const messagesContainer = document.getElementById("messagesContainer");
+        const isSent = message.senderId === currentUser.uid;
+
+        const messageDiv = document.createElement("div");
+        messageDiv.className = `message ${isSent ? "sent" : "received"}`;
+
+        const sender = isSent ? { firstName: "You" } : currentChatPartner;
+        const initials = getInitials(sender.firstName, sender.lastName);
+
+        messageDiv.innerHTML = `
+                <div class="message-avatar">${initials}</div>
+                <div class="message-content">
+                    <div class="message-bubble">${escapeHtml(
+                      message.text
+                    )}</div>
+                    <div class="message-time">${formatTime(
+                      message.timestamp
+                    )}</div>
+                </div>
+            `;
+
+        messagesContainer.appendChild(messageDiv);
+      }
+
+      window.sendMessage = async function () {
+        const input = document.getElementById("messageInput");
+        const text = input.value.trim();
+
+        if (!text || !currentChatId) {
+          console.log("❌ Cannot send: missing text or chat ID");
+          return;
+        }
+
+        console.log("📤 Sending message...");
+        console.log("   Text:", text);
+        console.log("   Chat ID:", currentChatId);
+        console.log("   Sender:", currentUser.uid);
+        console.log("   Receiver:", currentChatPartner.id);
+
+        try {
+          const messagesRef = ref(db, `chats/${currentChatId}/messages`);
+          const newMessageRef = push(messagesRef);
+
+          const messageData = {
+            senderId: currentUser.uid,
+            receiverId: currentChatPartner.id,
+            text: text,
+            timestamp: Date.now(),
+            read: false,
+          };
+
+          console.log("   Message data:", messageData);
+          console.log("   Saving to:", `chats/${currentChatId}/messages/${newMessageRef.key}`);
+
+          await set(newMessageRef, messageData);
+
+          console.log("✅ Message sent successfully!");
+
+          input.value = "";
+          input.focus();
+        } catch (error) {
+          console.error("❌ Error sending message:", error);
+          alert("Failed to send message: " + error.message);
+        }
+      };
+
+      window.startVideoCall = async function () {
+        if (!currentChatPartner) return;
+
+        const partnerName = `${currentChatPartner.firstName} ${currentChatPartner.lastName}`;
+        
+        console.log("📞 Starting video call with:", partnerName);
+
+        try {
+          // Generate unique room ID for this call
+          const roomId = `call_${currentUser.uid}_${currentChatPartner.id}_${Date.now()}`;
+          
+          console.log("🆔 Room ID:", roomId);
+
+          // Create call notification for the partner
+          const callNotificationRef = push(ref(db, `calls/${currentChatPartner.id}`));
+          await set(callNotificationRef, {
+            callId: callNotificationRef.key,
+            callerId: currentUser.uid,
+            callerName: currentUserData ? `${currentUserData.firstName} ${currentUserData.lastName}` : 'Someone',
+            receiverId: currentChatPartner.id,
+            receiverName: partnerName,
+            roomId: roomId,
+            status: 'ringing',
+            timestamp: Date.now()
+          });
+
+          console.log("✅ Call notification sent to partner");
+
+          // Send notification to partner
+          const notificationRef = push(ref(db, `notifications/${currentChatPartner.id}`));
+          await set(notificationRef, {
+            type: 'video_call',
+            message: `Incoming video call from ${currentUserData ? currentUserData.firstName : 'Someone'}`,
+            callId: callNotificationRef.key,
+            roomId: roomId,
+            read: false,
+            createdAt: Date.now()
+          });
+
+          console.log("🔔 Notification sent");
+
+          // Redirect to call page with room ID
+          window.location.href = `call.html?room=${roomId}&partner=${currentChatPartner.id}&partnerName=${encodeURIComponent(partnerName)}&initiator=true`;
+
+        } catch (error) {
+          console.error("❌ Error starting call:", error);
+          alert("Failed to start call: " + error.message);
+        }
+      };
+
+      // Listen for incoming video calls
+      function listenForIncomingCalls() {
+        if (!currentUser) return;
+
+        console.log("👂 Listening for incoming calls...");
+
+        const callsRef = ref(db, `calls/${currentUser.uid}`);
+        
+        onValue(callsRef, (snapshot) => {
+          if (snapshot.exists()) {
+            const calls = snapshot.val();
+            
+            // Find the most recent ringing call
+            const callsList = Object.entries(calls)
+              .map(([id, call]) => ({ id, ...call }))
+              .filter(call => call.status === 'ringing')
+              .sort((a, b) => b.timestamp - a.timestamp);
+
+            if (callsList.length > 0) {
+              const incomingCall = callsList[0];
+              console.log("📞 Incoming call from:", incomingCall.callerName);
+              showIncomingCallModal(incomingCall);
+            }
+          }
+        });
+      }
+
+      // Show incoming call modal
+      function showIncomingCallModal(callData) {
+        // Remove existing modal if any
+        const existing = document.getElementById('incomingCallModal');
+        if (existing) existing.remove();
+
+        const modal = document.createElement('div');
+        modal.id = 'incomingCallModal';
+        modal.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0,0,0,0.9);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 10000;
+          animation: fadeIn 0.2s ease;
+        `;
+
+        modal.innerHTML = `
+          <div style="background: linear-gradient(135deg, #1a1a1a, #0a0a0a); padding: 2.5rem; border-radius: 20px; text-align: center; max-width: 400px; border: 2px solid #ffd700; box-shadow: 0 20px 60px rgba(255,215,0,0.3);">
+            <div style="font-size: 4rem; margin-bottom: 1rem; animation: pulse 1.5s infinite;">📞</div>
+            <h2 style="margin: 0 0 0.5rem 0; color: #ffd700; font-size: 1.8rem;">Incoming Video Call</h2>
+            <p style="color: #ccc; font-size: 1.2rem; margin: 0 0 2rem 0;">${callData.callerName}</p>
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+              <button id="acceptCallBtn" style="background: #4caf50; color: #fff; border: none; padding: 1rem 2rem; border-radius: 12px; font-size: 1rem; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; transition: all 0.2s;">
+                <i class="fas fa-video"></i> Accept
+              </button>
+              <button id="declineCallBtn" style="background: #f44336; color: #fff; border: none; padding: 1rem 2rem; border-radius: 12px; font-size: 1rem; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; transition: all 0.2s;">
+                <i class="fas fa-phone-slash"></i> Decline
+              </button>
+            </div>
+          </div>
+          <style>
+            @keyframes fadeIn {
+              from { opacity: 0; }
+              to { opacity: 1; }
+            }
+            @keyframes pulse {
+              0%, 100% { transform: scale(1); opacity: 1; }
+              50% { transform: scale(1.1); opacity: 0.8; }
+            }
+            #acceptCallBtn:hover {
+              background: #45a049 !important;
+              transform: scale(1.05);
+            }
+            #declineCallBtn:hover {
+              background: #da190b !important;
+              transform: scale(1.05);
+            }
+          </style>
+        `;
+
+        document.body.appendChild(modal);
+
+        // Accept call
+        document.getElementById('acceptCallBtn').addEventListener('click', async () => {
+          console.log("✅ Call accepted!");
+          
+          // Update call status
+          const callRef = ref(db, `calls/${currentUser.uid}/${callData.callId}`);
+          await set(callRef, {
+            ...callData,
+            status: 'accepted'
+          });
+
+          // Redirect to call page
+          window.location.href = `call.html?room=${callData.roomId}&partner=${callData.callerId}&partnerName=${encodeURIComponent(callData.callerName)}&initiator=false`;
+        });
+
+        // Decline call
+        document.getElementById('declineCallBtn').addEventListener('click', async () => {
+          console.log("❌ Call declined");
+          
+          // Update call status
+          const callRef = ref(db, `calls/${currentUser.uid}/${callData.callId}`);
+          await set(callRef, {
+            ...callData,
+            status: 'declined'
+          });
+
+          modal.remove();
+        });
+      }
+
+      // Enter to send
+      document
+        .getElementById("messageInput")
+        ?.addEventListener("keypress", (e) => {
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+          }
+        });
+
+      // Helper functions
+      function getChatId(userId1, userId2) {
+        return [userId1, userId2].sort().join("_");
+      }
+
+      function getInitials(firstName, lastName) {
+        return (
+          ((firstName?.[0] || "") + (lastName?.[0] || "")).toUpperCase() || "U"
+        );
+      }
+
+      function formatTime(timestamp) {
+        const date = new Date(timestamp);
+        const now = new Date();
+        const diff = now - date;
+
+        if (diff < 60000) return "Just now";
+        if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+        if (diff < 86400000)
+          return date.toLocaleTimeString("en-US", {
+            hour: "numeric",
+            minute: "2-digit",
+          });
+        return date.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+        });
+      }
+
+      function escapeHtml(text) {
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      // Logout handler
+      window.handleLogout = async function () {
+        if (!confirm("Are you sure you want to logout?")) return;
+
+        try {
+          isLoggingOut = true;
+          console.log("🚪 Logging out...");
+
+          const { signOut } = await import(
+            "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js"
+          );
+          await signOut(auth);
+
+          console.log("✅ Logged out successfully");
+          window.location.href = "index.html";
+        } catch (error) {
+          console.error("❌ Logout error:", error);
+          alert("Error logging out: " + error.message);
+          isLoggingOut = false;
+        }
+      };
+
+      // Filter contacts by search term
+      window.filterContacts = function (searchTerm) {
+        const term = searchTerm.toLowerCase().trim();
+        const contacts = document.querySelectorAll(".contact-item");
+
+        contacts.forEach((contact) => {
+          const name =
+            contact.querySelector(".contact-name")?.textContent.toLowerCase() ||
+            "";
+          const info =
+            contact
+              .querySelector(".contact-last-message")
+              ?.textContent.toLowerCase() || "";
+
+          if (name.includes(term) || info.includes(term)) {
+            contact.style.display = "flex";
+          } else {
+            contact.style.display = "none";
+          }
+        });
+      };
+
+      // Debug: Log when page is ready
+      console.log("📄 Messaging page script fully loaded");
+    </script>
+  </body>
+</html>
