@@ -4,8 +4,16 @@
     <script type="module">
       import { requireCoach } from "./role-guard.js";
       import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-      import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
-      import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+      import {
+        getAuth,
+        onAuthStateChanged,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+      import {
+        getFirestore,
+        doc,
+        getDoc,
+      } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
 
       // Protect this page - only approved coaches can access
       requireCoach();
@@ -18,7 +26,7 @@
         messagingSenderId: "537648978979",
         appId: "1:537648978979:web:30eb90af77c7569b7be596",
         measurementId: "G-W1D2R0Q1L1",
-        databaseURL: "https://titans-8d454-default-rtdb.firebaseio.com"
+        databaseURL: "https://titans-8d454-default-rtdb.firebaseio.com",
       };
       const guardApp = initializeApp(firebaseConfig);
       const guardAuth = getAuth(guardApp);
@@ -28,30 +36,30 @@
       onAuthStateChanged(guardAuth, async (user) => {
         if (!user) {
           if (window.isLoggingOut) return; // Prevent double redirect
-          window.location.href = 'coach-login.html';
+          window.location.href = "coach-login.html";
           return;
         }
         try {
           const userDoc = await getDoc(doc(guardDb, "users", user.uid));
           const userData = userDoc.exists() ? userDoc.data() : null;
-          if (!userData || userData.accountType !== 'coach') {
+          if (!userData || userData.accountType !== "coach") {
             await signOut(guardAuth);
-            window.location.href = 'coach-login.html';
+            window.location.href = "coach-login.html";
             return;
           }
           // Check if coach is approved
           if (userData.coachApproved === false) {
-            window.location.href = 'coach-pending.html';
+            window.location.href = "coach-pending.html";
             return;
           }
           // Update coach name
-          const coachName = document.getElementById('coachName');
+          const coachName = document.getElementById("coachName");
           if (coachName && userData.firstName) {
             coachName.textContent = userData.firstName;
           }
         } catch (err) {
           await signOut(guardAuth);
-          window.location.href = 'coach-login.html';
+          window.location.href = "coach-login.html";
         }
       });
     </script>
@@ -133,42 +141,63 @@
           <div class="welcome-section">
             <h1>Coach Dashboard</h1>
             <p>
-              Welcome back, <span id="coachName"></span>! Manage
-              your clients and sessions.
+              Welcome back, <span id="coachName"></span>! Manage your clients
+              and sessions.
             </p>
             <!-- New Bookings Alert -->
-            <div id="dashboardAlert" style="display: none; background: #1a2a1a; border: 1px solid #4caf50; border-left: 4px solid #4caf50; padding: 0.75rem 1rem; border-radius: 8px; margin-top: 1rem;">
-              <i class="fas fa-check-circle" style="color: #4caf50;"></i>
-              <strong style="color: #4caf50; margin-left: 0.5rem;">New booking approved!</strong>
-              <a href="coach-bookings.html" style="color: #ffd700; margin-left: 1rem; text-decoration: underline;">View Now</a>
+            <div
+              id="dashboardAlert"
+              style="
+                display: none;
+                background: #1a2a1a;
+                border: 1px solid #4caf50;
+                border-left: 4px solid #4caf50;
+                padding: 0.75rem 1rem;
+                border-radius: 8px;
+                margin-top: 1rem;
+              "
+            >
+              <i class="fas fa-check-circle" style="color: #4caf50"></i>
+              <strong style="color: #4caf50; margin-left: 0.5rem"
+                >New booking approved!</strong
+              >
+              <a
+                href="coach-bookings.html"
+                style="
+                  color: #ffd700;
+                  margin-left: 1rem;
+                  text-decoration: underline;
+                "
+                >View Now</a
+              >
             </div>
           </div>
           <div class="coach-stats">
             <div class="stat-card">
               <div class="stat-icon">👥</div>
               <div class="stat-info">
-                <h3>12</h3>
+                <h3 id="activeClientsCount">0</h3>
                 <p>Active Clients</p>
               </div>
             </div>
             <div class="stat-card">
               <div class="stat-icon">📅</div>
               <div class="stat-info">
-                <h3>8</h3>
+                <h3 id="sessionsTodayCount">0</h3>
                 <p>Sessions Today</p>
               </div>
             </div>
             <div class="stat-card">
               <div class="stat-icon">⭐</div>
               <div class="stat-info">
-                <h3>4.9</h3>
+                <h3 id="averageRating">0.0</h3>
                 <p>Average Rating</p>
               </div>
             </div>
             <div class="stat-card">
               <div class="stat-icon">💰</div>
               <div class="stat-info">
-                <h3>$2,400</h3>
+                <h3 id="earningsThisMonth">$0</h3>
                 <p>This Month</p>
               </div>
             </div>
@@ -180,22 +209,28 @@
           <div class="dashboard-section">
             <h2>Quick Actions</h2>
             <div class="quick-actions">
-              <button class="action-btn" onclick="window.location.href='coach-schedule.html'">
+              <button
+                class="action-btn"
+                onclick="window.location.href='coach-schedule.html'"
+              >
                 <i class="fas fa-calendar-alt"></i>
                 <span>View Schedule</span>
               </button>
-              <button class="action-btn" onclick="window.location.href='coach-bookings.html'">
+              <button
+                class="action-btn"
+                onclick="window.location.href='coach-bookings.html'"
+              >
                 <i class="fas fa-calendar-check"></i>
                 <span>Manage Bookings</span>
               </button>
-              <button class="action-btn" onclick="window.location.href='coach-availability.html'">
+              <button
+                class="action-btn"
+                onclick="window.location.href='coach-availability.html'"
+              >
                 <i class="fas fa-clock"></i>
                 <span>Update Availability</span>
               </button>
-              <button class="action-btn" onclick="window.location.href='call.html'">
-                <i class="fas fa-video"></i>
-                <span>Video Call</span>
-              </button>
+              
             </div>
           </div>
 
@@ -203,118 +238,15 @@
           <div class="dashboard-section">
             <h2>Today's Schedule</h2>
             <div class="schedule-timeline" id="todaySchedule">
-              <p style="color: #888; text-align: center;">Loading schedule...</p>
+              <p style="color: #888; text-align: center">Loading schedule...</p>
             </div>
           </div>
 
-          <!-- Quick Stats -->
+          <!-- Recent Activity -->
           <div class="dashboard-section">
             <h2>Recent Activity</h2>
             <div id="recentActivity">
-              <p style="color: #888; text-align: center;">Loading activity...</p>
-            </div>
-          </div>
-
-          <!-- Client Management -->
-          <div class="dashboard-section">
-            <h2>Client Management</h2>
-            <div class="clients-grid">
-              <div class="client-card">
-                <div class="client-avatar">
-                  <img src="https://via.placeholder.com/60" alt="Client" />
-                </div>
-                <div class="client-info">
-                  <h4>John Doe</h4>
-                </div>
-                <div class="client-actions">
-                  <button
-                    class="btn btn-sm btn-success"
-                    onclick="startVideoCallWithClient('John Doe', 'user_john_123')"
-                  >
-                    <i class="fas fa-video"></i> Video Call
-                  </button>
-                </div>
-              </div>
-              <div class="client-card">
-                <div class="client-avatar">
-                  <img src="https://via.placeholder.com/60" alt="Client" />
-                </div>
-                <div class="client-info">
-                  <h4>Jane Smith</h4>
-                </div>
-                <div class="client-actions">
-                  <button
-                    class="btn btn-sm btn-success"
-                    onclick="startVideoCallWithClient('Jane Smith', 'user_jane_456')"
-                  >
-                    <i class="fas fa-video"></i> Video Call
-                  </button>
-                </div>
-              </div>
-              <div class="client-card">
-                <div class="client-avatar">
-                  <img src="https://via.placeholder.com/60" alt="Client" />
-                </div>
-                <div class="client-info">
-                  <h4>Mike Johnson</h4>
-                </div>
-                <div class="client-actions">
-                  <button
-                    class="btn btn-sm btn-success"
-                    onclick="startVideoCallWithClient('Mike Johnson', 'user_mike_789')"
-                  >
-                    <i class="fas fa-video"></i> Video Call
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Recent Messages -->
-          <div class="dashboard-section">
-            <h2>Recent Messages</h2>
-            <div class="messages-list">
-              <div class="message-item">
-                <div class="message-avatar">
-                  <img src="https://via.placeholder.com/40" alt="Client" />
-                </div>
-                <div class="message-content">
-                  <div class="message-header">
-                    <h4>John Doe</h4>
-                    <span class="message-time">2 min ago</span>
-                  </div>
-                  <p>
-                    Thanks for the workout today! I'm feeling stronger already.
-                  </p>
-                </div>
-                <div class="message-status unread"></div>
-              </div>
-              <div class="message-item">
-                <div class="message-avatar">
-                  <img src="https://via.placeholder.com/40" alt="Client" />
-                </div>
-                <div class="message-content">
-                  <div class="message-header">
-                    <h4>Jane Smith</h4>
-                    <span class="message-time">1 hour ago</span>
-                  </div>
-                  <p>Can we schedule an extra session this week?</p>
-                </div>
-                <div class="message-status"></div>
-              </div>
-              <div class="message-item">
-                <div class="message-avatar">
-                  <img src="https://via.placeholder.com/40" alt="Client" />
-                </div>
-                <div class="message-content">
-                  <div class="message-header">
-                    <h4>Mike Johnson</h4>
-                    <span class="message-time">3 hours ago</span>
-                  </div>
-                  <p>I uploaded my progress photos. What do you think?</p>
-                </div>
-                <div class="message-status"></div>
-              </div>
+              <p style="color: #888; text-align: center">Loading activity...</p>
             </div>
           </div>
 
@@ -324,17 +256,17 @@
             <div class="earnings-grid">
               <div class="earnings-card">
                 <h3>This Week</h3>
-                <div class="earnings-amount">$1,200</div>
-                <div class="earnings-change positive">+15% from last week</div>
+                <div class="earnings-amount" id="earningsThisWeek">$0</div>
+                <div class="earnings-change" id="earningsWeekChange">Calculating...</div>
               </div>
               <div class="earnings-card">
                 <h3>This Month</h3>
-                <div class="earnings-amount">$4,800</div>
-                <div class="earnings-change positive">+22% from last month</div>
+                <div class="earnings-amount" id="earningsThisMonthDetail">$0</div>
+                <div class="earnings-change" id="earningsMonthChange">Calculating...</div>
               </div>
               <div class="earnings-card">
                 <h3>Total Sessions</h3>
-                <div class="earnings-amount">156</div>
+                <div class="earnings-amount" id="totalSessionsMonth">0</div>
                 <div class="earnings-change">This month</div>
               </div>
             </div>
@@ -400,7 +332,6 @@
         background: rgba(0, 0, 0, 0.95);
         z-index: 10000;
       "
-      
     >
       <div
         class="modal-content"
@@ -431,7 +362,8 @@
             right: 36px;
             cursor: pointer;
           "
-        >&times;</span>
+          >&times;</span
+        >
         <h2
           style="
             color: #ffd700;
@@ -652,24 +584,188 @@
       </div>
     </div>
     <link rel="stylesheet" href="assets/css/call.css" />
+    <style>
+      /* Additional responsive styles for coach dashboard */
+      @media (max-width: 768px) {
+        .dashboard-header {
+          flex-direction: column;
+          gap: 1.5rem;
+        }
+
+        .coach-stats {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 1rem;
+        }
+
+        .stat-card {
+          padding: 1rem;
+        }
+
+        .stat-card .stat-icon {
+          font-size: 1.5rem;
+        }
+
+        .stat-card h3 {
+          font-size: 1.5rem;
+        }
+
+        .quick-actions {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 0.75rem;
+        }
+
+        .action-btn {
+          padding: 0.75rem 0.5rem;
+          font-size: 0.85rem;
+        }
+
+        .action-btn i {
+          font-size: 1.2rem;
+        }
+
+        .action-btn span {
+          font-size: 0.8rem;
+        }
+
+        .clients-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .client-card {
+          flex-direction: row;
+          padding: 1rem;
+          gap: 0.75rem;
+        }
+
+        .client-avatar {
+          width: 50px;
+          height: 50px;
+        }
+
+        .client-actions {
+          flex-direction: row;
+          gap: 0.5rem;
+        }
+
+        .client-actions .btn {
+          padding: 0.5rem 0.75rem;
+          font-size: 0.8rem;
+        }
+
+        .messages-list,
+        .earnings-grid {
+          gap: 0.75rem;
+        }
+
+        .message-item {
+          padding: 1rem;
+        }
+
+        .earnings-card {
+          padding: 1.25rem;
+        }
+
+        .earnings-amount {
+          font-size: 1.5rem;
+        }
+
+        .timeline-item {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.5rem;
+          padding: 1rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .coach-dashboard {
+          padding: 80px 0 40px;
+        }
+
+        .welcome-section h1 {
+          font-size: 1.5rem;
+        }
+
+        .welcome-section p {
+          font-size: 0.9rem;
+        }
+
+        .coach-stats {
+          grid-template-columns: 1fr;
+          gap: 0.75rem;
+        }
+
+        .quick-actions {
+          grid-template-columns: 1fr;
+        }
+
+        .client-card {
+          flex-direction: column;
+          text-align: center;
+          gap: 0.75rem;
+        }
+
+        .client-info {
+          text-align: center;
+        }
+
+        .client-actions {
+          width: 100%;
+          justify-content: center;
+        }
+
+        .message-item {
+          flex-direction: column;
+          text-align: center;
+          gap: 0.5rem;
+        }
+
+        .message-header {
+          flex-direction: column;
+          gap: 0.25rem;
+        }
+
+        .earnings-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .timeline-item > div:first-child {
+          font-size: 0.85rem;
+          min-width: auto;
+        }
+      }
+    </style>
     <script src="script.js"></script>
     <script src="auth.js"></script>
     <script src="coach-dashboard.js"></script>
-    
+
     <!-- Coach Bookings Management -->
     <script type="module">
       import { getApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-      import { getDatabase, ref, get, update, onValue } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
-      import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
-      import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+      import {
+        getDatabase,
+        ref,
+        get,
+        update,
+        onValue,
+      } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+      import {
+        getAuth,
+        onAuthStateChanged,
+      } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+      import {
+        getFirestore,
+        doc,
+        getDoc,
+      } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
 
       // Use existing Firebase app to avoid initialization conflicts
       const app = getApp();
       const auth = getAuth(app);
-      const rtdb = getDatabase(app, "https://titans-8d454-default-rtdb.firebaseio.com");
+      const rtdb = getDatabase(app);
       const db = getFirestore(app);
-      
-      let coachName = '';
+
+      let coachName = "";
       let coachData = null;
       let allBookings = [];
       let previousConfirmedCount = 0;
@@ -678,9 +774,9 @@
       async function getCoachProfile(uid) {
         try {
           // Try to get coach profile from coachProfiles
-          const profileSnap = await get(ref(rtdb, 'coachProfiles'));
+          const profileSnap = await get(ref(rtdb, "coachProfiles"));
           const profiles = profileSnap.val();
-          
+
           if (profiles) {
             // Find coach profile by matching uid or by coach data
             for (const [profileId, profile] of Object.entries(profiles)) {
@@ -689,18 +785,20 @@
               }
             }
           }
-          
+
           // Fallback: get from users collection
           const userDoc = await getDoc(doc(db, "users", uid));
           if (userDoc.exists()) {
             const userData = userDoc.data();
             return {
-              name: `${userData.firstName || ''} ${userData.lastName || ''}`.trim(),
-              uid: uid
+              name: `${userData.firstName || ""} ${
+                userData.lastName || ""
+              }`.trim(),
+              uid: uid,
             };
           }
         } catch (error) {
-          console.error('Error getting coach profile:', error);
+          console.error("Error getting coach profile:", error);
         }
         return null;
       }
@@ -708,13 +806,18 @@
       // Load bookings for the current coach
       async function loadCoachBookings() {
         try {
-          console.log('Loading bookings for coach:', coachName, 'UID:', coachData?.uid);
-          const snapshot = await get(ref(rtdb, 'coachBookings'));
+          console.log(
+            "Loading bookings for coach:",
+            coachName,
+            "UID:",
+            coachData?.uid
+          );
+          const snapshot = await get(ref(rtdb, "coachBookings"));
           const bookings = snapshot.val();
-          console.log('All bookings from Firebase:', bookings);
+          console.log("All bookings from Firebase:", bookings);
 
           if (!bookings) {
-            console.log('No bookings found in database');
+            console.log("No bookings found in database");
             allBookings = [];
             updateSchedule();
             updateStats();
@@ -725,11 +828,17 @@
           // Filter bookings for this coach
           allBookings = Object.entries(bookings)
             .map(([id, booking]) => ({ id, ...booking }))
-            .filter(booking => {
+            .filter((booking) => {
               // Match by coach name or coachId
-              const matches = booking.coachName === coachName || 
-                     booking.coachId === coachData?.uid;
-              console.log(`Booking ${booking.id}:`, booking.coachName, 'matches:', matches);
+              const matches =
+                booking.coachName === coachName ||
+                booking.coachId === coachData?.uid;
+              console.log(
+                `Booking ${booking.id}:`,
+                booking.coachName,
+                "matches:",
+                matches
+              );
               return matches;
             })
             .sort((a, b) => {
@@ -739,117 +848,301 @@
               return dateB - dateA;
             });
 
-          console.log('Filtered bookings for this coach:', allBookings);
-          
+          console.log("Filtered bookings for this coach:", allBookings);
+
           // Check for new confirmed bookings
-          const currentConfirmedCount = allBookings.filter(b => b.status === 'confirmed').length;
-          if (previousConfirmedCount > 0 && currentConfirmedCount > previousConfirmedCount) {
+          const currentConfirmedCount = allBookings.filter(
+            (b) => b.status === "confirmed"
+          ).length;
+          if (
+            previousConfirmedCount > 0 &&
+            currentConfirmedCount > previousConfirmedCount
+          ) {
             showNewBookingAlert();
           }
           previousConfirmedCount = currentConfirmedCount;
-          
+
           updateSchedule();
           updateStats();
           updateRecentActivity();
         } catch (error) {
-          console.error('Error loading bookings:', error);
+          console.error("Error loading bookings:", error);
         }
       }
 
       // Update today's schedule
       function updateSchedule() {
-        const container = document.getElementById('todaySchedule');
-        const today = new Date().toISOString().split('T')[0];
-        
-        const todayBookings = allBookings.filter(b => 
-          b.preferredDate === today && b.status === 'confirmed'
-        ).sort((a, b) => {
-          const timeA = a.preferredTime || '00:00';
-          const timeB = b.preferredTime || '00:00';
-          return timeA.localeCompare(timeB);
-        });
+        const container = document.getElementById("todaySchedule");
+        const today = new Date().toISOString().split("T")[0];
+
+        const todayBookings = allBookings
+          .filter((b) => b.preferredDate === today && b.status === "confirmed")
+          .sort((a, b) => {
+            const timeA = a.preferredTime || "00:00";
+            const timeB = b.preferredTime || "00:00";
+            return timeA.localeCompare(timeB);
+          });
 
         if (todayBookings.length === 0) {
-          container.innerHTML = '<p style="color: #888; text-align: center;">No sessions scheduled for today</p>';
+          container.innerHTML =
+            '<p style="color: #888; text-align: center;">No sessions scheduled for today</p>';
           return;
         }
 
-        const scheduleHtml = todayBookings.map(booking => `
+        const scheduleHtml = todayBookings
+          .map(
+            (booking) => `
           <div class="timeline-item" style="display: flex; gap: 1rem; padding: 1rem; background: #1a1a1a; border-left: 3px solid #ffd700; margin-bottom: 0.5rem; border-radius: 6px;">
-            <div style="min-width: 80px; color: #ffd700; font-weight: 600;">${booking.preferredTime}</div>
+            <div style="min-width: 80px; color: #ffd700; font-weight: 600;">${
+              booking.preferredTime
+            }</div>
             <div style="flex: 1;">
-              <h4 style="color: #fff; margin-bottom: 0.25rem;">${booking.memberName} - ${booking.sessionType}</h4>
-              <p style="color: #888; font-size: 0.9rem; margin: 0;">${booking.goals || 'No specific goals mentioned'}</p>
+              <h4 style="color: #fff; margin-bottom: 0.25rem;">${
+                booking.memberName
+              } - ${booking.sessionType}</h4>
+              <p style="color: #888; font-size: 0.9rem; margin: 0;">${
+                booking.goals || "No specific goals mentioned"
+              }</p>
             </div>
           </div>
-        `).join('');
+        `
+          )
+          .join("");
 
         container.innerHTML = scheduleHtml;
       }
 
       // Update stats
-      function updateStats() {
-        // Update sessions today count
-        const today = new Date().toISOString().split('T')[0];
-        const todayCount = allBookings.filter(b => 
-          b.preferredDate === today && b.status === 'confirmed'
-        ).length;
-        
-        const statCards = document.querySelectorAll('.stat-card');
-        if (statCards[1]) {
-          statCards[1].querySelector('h3').textContent = todayCount;
-        }
+      async function updateStats() {
+        const today = new Date().toISOString().split("T")[0];
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
 
-        // Update active clients (unique confirmed bookings)
+        // 1. Active Clients (unique confirmed bookings)
         const uniqueClients = new Set(
-          allBookings.filter(b => b.status === 'confirmed').map(b => b.memberEmail)
+          allBookings
+            .filter((b) => b.status === "confirmed")
+            .map((b) => b.memberEmail)
         ).size;
         
-        if (statCards[0]) {
-          statCards[0].querySelector('h3').textContent = uniqueClients;
+        const activeClientsEl = document.getElementById("activeClientsCount");
+        if (activeClientsEl) {
+          activeClientsEl.textContent = uniqueClients;
+        }
+
+        // 2. Sessions Today
+        const todayCount = allBookings.filter(
+          (b) => b.preferredDate === today && b.status === "confirmed"
+        ).length;
+        
+        const sessionsTodayEl = document.getElementById("sessionsTodayCount");
+        if (sessionsTodayEl) {
+          sessionsTodayEl.textContent = todayCount;
+        }
+
+        // 3. Average Rating
+        try {
+          const currentUser = auth.currentUser;
+          if (currentUser) {
+            const ratingsSnapshot = await get(ref(rtdb, `coachRatings/${currentUser.uid}`));
+            const ratings = ratingsSnapshot.val();
+            let avgRating = 0;
+            
+            if (ratings) {
+              const ratingValues = Object.values(ratings).map(r => r.rating || 0);
+              if (ratingValues.length > 0) {
+                avgRating = ratingValues.reduce((a, b) => a + b, 0) / ratingValues.length;
+              }
+            }
+            
+            const avgRatingEl = document.getElementById("averageRating");
+            if (avgRatingEl) {
+              avgRatingEl.textContent = avgRating > 0 ? avgRating.toFixed(1) : "N/A";
+            }
+          }
+        } catch (error) {
+          console.warn("Error fetching ratings:", error);
+        }
+
+        // 4. Earnings This Month
+        const thisMonthEarnings = allBookings
+          .filter((b) => {
+            if (b.status !== "confirmed" || !b.preferredDate) return false;
+            const bookingDate = new Date(b.preferredDate);
+            return bookingDate.getMonth() === currentMonth && 
+                   bookingDate.getFullYear() === currentYear;
+          })
+          .reduce((total, booking) => {
+            const price = parseFloat(booking.price) || 50; // Default $50 per session
+            return total + price;
+          }, 0);
+        
+        const earningsEl = document.getElementById("earningsThisMonth");
+        if (earningsEl) {
+          earningsEl.textContent = `$${thisMonthEarnings.toLocaleString()}`;
+        }
+      }
+
+      // Calculate earnings data
+      function calculateEarningsData() {
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
+        
+        // Get start of this week (Sunday)
+        const startOfWeek = new Date(now);
+        startOfWeek.setDate(now.getDate() - now.getDay());
+        startOfWeek.setHours(0, 0, 0, 0);
+        
+        // Get start of last week
+        const startOfLastWeek = new Date(startOfWeek);
+        startOfLastWeek.setDate(startOfWeek.getDate() - 7);
+        
+        // Get start of this month
+        const startOfMonth = new Date(currentYear, currentMonth, 1);
+        
+        // Get start of last month
+        const startOfLastMonth = new Date(currentYear, currentMonth - 1, 1);
+        const endOfLastMonth = new Date(currentYear, currentMonth, 0);
+        
+        // This Week Earnings
+        const thisWeekEarnings = allBookings
+          .filter((b) => {
+            if (b.status !== "confirmed" || !b.preferredDate) return false;
+            const bookingDate = new Date(b.preferredDate);
+            return bookingDate >= startOfWeek;
+          })
+          .reduce((total, booking) => total + (parseFloat(booking.price) || 50), 0);
+        
+        // Last Week Earnings
+        const lastWeekEarnings = allBookings
+          .filter((b) => {
+            if (b.status !== "confirmed" || !b.preferredDate) return false;
+            const bookingDate = new Date(b.preferredDate);
+            return bookingDate >= startOfLastWeek && bookingDate < startOfWeek;
+          })
+          .reduce((total, booking) => total + (parseFloat(booking.price) || 50), 0);
+        
+        // This Month Earnings
+        const thisMonthEarnings = allBookings
+          .filter((b) => {
+            if (b.status !== "confirmed" || !b.preferredDate) return false;
+            const bookingDate = new Date(b.preferredDate);
+            return bookingDate >= startOfMonth;
+          })
+          .reduce((total, booking) => total + (parseFloat(booking.price) || 50), 0);
+        
+        // Last Month Earnings
+        const lastMonthEarnings = allBookings
+          .filter((b) => {
+            if (b.status !== "confirmed" || !b.preferredDate) return false;
+            const bookingDate = new Date(b.preferredDate);
+            return bookingDate >= startOfLastMonth && bookingDate <= endOfLastMonth;
+          })
+          .reduce((total, booking) => total + (parseFloat(booking.price) || 50), 0);
+        
+        // Total Sessions This Month
+        const totalSessionsMonth = allBookings
+          .filter((b) => {
+            if (b.status !== "confirmed" || !b.preferredDate) return false;
+            const bookingDate = new Date(b.preferredDate);
+            return bookingDate >= startOfMonth;
+          }).length;
+        
+        // Update UI
+        const earningsThisWeekEl = document.getElementById("earningsThisWeek");
+        if (earningsThisWeekEl) {
+          earningsThisWeekEl.textContent = `$${thisWeekEarnings.toLocaleString()}`;
+        }
+        
+        const earningsWeekChangeEl = document.getElementById("earningsWeekChange");
+        if (earningsWeekChangeEl && lastWeekEarnings > 0) {
+          const weekChange = ((thisWeekEarnings - lastWeekEarnings) / lastWeekEarnings * 100).toFixed(0);
+          const isPositive = weekChange >= 0;
+          earningsWeekChangeEl.textContent = `${isPositive ? '+' : ''}${weekChange}% from last week`;
+          earningsWeekChangeEl.className = `earnings-change ${isPositive ? 'positive' : 'negative'}`;
+        } else if (earningsWeekChangeEl) {
+          earningsWeekChangeEl.textContent = "No data from last week";
+          earningsWeekChangeEl.className = "earnings-change";
+        }
+        
+        const earningsThisMonthDetailEl = document.getElementById("earningsThisMonthDetail");
+        if (earningsThisMonthDetailEl) {
+          earningsThisMonthDetailEl.textContent = `$${thisMonthEarnings.toLocaleString()}`;
+        }
+        
+        const earningsMonthChangeEl = document.getElementById("earningsMonthChange");
+        if (earningsMonthChangeEl && lastMonthEarnings > 0) {
+          const monthChange = ((thisMonthEarnings - lastMonthEarnings) / lastMonthEarnings * 100).toFixed(0);
+          const isPositive = monthChange >= 0;
+          earningsMonthChangeEl.textContent = `${isPositive ? '+' : ''}${monthChange}% from last month`;
+          earningsMonthChangeEl.className = `earnings-change ${isPositive ? 'positive' : 'negative'}`;
+        } else if (earningsMonthChangeEl) {
+          earningsMonthChangeEl.textContent = "No data from last month";
+          earningsMonthChangeEl.className = "earnings-change";
+        }
+        
+        const totalSessionsMonthEl = document.getElementById("totalSessionsMonth");
+        if (totalSessionsMonthEl) {
+          totalSessionsMonthEl.textContent = totalSessionsMonth;
         }
       }
 
       // Show new booking alert
       function showNewBookingAlert() {
-        const alert = document.getElementById('dashboardAlert');
+        const alert = document.getElementById("dashboardAlert");
         if (alert) {
-          alert.style.display = 'block';
-          
+          alert.style.display = "block";
+
           // Auto-hide after 15 seconds
           setTimeout(() => {
-            alert.style.display = 'none';
+            alert.style.display = "none";
           }, 15000);
         }
       }
 
       // Update recent activity
       function updateRecentActivity() {
-        const container = document.getElementById('recentActivity');
-        
+        const container = document.getElementById("recentActivity");
+
+        // Calculate earnings data
+        calculateEarningsData();
+
         // Get recent bookings (last 5)
         const recentBookings = allBookings.slice(0, 5);
-        
+
         if (recentBookings.length === 0) {
-          container.innerHTML = '<p style="color: #888; text-align: center; padding: 2rem;">No recent activity</p>';
+          container.innerHTML =
+            '<p style="color: #888; text-align: center; padding: 2rem;">No recent activity</p>';
           return;
         }
 
         const activityHtml = `
           <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-            ${recentBookings.map(booking => `
-              <div style="padding: 1rem; background: #1a1a1a; border-left: 3px solid ${getStatusColor(booking.status)}; border-radius: 6px; display: flex; justify-content: space-between; align-items: center;">
+            ${recentBookings
+              .map(
+                (booking) => `
+              <div style="padding: 1rem; background: #1a1a1a; border-left: 3px solid ${getStatusColor(
+                booking.status
+              )}; border-radius: 6px; display: flex; justify-content: space-between; align-items: center;">
                 <div>
                   <strong style="color: #fff;">${booking.memberName}</strong>
                   <p style="color: #888; font-size: 0.9rem; margin: 0.25rem 0 0 0;">
-                    ${booking.sessionType} - ${formatDate(booking.preferredDate)} at ${booking.preferredTime}
+                    ${booking.sessionType} - ${formatDate(
+                  booking.preferredDate
+                )} at ${booking.preferredTime}
                   </p>
                 </div>
-                <span style="padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600; background: ${getStatusColor(booking.status)}; color: ${booking.status === 'pending' ? '#000' : '#fff'};">
+                <span style="padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600; background: ${getStatusColor(
+                  booking.status
+                )}; color: ${booking.status === "pending" ? "#000" : "#fff"};">
                   ${booking.status.toUpperCase()}
                 </span>
               </div>
-            `).join('')}
+            `
+              )
+              .join("")}
           </div>
           <div style="text-align: center; margin-top: 1rem;">
             <a href="coach-bookings.html" style="color: #ffd700; text-decoration: none; font-weight: 600;">
@@ -863,28 +1156,32 @@
 
       // Helper functions
       function formatDate(dateStr) {
-        if (!dateStr) return 'N/A';
+        if (!dateStr) return "N/A";
         const date = new Date(dateStr);
-        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        return date.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        });
       }
 
       function getStatusColor(status) {
         const colors = {
-          pending: '#ffd700',
-          confirmed: '#4caf50',
-          completed: '#2196F3',
-          cancelled: '#f44336'
+          pending: "#ffd700",
+          confirmed: "#4caf50",
+          completed: "#2196F3",
+          cancelled: "#f44336",
         };
-        return colors[status] || '#888';
+        return colors[status] || "#888";
       }
 
       // Initialize when auth state changes
       onAuthStateChanged(auth, async (user) => {
         if (user) {
-          console.log('Auth state changed, user:', user.uid);
+          console.log("Auth state changed, user:", user.uid);
           coachData = await getCoachProfile(user.uid);
-          console.log('Coach profile data:', coachData);
-          
+          console.log("Coach profile data:", coachData);
+
           if (coachData && coachData.name) {
             coachName = coachData.name;
           } else {
@@ -892,25 +1189,30 @@
             const userDoc = await getDoc(doc(db, "users", user.uid));
             if (userDoc.exists()) {
               const userData = userDoc.data();
-              coachName = `${userData.firstName || ''} ${userData.lastName || ''}`.trim();
-              console.log('Using fallback coach name from user data:', coachName);
+              coachName = `${userData.firstName || ""} ${
+                userData.lastName || ""
+              }`.trim();
+              console.log(
+                "Using fallback coach name from user data:",
+                coachName
+              );
             }
           }
-          
-          console.log('Final coach name:', coachName);
+
+          console.log("Final coach name:", coachName);
           loadCoachBookings();
-          
+
           // Listen for real-time updates
-          onValue(ref(rtdb, 'coachBookings'), (snapshot) => {
-            console.log('Real-time update received');
+          onValue(ref(rtdb, "coachBookings"), (snapshot) => {
+            console.log("Real-time update received");
             loadCoachBookings();
           });
         } else {
-          console.log('No authenticated user');
+          console.log("No authenticated user");
         }
       });
     </script>
-    
+
     <style>
       .loading-overlay {
         position: fixed;
@@ -918,7 +1220,7 @@
         left: 0;
         width: 100vw;
         height: 100vh;
-        background: rgba(0,0,0,0.6);
+        background: rgba(0, 0, 0, 0.6);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -933,27 +1235,34 @@
         animation: spin 1s linear infinite;
       }
       @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
       }
     </style>
     <script type="module">
-      import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+      import {
+        getAuth,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
       function showLoading() {
-        let overlay = document.createElement('div');
-        overlay.className = 'loading-overlay';
+        let overlay = document.createElement("div");
+        overlay.className = "loading-overlay";
         overlay.innerHTML = '<div class="loading-spinner"></div>';
-        overlay.id = 'loadingOverlay';
+        overlay.id = "loadingOverlay";
         document.body.appendChild(overlay);
       }
       function hideLoading() {
-        const overlay = document.getElementById('loadingOverlay');
+        const overlay = document.getElementById("loadingOverlay");
         if (overlay) overlay.remove();
       }
-      document.addEventListener('DOMContentLoaded', () => {
-        const logoutBtn = document.getElementById('coachLogoutBtn');
+      document.addEventListener("DOMContentLoaded", () => {
+        const logoutBtn = document.getElementById("coachLogoutBtn");
         if (logoutBtn) {
-          logoutBtn.addEventListener('click', async (e) => {
+          logoutBtn.addEventListener("click", async (e) => {
             e.preventDefault();
             const auth = getAuth();
             try {
@@ -963,11 +1272,11 @@
               setTimeout(() => {
                 hideLoading();
                 window.isLoggingOut = false;
-                window.location.href = 'coach-login.html';
+                window.location.href = "coach-login.html";
               }, 2000);
             } catch (error) {
               hideLoading();
-              alert('Logout failed: ' + error.message);
+              alert("Logout failed: " + error.message);
             }
           });
         }

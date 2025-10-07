@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Meet Your Coaches - 6Titans</title>
     <link rel="stylesheet" href="assets/css/styles-base.css" />
+    <link rel="stylesheet" href="assets/css/styles.css" />
     <link rel="stylesheet" href="assets/css/coaching.css" />
     <link rel="stylesheet" href="assets/css/auth-nav.css" />
     <link rel="stylesheet" href="assets/css/profile.css" />
@@ -139,11 +140,19 @@
 
       // Open booking modal
       async function openBookingModal(coachName, coachId) {
+        console.log('Opening modal for:', coachName, coachId);
         const modal = document.getElementById('bookingModal');
         const coachNameInput = document.getElementById('coachName');
         const memberNameInput = document.getElementById('memberName');
         const memberEmailInput = document.getElementById('memberEmail');
         const memberPhoneInput = document.getElementById('memberPhone');
+        
+        console.log('Modal element:', modal);
+        
+        if (!modal) {
+          console.error('Modal element not found!');
+          return;
+        }
         
         if (modal && coachNameInput) {
           coachNameInput.value = coachName;
@@ -186,7 +195,12 @@
             // If error, just open modal without pre-filling
           }
           
-          modal.style.display = 'block';
+          console.log('Adding show class to modal');
+          modal.classList.add('show');
+          document.body.style.overflow = 'hidden';
+          console.log('Modal should now be visible');
+        } else {
+          console.error('Modal or coachNameInput not found');
         }
       }
 

@@ -48,6 +48,7 @@
       function showUserUI(userData) {
         const authButtons = document.getElementById('authButtons');
         const isAdmin = userData && (userData.accountType === 'admin' || userData.role === 'admin');
+        const isCoach = userData && (userData.accountType === 'coach' || userData.role === 'coach');
         
         if (authButtons) {
           authButtons.style.visibility = 'visible';
@@ -64,7 +65,7 @@
                   <small id="profileMenuEmail">${userData && userData.email ? userData.email : ''}</small>
                 </div>
                 <ul class="profile-menu-list">
-                  <li><a href="${isAdmin ? 'admin.html' : 'user-dashboard.html'}">${isAdmin ? 'Admin Panel' : 'Dashboard'}</a></li>
+                  <li><a href="${isAdmin ? 'admin.html' : (isCoach ? 'coach-dashboard.html' : 'user-dashboard.html')}">${isAdmin ? 'Admin Panel' : 'Dashboard'}</a></li>
                   <li><button id="logoutBtnNav">Logout</button></li>
                 </ul>
               </div>
@@ -550,6 +551,7 @@
       function showUserUI(userData) {
         const authButtons = document.getElementById('authButtons');
         const isAdmin = userData && (userData.accountType === 'admin' || userData.role === 'admin');
+        const isCoach = userData && (userData.accountType === 'coach' || userData.role === 'coach');
         
         if (authButtons) {
           authButtons.style.visibility = 'visible';
@@ -572,7 +574,7 @@
                       <span class="notif-badge" id="notifBadgeDd" style="display:none;background:#ff6b6b;color:#fff;border-radius:999px;padding:2px 8px;font-size:10px;margin-left:8px;">0</span>
                     </a>
                   </li>
-                  <li><a href="${isAdmin ? 'admin.html' : 'user-dashboard.html'}">${isAdmin ? 'Admin Panel' : 'Dashboard'}</a></li>
+                  <li><a href="${isAdmin ? 'admin.html' : (isCoach ? 'coach-dashboard.html' : 'user-dashboard.html')}">${isAdmin ? 'Admin Panel' : 'Dashboard'}</a></li>
                   <li><a href="#" id="profileViewBtn">View Profile</a></li>
                   <li><button id="logoutBtnNav">Logout</button></li>
                 </ul>

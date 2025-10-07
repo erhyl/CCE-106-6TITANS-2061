@@ -154,10 +154,7 @@
                 <i class="fas fa-chart-line"></i>
                 <span>Log Progress</span>
               </button>
-              <button class="action-btn" id="messageCoachBtn">
-                <i class="fas fa-comments"></i>
-                <span>Call Coach</span>
-              </button>
+      
             </div>
           </div>
 
@@ -614,6 +611,99 @@
     </div>
 
     <link rel="stylesheet" href="assets/css/call.css" />
+    <style>
+      /* Additional responsive styles for user dashboard */
+      @media (max-width: 768px) {
+        .dashboard-header {
+          flex-direction: column;
+          gap: 1.5rem;
+        }
+
+        .dashboard-stats {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 1rem;
+        }
+
+        .stat-card {
+          padding: 1rem;
+        }
+
+        .stat-card .stat-icon {
+          font-size: 1.5rem;
+        }
+
+        .stat-card h3 {
+          font-size: 1.5rem;
+        }
+
+        .quick-actions {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 0.75rem;
+        }
+
+        .action-btn {
+          padding: 0.75rem 0.5rem;
+          font-size: 0.85rem;
+        }
+
+        .action-btn i {
+          font-size: 1.2rem;
+        }
+
+        .action-btn span {
+          font-size: 0.8rem;
+        }
+
+        .classes-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .class-card {
+          padding: 1.25rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .dashboard {
+          padding: 80px 0 40px;
+        }
+
+        .welcome-section h1 {
+          font-size: 1.5rem;
+        }
+
+        .welcome-section p {
+          font-size: 0.9rem;
+        }
+
+        .dashboard-stats {
+          grid-template-columns: 1fr;
+          gap: 0.75rem;
+        }
+
+        .quick-actions {
+          grid-template-columns: 1fr;
+        }
+
+        .schedule-item {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.5rem;
+        }
+
+        .schedule-time {
+          font-size: 0.85rem;
+        }
+
+        .schedule-content h4 {
+          font-size: 0.95rem;
+        }
+
+        .schedule-content p {
+          font-size: 0.8rem;
+        }
+      }
+    </style>
     <script src="utils.js"></script>
     <script type="module">
       import { signOut } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";

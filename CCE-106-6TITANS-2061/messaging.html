@@ -20,11 +20,17 @@
         display: grid;
         grid-template-columns: 320px 1fr;
         height: calc(100vh - 80px);
-        margin-top: 80px;
         max-width: 1400px;
         margin-left: auto;
         margin-right: auto;
         gap: 0;
+        overflow: hidden;
+        position: fixed;
+        top: 80px;
+        left: 0;
+        right: 0;
+        width: 100%;
+        max-width: 100%;
       }
 
       /* Contacts Sidebar */
@@ -33,6 +39,8 @@
         border-right: 1px solid #333;
         display: flex;
         flex-direction: column;
+        height: 100%;
+        overflow: hidden;
       }
 
       .sidebar-header {
@@ -64,6 +72,25 @@
       .contacts-list {
         flex: 1;
         overflow-y: auto;
+        overflow-x: hidden;
+        min-height: 0;
+      }
+
+      .contacts-list::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .contacts-list::-webkit-scrollbar-track {
+        background: #1a1a1a;
+      }
+
+      .contacts-list::-webkit-scrollbar-thumb {
+        background: #333;
+        border-radius: 4px;
+      }
+
+      .contacts-list::-webkit-scrollbar-thumb:hover {
+        background: #444;
       }
 
       .contact-item {
@@ -134,6 +161,8 @@
         display: flex;
         flex-direction: column;
         background: #0a0a0a;
+        height: 100%;
+        overflow: hidden;
       }
 
       .chat-header {
@@ -143,6 +172,7 @@
         align-items: center;
         justify-content: space-between;
         background: #1a1a1a;
+        flex-shrink: 0;
       }
 
       .chat-user-info {
@@ -182,16 +212,40 @@
       .messages-container {
         flex: 1;
         overflow-y: auto;
+        overflow-x: hidden;
         padding: 1.5rem;
+        /* keep space so the input bar never overlaps the last messages */
+        padding-bottom: 120px;
         display: flex;
         flex-direction: column;
         gap: 1rem;
+        min-height: 0;
+        max-height: 100%;
+        position: relative;
+      }
+
+      .messages-container::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .messages-container::-webkit-scrollbar-track {
+        background: #0a0a0a;
+      }
+
+      .messages-container::-webkit-scrollbar-thumb {
+        background: #333;
+        border-radius: 4px;
+      }
+
+      .messages-container::-webkit-scrollbar-thumb:hover {
+        background: #444;
       }
 
       .message {
         display: flex;
         gap: 0.75rem;
         max-width: 70%;
+        align-items: flex-end;
       }
 
       .message.sent {
@@ -213,20 +267,32 @@
       }
 
       .message-content {
-        flex: 1;
+        display: inline-flex;
+        flex-direction: column;
+        max-width: 100%;
       }
 
       .message-bubble {
         background: #1a1a1a;
         padding: 0.75rem 1rem;
-        border-radius: 12px;
+        border-radius: 18px;
         color: #fff;
         word-wrap: break-word;
+        word-break: break-word;
+        display: inline-block;
+        max-width: 100%;
+        width: fit-content;
+        min-width: 60px;
       }
 
       .message.sent .message-bubble {
         background: rgba(255, 215, 0, 0.15);
         border: 1px solid rgba(255, 215, 0, 0.3);
+        border-radius: 18px 18px 4px 18px;
+      }
+
+      .message.received .message-bubble {
+        border-radius: 18px 18px 18px 4px;
       }
 
       .message-time {
@@ -239,6 +305,11 @@
         padding: 1.5rem;
         border-top: 1px solid #333;
         background: #1a1a1a;
+        flex-shrink: 0;
+        /* ensure it stays visible and clickable at the bottom */
+        position: sticky;
+        bottom: 0;
+        z-index: 10;
       }
 
       .message-input-wrapper {
@@ -314,18 +385,215 @@
         }
       }
 
+      /* Mobile Toggle Button */
+      .mobile-toggle {
+        display: none;
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: #ffd700;
+        color: #000;
+        border: none;
+        border-radius: 50%;
+        width: 56px;
+        height: 56px;
+        font-size: 1.5rem;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+        z-index: 1000;
+        transition: all 0.3s ease;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .mobile-toggle:hover {
+        background: #ffed4e;
+        transform: scale(1.05);
+      }
+
+      .mobile-toggle:active {
+        transform: scale(0.95);
+      }
+
+      .mobile-back-btn {
+        display: none;
+        position: absolute;
+        left: 1rem;
+        top: 1.25rem;
+        background: rgba(255, 215, 0, 0.1);
+        border: 1px solid #ffd700;
+        color: #ffd700;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        z-index: 100;
+      }
+
       /* Responsive */
       @media (max-width: 768px) {
         .messaging-container {
           grid-template-columns: 1fr;
+          margin-top: 60px;
+          height: calc(100vh - 60px);
+          top: 60px;
         }
 
         .contacts-sidebar {
-          display: none;
+          position: fixed;
+          top: 60px;
+          left: 0;
+          width: 100%;
+          height: calc(100vh - 60px);
+          z-index: 999;
+          transform: translateX(-100%);
+          transition: transform 0.3s ease;
         }
 
         .contacts-sidebar.mobile-show {
+          transform: translateX(0);
+        }
+
+        .chat-area {
+          width: 100%;
+        }
+
+        .mobile-toggle {
           display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .mobile-back-btn {
+          display: block;
+        }
+
+        .chat-header {
+          padding: 1rem;
+          position: relative;
+          padding-left: 4rem;
+        }
+
+        .chat-user-info {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .chat-actions {
+          flex-shrink: 0;
+        }
+
+        .action-btn {
+          padding: 0.5rem 0.75rem;
+          font-size: 0.85rem;
+        }
+
+        .action-btn span {
+          display: none;
+        }
+
+        .action-btn i {
+          margin: 0;
+        }
+
+        .message {
+          max-width: 85%;
+        }
+
+        .message-bubble {
+          padding: 0.6rem 0.85rem;
+          font-size: 0.9rem;
+          min-width: 50px;
+        }
+
+        .message-input-container {
+          padding: 1rem;
+        }
+
+        .send-btn {
+          padding: 0.75rem 1rem;
+        }
+
+        .contact-name {
+          font-size: 0.95rem;
+        }
+
+        .contact-last-message {
+          font-size: 0.8rem;
+        }
+
+        .search-box {
+          padding: 0.75rem;
+        }
+
+        .sidebar-header {
+          padding: 1rem;
+        }
+
+        .sidebar-header h2 {
+          font-size: 1.3rem;
+        }
+
+        /* Incoming call modal responsive */
+        #incomingCallModal > div {
+          max-width: 90% !important;
+          padding: 1.5rem !important;
+          margin: 1rem;
+        }
+
+        #incomingCallModal h2 {
+          font-size: 1.5rem !important;
+        }
+
+        #incomingCallModal p {
+          font-size: 1rem !important;
+        }
+
+        #incomingCallModal button {
+          padding: 0.75rem 1.5rem !important;
+          font-size: 0.9rem !important;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .messaging-container {
+          margin-top: 60px;
+        }
+
+        .chat-header {
+          padding: 0.75rem;
+          padding-left: 3.5rem;
+        }
+
+        .contact-avatar {
+          width: 40px;
+          height: 40px;
+          font-size: 1rem;
+        }
+
+        .message-avatar {
+          width: 32px;
+          height: 32px;
+          font-size: 0.85rem;
+        }
+
+        .message-bubble {
+          padding: 0.55rem 0.75rem;
+          font-size: 0.85rem;
+          min-width: 45px;
+        }
+
+        .action-btn {
+          padding: 0.4rem 0.6rem;
+          font-size: 1rem;
+        }
+
+        .mobile-toggle {
+          width: 50px;
+          height: 50px;
+          font-size: 1.3rem;
+          bottom: 15px;
+          right: 15px;
         }
       }
     </style>
@@ -393,6 +661,13 @@
       <!-- Chat Area -->
       <div class="chat-area">
         <div class="chat-header" id="chatHeader" style="display: none">
+          <button
+            class="mobile-back-btn"
+            id="mobileBackBtn"
+            onclick="toggleContacts()"
+          >
+            <i class="fas fa-arrow-left"></i> Back
+          </button>
           <div class="chat-user-info">
             <div class="contact-avatar" id="chatAvatar">U</div>
             <div>
@@ -421,7 +696,6 @@
         <div
           class="message-input-container"
           id="messageInputContainer"
-          style="display: none"
         >
           <div class="message-input-wrapper">
             <textarea
@@ -437,6 +711,11 @@
         </div>
       </div>
     </div>
+
+    <!-- Mobile Toggle Button -->
+    <button class="mobile-toggle" id="mobileToggle" onclick="toggleContacts()">
+      <i class="fas fa-comments"></i>
+    </button>
 
     <script type="module">
       import {
@@ -827,7 +1106,12 @@
                 // CRITICAL: Map coach profile ID to auth UID
                 contactId = coachIdMapping[booking.coachId] || booking.coachId;
                 isCoach = true;
-                console.log("   ✅ Member sees coach:", booking.coachId, "→", contactId);
+                console.log(
+                  "   ✅ Member sees coach:",
+                  booking.coachId,
+                  "→",
+                  contactId
+                );
               } else {
                 // Check if current user is the coach
                 // The coachId in booking might be a profile ID, so check the mapping
@@ -1032,14 +1316,19 @@
       function openChat(userId, user, contactInfo) {
         // CRITICAL FIX: For coaches, map profile ID to auth UID
         let partnerAuthUid = userId;
-        
+
         // If partner is a coach and userId looks like a profile ID, map it to auth UID
-        const isPartnerCoach = contactInfo?.isCoach || user.accountType === 'coach' || user.role === 'coach';
+        const isPartnerCoach =
+          contactInfo?.isCoach ||
+          user.accountType === "coach" ||
+          user.role === "coach";
         if (isPartnerCoach && coachIdMapping[userId]) {
           partnerAuthUid = coachIdMapping[userId];
-          console.log(`🔄 Mapped coach profile ${userId} → auth UID ${partnerAuthUid}`);
+          console.log(
+            `🔄 Mapped coach profile ${userId} → auth UID ${partnerAuthUid}`
+          );
         }
-        
+
         currentChatPartner = { id: partnerAuthUid, ...user, contactInfo };
         currentChatId = getChatId(currentUser.uid, partnerAuthUid);
 
@@ -1060,6 +1349,21 @@
         document.getElementById("chatHeader").style.display = "flex";
         document.getElementById("messageInputContainer").style.display =
           "block";
+
+        // On mobile, hide contacts and change toggle button
+        if (window.innerWidth <= 768) {
+          const sidebar = document.querySelector(".contacts-sidebar");
+          const toggleBtn = document.getElementById("mobileToggle");
+
+          if (sidebar) {
+            sidebar.classList.remove("mobile-show");
+          }
+
+          if (toggleBtn) {
+            toggleBtn.innerHTML = '<i class="fas fa-arrow-left"></i>';
+            toggleBtn.title = "Back to Contacts";
+          }
+        }
 
         // Update chat header
         const initials = getInitials(user.firstName, user.lastName);
@@ -1106,7 +1410,7 @@
         if (isCoachUser) {
           statusText += " • Ready to chat";
         } else if (contactIsCoach) {
-          statusText += " • Available for psyche check";
+          statusText += " • Available for physique check";
         }
 
         document.getElementById("chatStatus").textContent = statusText;
@@ -1120,7 +1424,10 @@
         messagesContainer.innerHTML =
           '<div class="loading"><div class="spinner"></div><p>Loading messages...</p></div>';
 
-        console.log("📥 Loading messages from:", `chats/${currentChatId}/messages`);
+        console.log(
+          "📥 Loading messages from:",
+          `chats/${currentChatId}/messages`
+        );
 
         const messagesRef = ref(db, `chats/${currentChatId}/messages`);
 
@@ -1255,7 +1562,10 @@
           };
 
           console.log("   Message data:", messageData);
-          console.log("   Saving to:", `chats/${currentChatId}/messages/${newMessageRef.key}`);
+          console.log(
+            "   Saving to:",
+            `chats/${currentChatId}/messages/${newMessageRef.key}`
+          );
 
           await set(newMessageRef, messageData);
 
@@ -1273,46 +1583,57 @@
         if (!currentChatPartner) return;
 
         const partnerName = `${currentChatPartner.firstName} ${currentChatPartner.lastName}`;
-        
+
         console.log("📞 Starting video call with:", partnerName);
 
         try {
           // Generate unique room ID for this call
-          const roomId = `call_${currentUser.uid}_${currentChatPartner.id}_${Date.now()}`;
-          
+          const roomId = `call_${currentUser.uid}_${
+            currentChatPartner.id
+          }_${Date.now()}`;
+
           console.log("🆔 Room ID:", roomId);
 
           // Create call notification for the partner
-          const callNotificationRef = push(ref(db, `calls/${currentChatPartner.id}`));
+          const callNotificationRef = push(
+            ref(db, `calls/${currentChatPartner.id}`)
+          );
           await set(callNotificationRef, {
             callId: callNotificationRef.key,
             callerId: currentUser.uid,
-            callerName: currentUserData ? `${currentUserData.firstName} ${currentUserData.lastName}` : 'Someone',
+            callerName: currentUserData
+              ? `${currentUserData.firstName} ${currentUserData.lastName}`
+              : "Someone",
             receiverId: currentChatPartner.id,
             receiverName: partnerName,
             roomId: roomId,
-            status: 'ringing',
-            timestamp: Date.now()
+            status: "ringing",
+            timestamp: Date.now(),
           });
 
           console.log("✅ Call notification sent to partner");
 
           // Send notification to partner
-          const notificationRef = push(ref(db, `notifications/${currentChatPartner.id}`));
+          const notificationRef = push(
+            ref(db, `notifications/${currentChatPartner.id}`)
+          );
           await set(notificationRef, {
-            type: 'video_call',
-            message: `Incoming video call from ${currentUserData ? currentUserData.firstName : 'Someone'}`,
+            type: "video_call",
+            message: `Incoming video call from ${
+              currentUserData ? currentUserData.firstName : "Someone"
+            }`,
             callId: callNotificationRef.key,
             roomId: roomId,
             read: false,
-            createdAt: Date.now()
+            createdAt: Date.now(),
           });
 
           console.log("🔔 Notification sent");
 
           // Redirect to call page with room ID
-          window.location.href = `call.html?room=${roomId}&partner=${currentChatPartner.id}&partnerName=${encodeURIComponent(partnerName)}&initiator=true`;
-
+          window.location.href = `call.html?room=${roomId}&partner=${
+            currentChatPartner.id
+          }&partnerName=${encodeURIComponent(partnerName)}&initiator=true`;
         } catch (error) {
           console.error("❌ Error starting call:", error);
           alert("Failed to start call: " + error.message);
@@ -1326,15 +1647,15 @@
         console.log("👂 Listening for incoming calls...");
 
         const callsRef = ref(db, `calls/${currentUser.uid}`);
-        
+
         onValue(callsRef, (snapshot) => {
           if (snapshot.exists()) {
             const calls = snapshot.val();
-            
+
             // Find the most recent ringing call
             const callsList = Object.entries(calls)
               .map(([id, call]) => ({ id, ...call }))
-              .filter(call => call.status === 'ringing')
+              .filter((call) => call.status === "ringing")
               .sort((a, b) => b.timestamp - a.timestamp);
 
             if (callsList.length > 0) {
@@ -1349,11 +1670,11 @@
       // Show incoming call modal
       function showIncomingCallModal(callData) {
         // Remove existing modal if any
-        const existing = document.getElementById('incomingCallModal');
+        const existing = document.getElementById("incomingCallModal");
         if (existing) existing.remove();
 
-        const modal = document.createElement('div');
-        modal.id = 'incomingCallModal';
+        const modal = document.createElement("div");
+        modal.id = "incomingCallModal";
         modal.style.cssText = `
           position: fixed;
           top: 0;
@@ -1405,33 +1726,47 @@
         document.body.appendChild(modal);
 
         // Accept call
-        document.getElementById('acceptCallBtn').addEventListener('click', async () => {
-          console.log("✅ Call accepted!");
-          
-          // Update call status
-          const callRef = ref(db, `calls/${currentUser.uid}/${callData.callId}`);
-          await set(callRef, {
-            ...callData,
-            status: 'accepted'
-          });
+        document
+          .getElementById("acceptCallBtn")
+          .addEventListener("click", async () => {
+            console.log("✅ Call accepted!");
 
-          // Redirect to call page
-          window.location.href = `call.html?room=${callData.roomId}&partner=${callData.callerId}&partnerName=${encodeURIComponent(callData.callerName)}&initiator=false`;
-        });
+            // Update call status
+            const callRef = ref(
+              db,
+              `calls/${currentUser.uid}/${callData.callId}`
+            );
+            await set(callRef, {
+              ...callData,
+              status: "accepted",
+            });
+
+            // Redirect to call page
+            window.location.href = `call.html?room=${callData.roomId}&partner=${
+              callData.callerId
+            }&partnerName=${encodeURIComponent(
+              callData.callerName
+            )}&initiator=false`;
+          });
 
         // Decline call
-        document.getElementById('declineCallBtn').addEventListener('click', async () => {
-          console.log("❌ Call declined");
-          
-          // Update call status
-          const callRef = ref(db, `calls/${currentUser.uid}/${callData.callId}`);
-          await set(callRef, {
-            ...callData,
-            status: 'declined'
-          });
+        document
+          .getElementById("declineCallBtn")
+          .addEventListener("click", async () => {
+            console.log("❌ Call declined");
 
-          modal.remove();
-        });
+            // Update call status
+            const callRef = ref(
+              db,
+              `calls/${currentUser.uid}/${callData.callId}`
+            );
+            await set(callRef, {
+              ...callData,
+              status: "declined",
+            });
+
+            modal.remove();
+          });
       }
 
       // Enter to send
@@ -1525,6 +1860,32 @@
 
       // Debug: Log when page is ready
       console.log("📄 Messaging page script fully loaded");
+
+      // Mobile contacts toggle
+      window.toggleContacts = function () {
+        const sidebar = document.querySelector(".contacts-sidebar");
+        const toggleBtn = document.getElementById("mobileToggle");
+        const isShowingContacts = sidebar.classList.contains("mobile-show");
+
+        if (isShowingContacts) {
+          // Hide contacts
+          sidebar.classList.remove("mobile-show");
+          if (currentChatId) {
+            // If a chat is active, show back arrow
+            toggleBtn.innerHTML = '<i class="fas fa-arrow-left"></i>';
+            toggleBtn.title = "Back to Contacts";
+          } else {
+            // No chat active, show messages icon
+            toggleBtn.innerHTML = '<i class="fas fa-comments"></i>';
+            toggleBtn.title = "Show Contacts";
+          }
+        } else {
+          // Show contacts
+          sidebar.classList.add("mobile-show");
+          toggleBtn.innerHTML = '<i class="fas fa-times"></i>';
+          toggleBtn.title = "Close Contacts";
+        }
+      };
     </script>
   </body>
 </html>

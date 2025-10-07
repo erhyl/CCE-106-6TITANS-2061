@@ -228,27 +228,6 @@ function initializeCoachDashboard() {
     loadEarningsData();
 }
 
-// Load coach statistics
-function loadCoachStats() {
-    // Simulate loading coach stats
-    const stats = {
-        activeClients: 12,
-        sessionsToday: 8,
-        averageRating: 4.9,
-        monthlyEarnings: 2400
-    };
-    
-    // Update stat cards
-    const clientsCard = document.querySelector('.stat-card:nth-child(1) h3');
-    const sessionsCard = document.querySelector('.stat-card:nth-child(2) h3');
-    const ratingCard = document.querySelector('.stat-card:nth-child(3) h3');
-    const earningsCard = document.querySelector('.stat-card:nth-child(4) h3');
-    
-    if (clientsCard) clientsCard.textContent = stats.activeClients;
-    if (sessionsCard) sessionsCard.textContent = stats.sessionsToday;
-    if (ratingCard) ratingCard.textContent = stats.averageRating;
-    if (earningsCard) earningsCard.textContent = `$${stats.monthlyEarnings}`;
-}
 
 // Load today's schedule
 function loadTodaysSchedule() {

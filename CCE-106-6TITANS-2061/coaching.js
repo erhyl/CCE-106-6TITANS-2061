@@ -15,22 +15,22 @@ document.addEventListener("DOMContentLoaded", function () {
       // Populate coach name in modal
       coachNameInput.value = coachName;
 
-      // Show modal
-      bookingModal.style.display = "flex";
+      // Show modal with animation
+      bookingModal.classList.add("show");
       document.body.style.overflow = "hidden";
     });
   });
 
   // Close modal
   closeModal.addEventListener("click", function () {
-    bookingModal.style.display = "none";
+    bookingModal.classList.remove("show");
     document.body.style.overflow = "auto";
   });
 
   // Close modal when clicking outside
   window.addEventListener("click", function (event) {
     if (event.target === bookingModal) {
-      bookingModal.style.display = "none";
+      bookingModal.classList.remove("show");
       document.body.style.overflow = "auto";
     }
   });
@@ -164,7 +164,7 @@ document.addEventListener("DOMContentLoaded", function () {
       } else {
         alert(`Booking request submitted! An admin will review your request shortly.`);
       }
-      bookingModal.style.display = "none";
+      bookingModal.classList.remove("show");
       document.body.style.overflow = "auto";
       this.reset();
     } catch (err) {
@@ -344,8 +344,8 @@ document.addEventListener("keydown", function (e) {
   if (e.key === "Escape") {
     const modals = document.querySelectorAll(".modal");
     modals.forEach((modal) => {
-      if (modal.style.display === "block") {
-        modal.style.display = "none";
+      if (modal.classList.contains("show")) {
+        modal.classList.remove("show");
         document.body.style.overflow = "auto";
       }
     });

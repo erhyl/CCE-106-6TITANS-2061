@@ -25,6 +25,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Video Session - 6Titans</title>
     <link rel="stylesheet" href="assets/css/styles-base.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
     <style>
       body {
         background: #0a0a0a;
@@ -50,6 +51,8 @@
         display: flex;
         gap: 8px;
         margin-top: 12px;
+        flex-wrap: wrap;
+        justify-content: center;
       }
       .controls .btn {
         padding: 10px 14px;
@@ -58,11 +61,29 @@
         background: #1a1a1a;
         color: #fff;
         cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+      }
+      .controls .btn:hover {
+        background: #2a2a2a;
+        transform: translateY(-2px);
       }
       .controls .btn.primary {
         background: #ffd700;
         color: #0a0a0a;
         border-color: #ffd700;
+      }
+      .controls .btn.primary:hover {
+        background: #ffed4e;
+      }
+      .controls .btn i {
+        font-size: 1.1rem;
+      }
+      .btn-text {
+        display: inline;
       }
       .room {
         margin-bottom: 10px;
@@ -72,6 +93,31 @@
       @media (max-width: 768px) {
         .videos {
           grid-template-columns: 1fr;
+        }
+        .controls {
+          gap: 6px;
+        }
+        .controls .btn {
+          padding: 12px;
+          min-width: 48px;
+          justify-content: center;
+        }
+        /* Hide text, show only icons on mobile */
+        .btn-text {
+          display: none;
+        }
+        .controls .btn i {
+          margin: 0;
+          font-size: 1.2rem;
+        }
+      }
+      @media (max-width: 480px) {
+        .controls .btn {
+          padding: 10px;
+          min-width: 44px;
+        }
+        .controls .btn i {
+          font-size: 1.1rem;
         }
       }
     </style>
@@ -86,11 +132,26 @@
         <video id="remoteVideo" autoplay playsinline></video>
       </div>
       <div class="controls">
-        <button id="toggleCam" class="btn">Toggle Camera</button>
-        <button id="toggleMic" class="btn">Toggle Mic</button>
-        <button id="shareScreen" class="btn">Share Screen</button>
-        <button id="copyLink" class="btn">Copy Invite Link</button>
-        <button id="hangup" class="btn primary">Hang Up</button>
+        <button id="toggleCam" class="btn">
+          <i class="fas fa-video"></i>
+          <span class="btn-text">Toggle Camera</span>
+        </button>
+        <button id="toggleMic" class="btn">
+          <i class="fas fa-microphone"></i>
+          <span class="btn-text">Toggle Mic</span>
+        </button>
+        <button id="shareScreen" class="btn">
+          <i class="fas fa-desktop"></i>
+          <span class="btn-text">Share Screen</span>
+        </button>
+        <button id="copyLink" class="btn">
+          <i class="fas fa-link"></i>
+          <span class="btn-text">Copy Invite Link</span>
+        </button>
+        <button id="hangup" class="btn primary">
+          <i class="fas fa-phone-slash"></i>
+          <span class="btn-text">Hang Up</span>
+        </button>
       </div>
     </div>
     <script src="call.js"></script>

@@ -196,13 +196,29 @@
   toggleCamBtn.addEventListener('click', () => {
     if (!localStream) return;
     const track = localStream.getVideoTracks()[0];
-    if (track) track.enabled = !track.enabled;
+    if (track) {
+      track.enabled = !track.enabled;
+      const icon = toggleCamBtn.querySelector('i');
+      if (icon) {
+        icon.className = track.enabled ? 'fas fa-video' : 'fas fa-video-slash';
+      }
+      toggleCamBtn.style.background = track.enabled ? '#1a1a1a' : '#f44336';
+      toggleCamBtn.style.borderColor = track.enabled ? '#333' : '#f44336';
+    }
   });
 
   toggleMicBtn.addEventListener('click', () => {
     if (!localStream) return;
     const track = localStream.getAudioTracks()[0];
-    if (track) track.enabled = !track.enabled;
+    if (track) {
+      track.enabled = !track.enabled;
+      const icon = toggleMicBtn.querySelector('i');
+      if (icon) {
+        icon.className = track.enabled ? 'fas fa-microphone' : 'fas fa-microphone-slash';
+      }
+      toggleMicBtn.style.background = track.enabled ? '#1a1a1a' : '#f44336';
+      toggleMicBtn.style.borderColor = track.enabled ? '#333' : '#f44336';
+    }
   });
 
   shareScreenBtn.addEventListener('click', async () => {
@@ -225,10 +241,45 @@
     } catch {}
   });
 
-  hangupBtn.addEventListener('click', () => {
+  hangupBtn.addEventListener('click', async () => {
     if (currentCall) currentCall.close();
     peer.destroy();
-    window.location.href = 'coach-dashboard.html';
+    
+    // Determine where to redirect based on user role
+    try {
+      const { getApps } = await import('https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js');
+      const { getAuth } = await import('https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js');
+      const { getFirestore, doc, getDoc } = await import('https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js');
+      
+      const app = getApps()[0];
+      const auth = getAuth(app);
+      const currentUser = auth.currentUser;
+      
+      if (currentUser) {
+        const db = getFirestore(app);
+        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+        
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          const accountType = userData.accountType || userData.role || 'member';
+          
+          // Redirect based on role
+          if (accountType === 'coach') {
+            window.location.href = 'coach-dashboard.html';
+          } else if (accountType === 'admin') {
+            window.location.href = 'admin.html';
+          } else {
+            window.location.href = 'user-dashboard.html';
+          }
+          return;
+        }
+      }
+    } catch (error) {
+      console.warn('Error determining redirect:', error);
+    }
+    
+    // Fallback: redirect to user dashboard
+    window.location.href = 'user-dashboard.html';
   });
 })();
 
