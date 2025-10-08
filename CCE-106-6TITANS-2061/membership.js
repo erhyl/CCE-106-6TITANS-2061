@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Plan selection functionality
     choosePlanBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', async function() {
             const planType = this.getAttribute('data-plan');
             const planData = getPlanData(planType);
             
@@ -90,6 +90,37 @@ document.addEventListener('DOMContentLoaded', function() {
             // Store selected plan
             confirmMembershipBtn.setAttribute('data-plan', planType);
             
+            // Prefill from logged-in user
+            try {
+                const auth = window.firebaseAuth;
+                const rtdb = window.firebaseRtdb;
+                const { ref, get, child } = window.firebaseRT || {};
+                const user = auth && auth.currentUser;
+                const first = document.getElementById('firstName');
+                const last = document.getElementById('lastName');
+                const email = document.getElementById('email');
+                if (user) {
+                    // Prefer Firestore (matches coaching behavior), then fallback to RTDB
+                    try {
+                        const { getFirestore, doc, getDoc } = await import('https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js');
+                        const db = getFirestore();
+                        const userDoc = await getDoc(doc(db, 'users', user.uid));
+                        if (userDoc.exists()) {
+                            const d = userDoc.data();
+                            if (first) { first.value = d.firstName || (user.displayName ? user.displayName.split(' ')[0] : ''); first.readOnly = true; }
+                            if (last) { last.value = d.lastName || (user.displayName ? user.displayName.split(' ').slice(1).join(' ') : ''); last.readOnly = true; }
+                            if (email) { email.value = d.email || user.email || ''; email.readOnly = true; }
+                        } else if (rtdb && ref && get && child) {
+                            const snap = await get(child(ref(rtdb), 'users/' + user.uid));
+                            const d = snap.exists() ? snap.val() : {};
+                            if (first) { first.value = d.firstName || (user.displayName ? user.displayName.split(' ')[0] : ''); first.readOnly = true; }
+                            if (last) { last.value = d.lastName || (user.displayName ? user.displayName.split(' ').slice(1).join(' ') : ''); last.readOnly = true; }
+                            if (email) { email.value = d.email || user.email || ''; email.readOnly = true; }
+                        }
+                    } catch {}
+                }
+            } catch {}
+
             // Show modal
             membershipModal.style.display = 'flex';
             document.body.style.overflow = 'hidden';

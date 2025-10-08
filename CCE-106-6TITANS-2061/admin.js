@@ -553,26 +553,32 @@ async function renderUsersTable() {
             const plan = u.membership?.plan || 'none';
             const status = u.membership?.status || 'inactive';
             const email = u.email || '';
-            const name = [u.firstName, u.lastName].filter(Boolean).join(' ') || email || 'User';
+            const first = u.firstName || '';
+            const last = u.lastName || '';
+            const name = [first, last].filter(Boolean).join(' ') || email || 'User';
             const uid = u.uid || '';
             return `
               <tr>
-                <td>${name}</td>
+                <td>${first}</td>
+                <td>${last}</td>
                 <td>${email}</td>
                 <td>${status}</td>
                 <td>${plan}</td>
-                <td>
-                  <button class="btn-sm" data-upgrade="${uid}" data-plan="basic">Basic</button>
-                  <button class="btn-sm" data-upgrade="${uid}" data-plan="premium">Premium</button>
-                  <button class="btn-sm" data-upgrade="${uid}" data-plan="elite">Elite</button>
-                </td>
+                 <td>
+                   <button class="btn-sm" data-upgrade="${uid}" data-plan="basic">Basic</button>
+                   <button class="btn-sm" data-upgrade="${uid}" data-plan="premium">Premium</button>
+                   <button class="btn-sm" data-upgrade="${uid}" data-plan="elite">Elite</button>
+                   <button class="btn-sm" data-upgrade="${uid}" data-plan="coach">Coach</button>
+                 </td>
               </tr>`;
         }).join('');
         container.innerHTML = `
           <table class="admin-table">
-            <thead><tr><th>Name</th><th>Email</th><th>Status</th><th>Plan</th><th>Actions</th></tr></thead>
+            <thead><tr><th>First Name</th><th>Last Name</th><th>Email</th><th>Status</th><th>Plan</th><th>Actions</th></tr></thead>
             <tbody>${rows || ''}</tbody>
           </table>`;
+        
+        console.log('Users table rendered with Coach buttons');
 
         container.querySelectorAll('[data-upgrade]').forEach((btn) => {
             btn.addEventListener('click', async () => {

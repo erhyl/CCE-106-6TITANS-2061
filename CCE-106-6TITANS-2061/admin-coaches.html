@@ -96,6 +96,7 @@
                 <td><span class="pill ${approved?'approved':'pending'}">${approved?'Approved':'Pending'}</span></td>
                 <td>
                   ${approved? '': `<button class="btn-sm" data-approve="${uid}">Approve</button>`}
+                  ${approved? `<button class="btn-sm" data-deactivate="${uid}">Deactivate</button>`: ''}
                   <button class="btn-sm" data-remove="${uid}">Remove</button>
                 </td>
               </tr>`;
@@ -118,6 +119,24 @@
             } catch (error) {
               console.error('Error approving coach:', error);
               alert('Failed to approve coach: ' + error.message);
+            }
+          });
+        });
+        table.querySelectorAll('[data-deactivate]').forEach(btn=>{
+          btn.addEventListener('click', async ()=>{
+            const uid = btn.getAttribute('data-deactivate');
+            if (!confirm('Are you sure you want to deactivate this coach? They will be set back to pending status.')) {
+              return;
+            }
+            try {
+              // Update both RTDB and Firestore to set coach back to pending
+              await update(ref(rtdb, 'users/'+uid), { coachApproved: false, approvalStatus: 'pending' });
+              await updateDoc(doc(db, 'users', uid), { coachApproved: false, approvalStatus: 'pending' });
+              alert('Coach deactivated successfully! They are now pending approval.');
+              load();
+            } catch (error) {
+              console.error('Error deactivating coach:', error);
+              alert('Failed to deactivate coach: ' + error.message);
             }
           });
         });

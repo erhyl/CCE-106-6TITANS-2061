@@ -165,9 +165,6 @@
           <img src="images/image 67.png" alt="6Titans" class="logo-text" />
         </div>
         <ul class="nav-menu">
-           <li class="nav-item">
-              <a href="index.html" class="nav-link">Home</a>
-            </li>
           <li class="nav-item">
             <a href="admin.html" class="nav-link">Admin Dashboard</a>
           </li>
@@ -616,6 +613,13 @@
     <script src="script.js"></script>
     <script src="admin.js"></script>
     
+    <!-- Firebase RTDB debug logging -->
+    <script type="module">
+      import { enableLogging } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+      // Verbose logging for realtime reads/writes, WebChannel, and rule denials
+      try { enableLogging(true); console.log('✅ Firebase RTDB logging enabled'); } catch (e) {}
+    </script>
+    
     <!-- Inline script for admin dropdown - guaranteed to work -->
     <script>
       console.log('👑 Inline admin dropdown script loading...');
@@ -695,10 +699,22 @@
     <script type="module">
       import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
       document.addEventListener('DOMContentLoaded', () => {
-        const logoutBtn = document.getElementById('adminLogoutBtn');
-        if (logoutBtn) {
-          logoutBtn.addEventListener('click', async (e) => {
+        const btn = document.getElementById('adminLogoutBtn');
+        if (!btn) return;
+
+        // Replace existing listeners to avoid duplicate handlers
+        const newBtn = btn.cloneNode(true);
+        btn.parentNode.replaceChild(newBtn, btn);
+
+        if (typeof window.handleAdminLogout === 'function') {
+          newBtn.addEventListener('click', (e) => {
             e.preventDefault();
+            window.handleAdminLogout();
+          });
+        } else {
+          newBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            if (!confirm('Are you sure you want to logout?')) return;
             try { await signOut(getAuth()); } catch {}
             window.location.href = 'admin-login.html';
           });

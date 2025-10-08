@@ -54,6 +54,7 @@
               <option value="basic">Basic</option>
               <option value="premium">Premium</option>
               <option value="elite">Elite</option>
+              <option value="coach">Coach</option>
             </select>
             <button class="btn btn-primary" id="refreshBtn"><i class="fas fa-sync"></i> Refresh</button>
           </div>
@@ -119,6 +120,7 @@
                   <button class="btn-sm" data-upgrade="${uid}" data-plan="basic">Basic</button>
                   <button class="btn-sm" data-upgrade="${uid}" data-plan="premium">Premium</button>
                   <button class="btn-sm" data-upgrade="${uid}" data-plan="elite">Elite</button>
+                  <button class="btn-sm" data-upgrade="${uid}" data-plan="coach">Coach</button>
                 </td>
                 <td style="min-width:360px">
                   <input type="date" data-expiry="${uid}" value="${expiry ? new Date(expiry).toISOString().slice(0,10) : ''}" style="padding:6px;border:1px solid #333;border-radius:6px;background:#111;color:#fff;" />

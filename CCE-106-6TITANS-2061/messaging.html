@@ -730,6 +730,7 @@
         getDatabase,
         ref,
         onValue,
+        off,
         push,
         set,
         query,
@@ -770,6 +771,7 @@
       let currentUserData = null;
       let currentChatId = null;
       let currentChatPartner = null;
+      let activeMessageRefs = [];
       let allUsers = {};
       let isLoggingOut = false;
       let authCheckComplete = false;
@@ -929,8 +931,8 @@
 
             // Add coach profiles to allUsers (they might have different structure)
             Object.entries(coachProfiles).forEach(([coachId, coach]) => {
-              // If coach has a uid, use that as the key, otherwise use the profile id
-              const userId = coach.uid || coachId;
+              // Prefer explicit coachUid saved in coachProfiles; fallback to uid; else use profile id
+              const userId = coach.coachUid || coach.uid || coachId;
 
               // Create mapping: coachProfileId -> authUID
               coachIdMapping[coachId] = userId;
@@ -982,8 +984,9 @@
                 allUsers[userId].role = "coach";
               }
 
-              // Also add by profile ID if different from uid
-              if (coach.uid && coachId !== coach.uid) {
+              // Also add by profile ID if different from uid/coachUid
+              const resolvedUid = coach.coachUid || coach.uid;
+              if (resolvedUid && coachId !== resolvedUid) {
                 allUsers[coachId] = allUsers[userId];
               }
             });
@@ -1314,22 +1317,13 @@
       }
 
       function openChat(userId, user, contactInfo) {
-        // CRITICAL FIX: For coaches, map profile ID to auth UID
-        let partnerAuthUid = userId;
-
-        // If partner is a coach and userId looks like a profile ID, map it to auth UID
-        const isPartnerCoach =
-          contactInfo?.isCoach ||
-          user.accountType === "coach" ||
-          user.role === "coach";
-        if (isPartnerCoach && coachIdMapping[userId]) {
-          partnerAuthUid = coachIdMapping[userId];
-          console.log(
-            `🔄 Mapped coach profile ${userId} → auth UID ${partnerAuthUid}`
-          );
+        // Normalize partner ID using mapping when available (covers coach profile IDs)
+        let partnerAuthUid = coachIdMapping[userId] || userId;
+        if (partnerAuthUid !== userId) {
+          console.log(`🔄 Normalized partner ID ${userId} → ${partnerAuthUid}`);
         }
 
-        currentChatPartner = { id: partnerAuthUid, ...user, contactInfo };
+        currentChatPartner = { id: partnerAuthUid, originalId: userId, ...user, contactInfo };
         currentChatId = getChatId(currentUser.uid, partnerAuthUid);
 
         console.log("💬 Opening chat with:", user.firstName, user.lastName);
@@ -1429,63 +1423,62 @@
           `chats/${currentChatId}/messages`
         );
 
+        // Detach previous listeners
+        try { activeMessageRefs.forEach((r) => off(r)); } catch {}
+        activeMessageRefs = [];
+
         const messagesRef = ref(db, `chats/${currentChatId}/messages`);
+        activeMessageRefs.push(messagesRef);
 
-        onValue(messagesRef, (snapshot) => {
-          console.log("📬 Message snapshot received");
-          console.log("   Exists:", snapshot.exists());
-          if (snapshot.exists()) {
-            const messages = snapshot.val();
-            console.log("   Message count:", Object.keys(messages).length);
-            console.log("   Messages:", messages);
+        // Also subscribe to possible legacy chatId that used the unmapped partner ID
+        let altChatId = null;
+        if (currentChatPartner && currentChatPartner.originalId) {
+          const maybeAlt = getChatId(currentUser.uid, currentChatPartner.originalId);
+          if (maybeAlt !== currentChatId) {
+            altChatId = maybeAlt;
+            console.log("🕰️ Also checking legacy chat path:", `chats/${altChatId}/messages`);
           }
+        }
 
+        const altMessagesRef = altChatId ? ref(db, `chats/${altChatId}/messages`) : null;
+        if (altMessagesRef) activeMessageRefs.push(altMessagesRef);
+
+        function renderFromSnapshots(primarySnap, secondarySnap) {
           messagesContainer.innerHTML = "";
+          const collect = (snap) => (snap && snap.exists() ? snap.val() : {});
+          const primary = collect(primarySnap);
+          const secondary = collect(secondarySnap);
 
-          if (!snapshot.exists()) {
+          const merged = [
+            ...Object.values(primary),
+            ...Object.values(secondary),
+          ].sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+
+          if (merged.length === 0) {
             const contactIsCoach =
               currentChatPartner.contactInfo?.isCoach ||
               currentChatPartner.accountType === "coach";
 
             let emptyStateContent;
             if (isCoachUser) {
-              // Coach viewing member/client
               emptyStateContent = `
                             <div class="empty-state">
                                 <i class="fas fa-comment-dots" style="color: #ffd700;"></i>
                                 <h3>Start a conversation with ${currentChatPartner.firstName}</h3>
-                                <p style="margin-top: 1rem; color: #ccc; line-height: 1.6;">
-                                    👤 This is your client! You can:<br>
-                                    • Check in on their progress<br>
-                                    • Provide motivation and guidance<br>
-                                    • Schedule training sessions<br>
-                                    • Start a video call for psyche check
-                                </p>
-                                <button onclick="startVideoCall()" style="margin-top: 1rem; background: #ffd700; color: #000; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-weight: 600;">
-                                    <i class="fas fa-video"></i> Start Video Call
-                                </button>
+                                <p style=\"margin-top: 1rem; color: #ccc; line-height: 1.6;\">\n                                    👤 This is your client! You can:<br>\n                                    • Check in on their progress<br>\n                                    • Provide motivation and guidance<br>\n                                    • Schedule training sessions<br>\n                                    • Start a video call for psyche check\n                                </p>
+                                <button onclick=\"startVideoCall()\" style=\"margin-top: 1rem; background: #ffd700; color: #000; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-weight: 600;\">\n                                    <i class=\"fas fa-video\"></i> Start Video Call\n                                </button>
                             </div>
                         `;
             } else if (contactIsCoach) {
-              // Member viewing coach
               emptyStateContent = `
                             <div class="empty-state">
                                 <i class="fas fa-comment-dots" style="color: #ffd700;"></i>
                                 <h3>Start a conversation with ${currentChatPartner.firstName}</h3>
-                                <p style="margin-top: 1rem; color: #ccc; line-height: 1.6;">
-                                    💪 This is your coach! You can:<br>
-                                    • Chat about your fitness goals<br>
-                                    • Schedule a psyche check session<br>
-                                    • Ask questions about your workout plan<br>
-                                    • Start a video call for 1-on-1 coaching
-                                </p>
-                                <button onclick="startVideoCall()" style="margin-top: 1rem; background: #ffd700; color: #000; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-weight: 600;">
-                                    <i class="fas fa-video"></i> Start Video Call
-                                </button>
+                                <p style=\"margin-top: 1rem; color: #ccc; line-height: 1.6;\">\n                                    💪 This is your coach! You can:<br>\n                                    • Chat about your fitness goals<br>\n                                    • Schedule a psyche check session<br>\n                                    • Ask questions about your workout plan<br>\n                                    • Start a video call for 1-on-1 coaching\n                                </p>
+                                <button onclick=\"startVideoCall()\" style=\"margin-top: 1rem; background: #ffd700; color: #000; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-weight: 600;\">\n                                    <i class=\"fas fa-video\"></i> Start Video Call\n                                </button>
                             </div>
                         `;
             } else {
-              // Generic
               emptyStateContent = `
                             <div class="empty-state">
                                 <i class="fas fa-comment-dots" style="color: #ffd700;"></i>
@@ -1499,14 +1492,28 @@
             return;
           }
 
-          const messages = snapshot.val();
-          Object.entries(messages).forEach(([id, message]) => {
-            renderMessage(message);
-          });
-
-          // Scroll to bottom
+          merged.forEach((message) => renderMessage(message));
           messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        let primarySnapCache = null;
+        let secondarySnapCache = null;
+
+        onValue(messagesRef, (snapshot) => {
+          primarySnapCache = snapshot;
+          if (altMessagesRef) {
+            renderFromSnapshots(primarySnapCache, secondarySnapCache);
+          } else {
+            renderFromSnapshots(primarySnapCache, null);
+          }
         });
+
+        if (altMessagesRef) {
+          onValue(altMessagesRef, (snapshot) => {
+            secondarySnapCache = snapshot;
+            renderFromSnapshots(primarySnapCache, secondarySnapCache);
+          });
+        }
       }
 
       function renderMessage(message) {

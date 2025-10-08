@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // Book class functionality (event delegation for dynamic content)
-  document.addEventListener('click', function(e){
+  document.addEventListener('click', async function(e){
     const btn = e.target.closest('.book-class');
     if (!btn) return;
     const classCard = btn.closest('.class-card');
@@ -43,6 +43,24 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById('className').value = className;
     document.getElementById('classTime').value = classTime;
     document.getElementById('instructor').value = instructor;
+    // Autofill member name/email from auth
+    try {
+      const auth = window.firebaseAuth;
+      const rtdb = window.firebaseRtdb;
+      const { ref, get, child } = window.firebaseRT || {};
+      const user = auth && auth.currentUser;
+      if (user && rtdb && ref && get && child) {
+        const snap = await get(child(ref(rtdb), 'users/' + user.uid));
+        const data = snap.exists() ? snap.val() : {};
+        const fullName = `${data.firstName || ''} ${data.lastName || ''}`.trim() || (user.email ? user.email.split('@')[0] : '');
+        const email = data.email || user.email || '';
+        const nameInput = document.getElementById('memberName');
+        const emailInput = document.getElementById('memberEmail');
+        if (nameInput) { nameInput.value = fullName; nameInput.readOnly = true; }
+        if (emailInput) { emailInput.value = email; emailInput.readOnly = true; }
+      }
+    } catch {}
+
     bookingModal.style.display = 'block';
     document.body.style.overflow = 'hidden';
   });

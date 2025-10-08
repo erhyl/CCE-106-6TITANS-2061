@@ -26,9 +26,20 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // Plan selection functionality
+  // Plan selection functionality with auth guard
   choosePlanBtns.forEach((btn) => {
-    btn.addEventListener("click", function () {
+    btn.addEventListener("click", function (e) {
+      // Gate: require login to proceed
+      try {
+        const auth = window.firebaseAuth;
+        const user = auth && auth.currentUser;
+        if (!user) {
+          e.preventDefault();
+          alert("Please log in to book a class.");
+          window.location.href = 'login.html';
+          return;
+        }
+      } catch {}
       const planCard = this.closest(".plan-card");
       const planName = planCard.querySelector(".plan-name").textContent;
       const planDescription =
@@ -114,8 +125,18 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // Select plan functionality
-  selectPlanBtn.addEventListener("click", function () {
+  // Select plan functionality with auth guard
+  selectPlanBtn.addEventListener("click", function (e) {
+    try {
+      const auth = window.firebaseAuth;
+      const user = auth && auth.currentUser;
+      if (!user) {
+        e.preventDefault();
+        alert("Please log in to book a class.");
+        window.location.href = 'login.html';
+        return;
+      }
+    } catch {}
     const planName = modalTitle.textContent;
 
     // Show loading

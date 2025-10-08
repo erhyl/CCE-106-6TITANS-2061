@@ -1,5 +1,5 @@
 /* Admin Dashboard Styles */
-@import url("../styles.css");
+/* Base styles already linked in pages; avoid broken relative import */
 
 /* Admin Dashboard Layout */
 .admin-dashboard {

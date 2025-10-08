@@ -39,9 +39,6 @@
             <a href="coaching.html" class="nav-link active">Coaching</a>
           </li>
           <li class="nav-item">
-            <a href="online-gym.html" class="nav-link">Appointments</a>
-          </li>
-          <li class="nav-item">
             <a href="articles.html" class="nav-link">Articles</a>
           </li>
         </ul>
@@ -179,6 +176,8 @@
                 memberEmailInput.value = userData.email || user.email;
                 // Leave phone empty for user to fill
                 memberPhoneInput.value = '';
+                memberNameInput.readOnly = true;
+                memberEmailInput.readOnly = true;
               } else {
                 // Fallback to Realtime Database
                 const snapshot = await dbGet(child(dbRef(rtdb), `users/${user.uid}`));
@@ -187,6 +186,8 @@
                   memberNameInput.value = `${userData.firstName || ''} ${userData.lastName || ''}`.trim() || userData.email;
                   memberEmailInput.value = userData.email || user.email;
                   memberPhoneInput.value = '';
+                  memberNameInput.readOnly = true;
+                  memberEmailInput.readOnly = true;
                 }
               }
             }
