@@ -13,6 +13,39 @@
       color: #fff;
     }
     
+    /* Dashboard and Logout Button Styling */
+    .user-dropdown a[href="coach-dashboard.html"] {
+      color: #9c27b0 !important;
+      font-weight: 600;
+      border-radius: 20px !important;
+      margin: 2px 8px !important;
+      background: rgba(156, 39, 176, 0.1) !important;
+      border: 2px solid transparent !important;
+    }
+
+    .user-dropdown a[href="coach-dashboard.html"]:hover {
+      color: #ba68c8 !important;
+      background: rgba(156, 39, 176, 0.25) !important;
+      border-color: #9c27b0 !important;
+      transform: scale(1.05) !important;
+    }
+
+    .user-dropdown a[id="coachLogoutBtn"] {
+      color: #2196f3 !important;
+      font-weight: 600;
+      border-radius: 20px !important;
+      margin: 2px 8px !important;
+      background: rgba(33, 150, 243, 0.1) !important;
+      border: 2px solid transparent !important;
+    }
+
+    .user-dropdown a[id="coachLogoutBtn"]:hover {
+      color: #64b5f6 !important;
+      background: rgba(33, 150, 243, 0.25) !important;
+      border-color: #2196f3 !important;
+      transform: scale(1.05) !important;
+    }
+
     .bookings-container {
       max-width: 1400px;
       margin: 0 auto;
@@ -311,9 +344,7 @@
         <li class="nav-item"><a href="coach-availability.html" class="nav-link">Availability</a></li>
       </ul>
       <div class="user-menu">
-        <button class="user-avatar coach-avatar" id="coachMenuBtn">
-          <i class="fas fa-user-tie"></i>
-        </button>
+       
         <div class="user-dropdown" id="coachDropdown">
           <a href="coach-dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
           <a href="#" id="coachLogoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>

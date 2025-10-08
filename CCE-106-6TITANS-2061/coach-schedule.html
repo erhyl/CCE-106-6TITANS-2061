@@ -13,6 +13,39 @@
       color: #fff;
     }
     
+    /* Dashboard and Logout Button Styling */
+    .user-dropdown a[href="coach-dashboard.html"] {
+      color: #9c27b0 !important;
+      font-weight: 600;
+      border-radius: 20px !important;
+      margin: 2px 8px !important;
+      background: rgba(156, 39, 176, 0.1) !important;
+      border: 2px solid transparent !important;
+    }
+
+    .user-dropdown a[href="coach-dashboard.html"]:hover {
+      color: #ba68c8 !important;
+      background: rgba(156, 39, 176, 0.25) !important;
+      border-color: #9c27b0 !important;
+      transform: scale(1.05) !important;
+    }
+
+    .user-dropdown a[id="coachLogoutBtn"] {
+      color: #2196f3 !important;
+      font-weight: 600;
+      border-radius: 20px !important;
+      margin: 2px 8px !important;
+      background: rgba(33, 150, 243, 0.1) !important;
+      border: 2px solid transparent !important;
+    }
+
+    .user-dropdown a[id="coachLogoutBtn"]:hover {
+      color: #64b5f6 !important;
+      background: rgba(33, 150, 243, 0.25) !important;
+      border-color: #2196f3 !important;
+      transform: scale(1.05) !important;
+    }
+
     .schedule-container {
       max-width: 1400px;
       margin: 0 auto;
@@ -342,10 +375,7 @@
         <li class="nav-item"><a href="coach-bookings.html" class="nav-link">Bookings</a></li>
         <li class="nav-item"><a href="coach-availability.html" class="nav-link">Availability</a></li>
       </ul>
-      <div class="user-menu">
-        <button class="user-avatar coach-avatar" id="coachMenuBtn">
-          <i class="fas fa-user-tie"></i>
-        </button>
+      
         <div class="user-dropdown" id="coachDropdown">
           <a href="coach-dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
           <a href="#" id="coachLogoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
@@ -427,6 +457,34 @@
     let allBookings = [];
     let currentDate = new Date();
     let currentView = 'calendar';
+
+    // Convert time to AM/PM format
+    function formatTime(timeStr) {
+      if (!timeStr) return '';
+      
+      // Handle different time formats
+      if (timeStr.includes(':')) {
+        const [hours, minutes] = timeStr.split(':');
+        const hour = parseInt(hours);
+        const min = minutes || '00';
+        
+        if (hour === 0) return `12:${min} AM`;
+        if (hour < 12) return `${hour}:${min} AM`;
+        if (hour === 12) return `12:${min} PM`;
+        return `${hour - 12}:${min} PM`;
+      }
+      
+      // If it's just a number (like "11")
+      const hour = parseInt(timeStr);
+      if (!isNaN(hour)) {
+        if (hour === 0) return '12:00 AM';
+        if (hour < 12) return `${hour}:00 AM`;
+        if (hour === 12) return '12:00 PM';
+        return `${hour - 12}:00 PM`;
+      }
+      
+      return timeStr; // Return as-is if can't parse
+    }
 
     // Get coach info
     async function getCoachInfo(uid) {
@@ -538,7 +596,7 @@
         daySessions.forEach(session => {
           const pill = document.createElement('div');
           pill.className = `session-pill ${session.status}`;
-          pill.textContent = `${session.preferredTime} ${session.memberName}`;
+          pill.textContent = `${formatTime(session.preferredTime)} ${session.memberName}`;
           pill.onclick = (e) => {
             e.stopPropagation();
             showSessionDetails(session);
@@ -584,7 +642,7 @@
             <div class="timeline-sessions">
               ${sessions.map(session => `
                 <div class="timeline-session">
-                  <div class="session-time">${session.preferredTime}</div>
+                  <div class="session-time">${formatTime(session.preferredTime)}</div>
                   <div class="session-details">
                     <h4>${session.memberName} - ${session.sessionType}</h4>
                     <p>${session.goals || 'No specific goals'}</p>
@@ -634,7 +692,7 @@
         </div>
         <div class="detail-row">
           <span class="detail-label">Time:</span>
-          <span class="detail-value">${session.preferredTime}</span>
+          <span class="detail-value">${formatTime(session.preferredTime)}</span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Session Type:</span>
