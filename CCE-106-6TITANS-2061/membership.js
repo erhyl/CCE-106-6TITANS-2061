@@ -67,9 +67,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         <label for="paymentMethod">Payment Method *</label>
                         <select id="paymentMethod" name="paymentMethod" required>
                             <option value="">Select payment method</option>
-                            <option value="credit-card">Credit Card</option>
-                            <option value="paypal">PayPal</option>
-                            <option value="bank-transfer">Bank Transfer</option>
+                            <option value="credit-card">Gcash</option>
+                            
+                            
                         </select>
                     </div>
                     <div class="form-group">
