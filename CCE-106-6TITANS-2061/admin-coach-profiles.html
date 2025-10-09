@@ -120,8 +120,8 @@
       display: flex !important;
     }
     .modal-content {
-      background: #1a1a1a !important;
-      border: 2px solid #ffd700 !important;
+      background: #292727 !important; /* White background for visibility */
+      border: 3px solid #000000 !important; /* Red border for debugging */
       border-radius: 16px;
       padding: 2rem;
       max-width: 600px;
@@ -131,50 +131,127 @@
       position: relative;
       z-index: 1000000;
       box-shadow: 0 10px 40px rgba(255, 215, 0, 0.3);
+      color: #000000 !important; /* Black text for visibility */
+    }
+    
+    /* Make form elements visible */
+    .modal-content input,
+    .modal-content textarea,
+    .modal-content select {
+      background: #ffffff !important;
+      color: #000000 !important;
+      border: 2px solid #333333 !important;
+    }
+    
+    .modal-content label {
+      color: #000000 !important;
+    }
+    
+    .modal-content h2 {
+      color: #000000 !important;
     }
     .modal-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #333;
     }
+    
+    .modal-header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .back-button {
+      background: #333;
+      border: 1px solid #555;
+      color: #ffd700;
+      padding: 0.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+    }
+    
+    .back-button:hover {
+      background: #444;
+      border-color: #ffd700;
+      transform: translateX(-2px);
+    }
+    
     .modal-header h2 {
       color: #ffd700;
       margin: 0;
+      font-size: 1.5rem;
     }
+    
     .close-modal {
-      background: none;
-      border: none;
+      background: #333;
+      border: 1px solid #555;
       color: #fff;
       font-size: 1.5rem;
       cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .close-modal:hover {
+      background: #444;
+      border-color: #ffd700;
+      color: #ffd700;
     }
     .form-group {
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
     }
+    
     .form-group label {
       display: block;
-      color: #ccc;
+      color: #ffd700;
       margin-bottom: 0.5rem;
       font-weight: 600;
+      font-size: 0.9rem;
     }
+    
     .form-group input, .form-group textarea, .form-group select {
       width: 100%;
       padding: 0.75rem;
-      background: #0a0a0a;
-      border: 1px solid #333;
+      background: #2a2a2a;
+      border: 1px solid #444;
       border-radius: 8px;
       color: #fff;
       font-size: 1rem;
+      transition: all 0.3s ease;
     }
+    
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+      outline: none;
+      border-color: #ffd700;
+      box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.2);
+    }
+    
     .form-group textarea {
       resize: vertical;
       min-height: 100px;
     }
+    
     .btn-submit {
       width: 100%;
-      padding: 0.75rem;
-      background: #ffd700;
+      padding: 1rem;
+      background: linear-gradient(135deg, #ffd700, #ffed4e);
       color: #000;
       border: none;
       border-radius: 8px;
@@ -182,11 +259,66 @@
       font-size: 1.1rem;
       cursor: pointer;
       transition: all 0.3s;
+      margin-top: 1rem;
     }
+    
     .btn-submit:hover {
-      background: #ffed4e;
+      background: linear-gradient(135deg, #ffed4e, #ffd700);
       transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
     }
+
+      /* Checkbox styling */
+      .checkbox-label {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 8px;
+        transition: background-color 0.2s ease;
+      }
+
+      .checkbox-label:hover {
+        background-color: rgba(255, 215, 0, 0.1);
+      }
+
+      .checkbox-label input[type="checkbox"] {
+        display: none;
+      }
+
+      .checkmark {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #ffd700;
+        border-radius: 4px;
+        background: transparent;
+        position: relative;
+        flex-shrink: 0;
+        margin-top: 2px;
+        transition: all 0.2s ease;
+      }
+
+      .checkbox-label input[type="checkbox"]:checked + .checkmark {
+        background: #ffd700;
+        border-color: #ffd700;
+      }
+
+      .checkbox-label input[type="checkbox"]:checked + .checkmark::after {
+        content: '✓';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #000;
+        font-weight: bold;
+        font-size: 12px;
+      }
+
+      .checkbox-text {
+        flex: 1;
+        line-height: 1.4;
+      }
   </style>
 </head>
 <body>
@@ -234,8 +366,13 @@
   <div class="modal" id="coachModal">
     <div class="modal-content">
       <div class="modal-header">
-        <h2 id="modalTitle">Add New Coach</h2>
-        <button class="close-modal" onclick="closeModal()">&times;</button>
+        <div class="modal-header-left">
+          <button class="back-button" onclick="closeModal()" title="Back to Coach List">
+            <i class="fas fa-arrow-left"></i>
+          </button>
+          <h2 id="modalTitle">Add New Coach</h2>
+        </div>
+        <button class="close-modal" onclick="closeModal()" title="Close">&times;</button>
       </div>
       <form id="coachForm">
         <input type="hidden" id="coachId">
@@ -286,6 +423,19 @@
           <input type="number" id="reviews" min="0" placeholder="158">
         </div>
 
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="trustedCoach">
+            <span class="checkmark"></span>
+            <span class="checkbox-text">
+              <strong>Trusted Coach</strong>
+              <small style="display: block; color: #888; margin-top: 0.25rem;">
+                Trusted coaches can receive bookings directly without admin approval
+              </small>
+            </span>
+          </label>
+        </div>
+        
         <button type="submit" class="btn-submit">
           <i class="fas fa-save"></i> Save Coach Profile
         </button>
@@ -337,7 +487,7 @@
                 <i class="fas fa-user"></i>
               </div>
               <div class="coach-profile-info">
-                <h3>${coach.name}</h3>
+                <h3>${coach.name} ${coach.trustedCoach ? '<span style="color: #ffd700; font-size: 0.8rem; margin-left: 0.5rem;"><i class="fas fa-shield-alt"></i> Trusted</span>' : ''}</h3>
                 <p>${coach.specialization}</p>
               </div>
             </div>
@@ -354,10 +504,10 @@
               ${coach.rating ? `⭐ ${coach.rating} (${coach.reviews || 0} reviews)` : ''}
             </p>
             <div class="coach-profile-actions">
-              <button class="btn-edit" onclick="editCoach('${id}')">
+              <button class="btn-edit" data-coach-id="${id}">
                 <i class="fas fa-edit"></i> Edit
               </button>
-              <button class="btn-delete" onclick="deleteCoach('${id}', '${coach.name}')">
+              <button class="btn-delete" data-coach-id="${id}" data-coach-name="${coach.name}">
                 <i class="fas fa-trash"></i> Delete
               </button>
             </div>
@@ -365,6 +515,23 @@
         `).join('');
 
         coachesList.innerHTML = coachesHtml;
+        
+        // Add event listeners to buttons
+        coachesList.querySelectorAll('.btn-edit').forEach(button => {
+          button.addEventListener('click', (e) => {
+            const coachId = e.target.closest('.btn-edit').getAttribute('data-coach-id');
+            console.log('Edit button clicked for:', coachId);
+            editCoach(coachId);
+          });
+        });
+        
+        coachesList.querySelectorAll('.btn-delete').forEach(button => {
+          button.addEventListener('click', (e) => {
+            const coachId = e.target.closest('.btn-delete').getAttribute('data-coach-id');
+            const coachName = e.target.closest('.btn-delete').getAttribute('data-coach-name');
+            deleteCoach(coachId, coachName);
+          });
+        });
       } catch (error) {
         console.error('Error loading coaches:', error);
         coachesList.innerHTML = '<p style="color: #f44336;">Error loading coaches. Please try again.</p>';
@@ -650,26 +817,64 @@
       editingCoachId = id;
       document.getElementById('modalTitle').textContent = 'Edit Coach Profile';
       
-      const snapshot = await get(ref(db, `coachProfiles/${id}`));
-      const coach = snapshot.val();
-      
-      // Hide select dropdown, show name input (readonly when editing)
-      document.getElementById('coachSelectGroup').style.display = 'none';
-      document.getElementById('coachNameGroup').style.display = 'block';
-      document.getElementById('coachSelect').required = false;
-      document.getElementById('coachName').required = true;
-      
-      document.getElementById('coachId').value = id;
-      document.getElementById('coachUid').value = coach.coachUid || '';
-      document.getElementById('coachName').value = coach.name;
-      document.getElementById('specialization').value = coach.specialization;
-      document.getElementById('description').value = coach.description;
-      document.getElementById('certifications').value = coach.certifications || '';
-      document.getElementById('experience').value = coach.experience || '';
-      document.getElementById('rating').value = coach.rating || '';
-      document.getElementById('reviews').value = coach.reviews || '';
-      
-      document.getElementById('coachModal').classList.add('active');
+      try {
+        const snapshot = await get(ref(db, `coachProfiles/${id}`));
+        const coach = snapshot.val();
+        
+        if (!coach) {
+          alert('Coach data not found!');
+          return;
+        }
+        
+        // Hide select dropdown, show name input (readonly when editing)
+        document.getElementById('coachSelectGroup').style.display = 'none';
+        document.getElementById('coachNameGroup').style.display = 'block';
+        document.getElementById('coachSelect').required = false;
+        document.getElementById('coachName').required = true;
+        
+        document.getElementById('coachId').value = id;
+        document.getElementById('coachUid').value = coach.coachUid || '';
+        document.getElementById('coachName').value = coach.name;
+        document.getElementById('specialization').value = coach.specialization;
+        document.getElementById('description').value = coach.description;
+        document.getElementById('certifications').value = coach.certifications || '';
+        document.getElementById('experience').value = coach.experience || '';
+        document.getElementById('rating').value = coach.rating || '';
+        document.getElementById('reviews').value = coach.reviews || '';
+        document.getElementById('trustedCoach').checked = coach.trustedCoach === true;
+        console.log('Coach data:', coach);
+        console.log('Trusted coach value from database:', coach.trustedCoach);
+        console.log('Checkbox checked state:', document.getElementById('trustedCoach').checked);
+        
+        // If trustedCoach field doesn't exist, set it to false
+        if (coach.trustedCoach === undefined) {
+          console.log('trustedCoach field is undefined, setting default to false');
+        }
+        
+        // Force modal to be visible
+        const modal = document.getElementById('coachModal');
+        modal.classList.add('active');
+        modal.style.display = 'flex';
+        modal.style.visibility = 'visible';
+        modal.style.opacity = '1';
+        modal.style.zIndex = '999999';
+        
+        // Force modal content to be visible
+        const modalContent = modal.querySelector('.modal-content');
+        if (modalContent) {
+          modalContent.style.display = 'block';
+          modalContent.style.visibility = 'visible';
+          modalContent.style.opacity = '1';
+          modalContent.style.background = '#ffffff';
+          modalContent.style.border = '3px solid #000000';
+          modalContent.style.color = '#000000';
+          modalContent.style.zIndex = '1000000';
+        }
+        
+      } catch (error) {
+        console.error('Error in editCoach:', error);
+        alert('Error loading coach data: ' + error.message);
+      }
     };
 
     // Delete coach
@@ -718,19 +923,27 @@
         experience: document.getElementById('experience').value || null,
         rating: parseFloat(document.getElementById('rating').value) || null,
         reviews: parseInt(document.getElementById('reviews').value) || 0,
+        trustedCoach: document.getElementById('trustedCoach').checked || false, // Ensure it's always a boolean
         updatedAt: new Date().toISOString()
       };
+      
+      console.log('Saving coach data:', coachData);
+      console.log('Trusted coach checkbox value:', document.getElementById('trustedCoach').checked);
 
       try {
         if (editingCoachId) {
           // Update existing coach
+          console.log('Updating coach with ID:', editingCoachId);
+          console.log('Data being saved:', coachData);
           await update(ref(db, `coachProfiles/${editingCoachId}`), coachData);
+          console.log('Coach profile updated successfully!');
           alert('Coach profile updated successfully!');
         } else {
           // Add new coach
           coachData.createdAt = new Date().toISOString();
           const newCoachRef = push(ref(db, 'coachProfiles'));
           await set(newCoachRef, coachData);
+          console.log('New coach added successfully!');
           alert('New coach added successfully!');
         }
         

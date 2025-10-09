@@ -126,6 +126,11 @@
   font-weight: 700;
 }
 
+.stat-info {
+  display: flex;
+  flex-direction: column;
+}
+
 .stat-info p {
   color: #cccccc;
   font-size: 0.9rem;
@@ -137,6 +142,11 @@
   font-weight: 600;
   padding: 2px 8px;
   border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap; /* keep on one line */
+  line-height: 1;      /* compact height */
+  align-self: center;  /* center within stat-info column */
 }
 
 .stat-change.positive {

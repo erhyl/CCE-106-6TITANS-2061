@@ -11,10 +11,10 @@
       import { getDatabase } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
       import { getFirestore } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
       import { RealtimeAdminStats } from "./admin-realtime-stats.js";
-      
+
       // Protect this page - only admins can access
       requireAdmin();
-      
+
       const firebaseConfig = {
         apiKey: "AIzaSyC2YE5Cn0gbiuQ5sq8lErotl01itq5-hYk",
         authDomain: "titans-8d454.firebaseapp.com",
@@ -23,39 +23,39 @@
         messagingSenderId: "537648978979",
         appId: "1:537648978979:web:30eb90af77c7569b7be596",
         measurementId: "G-W1D2R0Q1L1",
-        databaseURL: "https://titans-8d454-default-rtdb.firebaseio.com"
+        databaseURL: "https://titans-8d454-default-rtdb.firebaseio.com",
       };
       const app = initializeApp(firebaseConfig);
       const auth = getAuth(app);
       const rtdb = getDatabase(app);
       const db = getFirestore(app);
-      
+
       // expose to admin.js
       window.firebaseAuth = auth;
       window.firebaseRtdb = rtdb;
       window.firebaseDb = db;
-      
+
       // Initialize real-time stats
       let statsManager = null;
-      
+
       onAuthStateChanged(auth, async (user) => {
         if (!user) {
           window.location.href = "login.html";
           return;
         }
-        
+
         // Role guard will handle admin-only access
         // Initialize real-time statistics after auth confirmed
         if (!statsManager) {
           statsManager = new RealtimeAdminStats(auth, rtdb, db);
           await statsManager.initialize();
           window.adminStatsManager = statsManager; // Expose for admin.js
-          console.log('✅ Real-time admin dashboard initialized');
+          console.log("✅ Real-time admin dashboard initialized");
         }
       });
-      
+
       // Cleanup on page unload
-      window.addEventListener('beforeunload', () => {
+      window.addEventListener("beforeunload", () => {
         if (statsManager) {
           statsManager.destroy();
         }
@@ -78,13 +78,13 @@
         position: relative;
         display: inline-block;
       }
-      
+
       .user-avatar {
         cursor: pointer;
         border: none;
         background: transparent;
       }
-      
+
       .admin-avatar {
         background-color: #ff6b35;
         color: #ffffff;
@@ -103,12 +103,12 @@
         position: relative;
         z-index: 100;
       }
-      
+
       .admin-avatar:hover {
         background-color: #ff8c5a;
         transform: scale(1.1);
       }
-      
+
       .user-dropdown {
         position: absolute;
         top: calc(100% + 10px);
@@ -125,13 +125,13 @@
         z-index: 9999;
         padding: 0.5rem 0;
       }
-      
+
       .user-dropdown.active {
         opacity: 1;
         visibility: visible;
         transform: translateY(0);
       }
-      
+
       .user-dropdown a {
         display: flex;
         align-items: center;
@@ -142,13 +142,13 @@
         transition: all 0.2s ease;
         border-left: 3px solid transparent;
       }
-      
+
       .user-dropdown a:hover {
         background-color: #2a2a2a;
         color: #ffd700;
         border-left-color: #ffd700;
       }
-      
+
       .user-dropdown a i {
         width: 18px;
         text-align: center;
@@ -169,7 +169,6 @@
             <a href="admin.html" class="nav-link">Admin Dashboard</a>
           </li>
           <li class="nav-item">
-           
             <div class="user-menu">
               <button class="user-avatar admin-avatar" id="adminMenuBtn">
                 <i class="fas fa-crown"></i>
@@ -190,9 +189,7 @@
                 <a href="admin-bookings.html"
                   ><i class="fas fa-calendar-check"></i> Bookings</a
                 >
-                <a href="admin-settings.html"
-                  ><i class="fas fa-cog"></i> Settings</a
-                >
+    
                 <a href="#" id="adminLogoutBtn"
                   ><i class="fas fa-sign-out-alt"></i> Logout</a
                 >
@@ -228,20 +225,65 @@
         </div>
 
         <!-- Pending Coach Approval Alert -->
-        <div id="pendingCoachAlert" style="display: none; background: linear-gradient(135deg, #ffd700, #f0c000); border-radius: 12px; padding: 1.2rem; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);">
-          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
-            <div style="display: flex; align-items: center; gap: 1rem;">
-              <div style="font-size: 2rem;">⚠️</div>
+        <div
+          id="pendingCoachAlert"
+          style="
+            display: none;
+            background: linear-gradient(135deg, #ffd700, #f0c000);
+            border-radius: 12px;
+            padding: 1.2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
+          "
+        >
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              flex-wrap: wrap;
+              gap: 1rem;
+            "
+          >
+            <div style="display: flex; align-items: center; gap: 1rem">
+              <div style="font-size: 2rem">⚠️</div>
               <div>
-                <h3 style="margin: 0; color: #000; font-size: 1.2rem; font-weight: 700;">
-                  <span id="pendingCoachCount">0</span> Coach Registration<span id="pendingCoachPlural">s</span> Pending Approval
+                <h3
+                  style="
+                    margin: 0;
+                    color: #000;
+                    font-size: 1.2rem;
+                    font-weight: 700;
+                  "
+                >
+                  <span id="pendingCoachCount">0</span> Coach Registration<span
+                    id="pendingCoachPlural"
+                    >s</span
+                  >
+                  Pending Approval
                 </h3>
-                <p style="margin: 0.3rem 0 0 0; color: #333; font-size: 0.95rem;">
-                  New coaches are waiting for your approval to access their accounts
+                <p
+                  style="margin: 0.3rem 0 0 0; color: #333; font-size: 0.95rem"
+                >
+                  New coaches are waiting for your approval to access their
+                  accounts
                 </p>
               </div>
             </div>
-            <button onclick="window.location.href='admin-coaches.html'" style="background: #000; color: #ffd700; border: none; padding: 0.8rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s; white-space: nowrap;">
+            <button
+              onclick="window.location.href='admin-coaches.html'"
+              style="
+                background: #000;
+                color: #ffd700;
+                border: none;
+                padding: 0.8rem 1.5rem;
+                border-radius: 8px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s;
+                white-space: nowrap;
+              "
+            >
               <i class="fas fa-user-check"></i> Review Coaches
             </button>
           </div>
@@ -252,33 +294,33 @@
           <div class="stat-card">
             <div class="stat-icon">👥</div>
             <div class="stat-info">
-              <h3 id="totalUsers">1,247</h3>
+              <h3 id="totalUsers">0</h3>
               <p>Total Users</p>
-              <span class="stat-change positive">+12% this month</span>
+              <span class="stat-change neutral"></span>
             </div>
           </div>
           <div class="stat-card">
             <div class="stat-icon">🏋️‍♂️</div>
             <div class="stat-info">
-              <h3 id="totalCoaches">24</h3>
+              <h3 id="totalCoaches">0</h3>
               <p>Active Coaches</p>
-              <span class="stat-change positive">+3 this month</span>
+              <span class="stat-change neutral"></span>
             </div>
           </div>
           <div class="stat-card">
             <div class="stat-icon">💰</div>
             <div class="stat-info">
-              <h3 id="monthlyRevenue">$45,230</h3>
+              <h3 id="monthlyRevenue">$0</h3>
               <p>Monthly Revenue</p>
-              <span class="stat-change positive">+18% this month</span>
+              <span class="stat-change neutral"></span>
             </div>
           </div>
           <div class="stat-card">
             <div class="stat-icon">📊</div>
             <div class="stat-info">
-              <h3 id="activeSessions">89%</h3>
+              <h3 id="activeSessions">0%</h3>
               <p>Active Sessions</p>
-              <span class="stat-change positive">+5% this week</span>
+              <span class="stat-change neutral"></span>
             </div>
           </div>
         </div>
@@ -289,27 +331,52 @@
           <div class="admin-section">
             <h2>Quick Actions</h2>
             <div class="quick-actions-grid">
-              <button class="action-card" id="addUserBtn" type="button" onclick="window.location.href='admin-users.html'">
+              <button
+                class="action-card"
+                id="addUserBtn"
+                type="button"
+                onclick="window.location.href='admin-users.html'"
+              >
                 <i class="fas fa-user-plus"></i>
                 <h3>Manage Users</h3>
-                <p>Approve or reject user accounts</p>
+                <p>Manage Users Plans</p>
               </button>
-              <button class="action-card" id="addCoachBtn" type="button" onclick="window.location.href='admin-coaches.html'">
+              <button
+                class="action-card"
+                id="addCoachBtn"
+                type="button"
+                onclick="window.location.href='admin-coaches.html'"
+              >
                 <i class="fas fa-user-tie"></i>
                 <h3>Manage coach</h3>
                 <p>Approve or reject coach accounts</p>
               </button>
-              <button class="action-card" id="createClassBtn" type="button" onclick="window.location.href='admin-classes.html'">
+              <button
+                class="action-card"
+                id="createClassBtn"
+                type="button"
+                onclick="window.location.href='admin-classes.html'"
+              >
                 <i class="fas fa-calendar-plus"></i>
                 <h3>Create Class</h3>
                 <p>Schedule new fitness class</p>
               </button>
-              <button class="action-card" id="manageBookingsBtn" type="button" onclick="window.location.href='admin-bookings.html'">
+              <button
+                class="action-card"
+                id="manageBookingsBtn"
+                type="button"
+                onclick="window.location.href='admin-bookings.html'"
+              >
                 <i class="fas fa-calendar-check"></i>
                 <h3>Coach Bookings</h3>
                 <p>View and manage bookings</p>
               </button>
-              <button class="action-card" id="manageCoachProfilesBtn" type="button" onclick="window.location.href='admin-coach-profiles.html'">
+              <button
+                class="action-card"
+                id="manageCoachProfilesBtn"
+                type="button"
+                onclick="window.location.href='admin-coach-profiles.html'"
+              >
                 <i class="fas fa-id-card"></i>
                 <h3>Coach Profiles</h3>
                 <p>Manage coach listings</p>
@@ -347,7 +414,16 @@
               <div class="chart-card">
                 <h3>Coach Bookings Status</h3>
                 <canvas id="bookingsChart"></canvas>
-                <p style="color: #888; font-size: 0.85rem; margin-top: 0.5rem; text-align: center;">Real-time data from Firebase</p>
+                <p
+                  style="
+                    color: #888;
+                    font-size: 0.85rem;
+                    margin-top: 0.5rem;
+                    text-align: center;
+                  "
+                >
+                  Real-time data from Firebase
+                </p>
               </div>
               <div class="chart-card">
                 <h3>User Activity</h3>
@@ -356,10 +432,6 @@
             </div>
           </div>
 
-          
-
-          
-
           <!-- System Status -->
           <div class="admin-section">
             <h2>System Status</h2>
@@ -367,7 +439,10 @@
               <div class="status-card" id="serverStatusCard">
                 <div class="status-header">
                   <h3>Server Status</h3>
-                  <span class="status-indicator online" id="serverStatusIndicator">
+                  <span
+                    class="status-indicator online"
+                    id="serverStatusIndicator"
+                  >
                     <i class="fas fa-spinner fa-spin"></i>
                   </span>
                 </div>
@@ -380,7 +455,10 @@
               <div class="status-card" id="databaseStatusCard">
                 <div class="status-header">
                   <h3>Database</h3>
-                  <span class="status-indicator online" id="databaseStatusIndicator">
+                  <span
+                    class="status-indicator online"
+                    id="databaseStatusIndicator"
+                  >
                     <i class="fas fa-spinner fa-spin"></i>
                   </span>
                 </div>
@@ -393,7 +471,10 @@
               <div class="status-card" id="storageStatusCard">
                 <div class="status-header">
                   <h3>Firebase Storage</h3>
-                  <span class="status-indicator online" id="storageStatusIndicator">
+                  <span
+                    class="status-indicator online"
+                    id="storageStatusIndicator"
+                  >
                     <i class="fas fa-spinner fa-spin"></i>
                   </span>
                 </div>
@@ -406,7 +487,10 @@
               <div class="status-card" id="authStatusCard">
                 <div class="status-header">
                   <h3>Authentication</h3>
-                  <span class="status-indicator online" id="authStatusIndicator">
+                  <span
+                    class="status-indicator online"
+                    id="authStatusIndicator"
+                  >
                     <i class="fas fa-spinner fa-spin"></i>
                   </span>
                 </div>
@@ -612,111 +696,106 @@
 
     <script src="script.js"></script>
     <script src="admin.js"></script>
-    
-    <!-- Firebase RTDB debug logging -->
-    <script type="module">
-      import { enableLogging } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
-      // Verbose logging for realtime reads/writes, WebChannel, and rule denials
-      try { enableLogging(true); console.log('✅ Firebase RTDB logging enabled'); } catch (e) {}
-    </script>
-    
+
+    <!-- Firebase RTDB debug logging disabled for production -->
+
     <!-- Inline script for admin dropdown - guaranteed to work -->
     <script>
-      console.log('👑 Inline admin dropdown script loading...');
-      
+      console.log("👑 Inline admin dropdown script loading...");
+
       // Try immediately
       function setupAdminDropdown() {
-        console.log('🔧 Setting up admin dropdown...');
-        
-        const adminMenuBtn = document.getElementById('adminMenuBtn');
-        const adminDropdown = document.getElementById('adminDropdown');
-        
-        console.log('📋 Elements found:', {
+        console.log("🔧 Setting up admin dropdown...");
+
+        const adminMenuBtn = document.getElementById("adminMenuBtn");
+        const adminDropdown = document.getElementById("adminDropdown");
+
+        console.log("📋 Elements found:", {
           button: adminMenuBtn,
           dropdown: adminDropdown,
           buttonExists: !!adminMenuBtn,
-          dropdownExists: !!adminDropdown
+          dropdownExists: !!adminDropdown,
         });
-        
+
         if (adminMenuBtn && adminDropdown) {
-          console.log('✅ Adding click listener to admin button...');
-          
+          console.log("✅ Adding click listener to admin button...");
+
           // Remove any existing listeners by cloning
           const newBtn = adminMenuBtn.cloneNode(true);
           adminMenuBtn.parentNode.replaceChild(newBtn, adminMenuBtn);
-          
-          newBtn.addEventListener('click', function(e) {
+
+          newBtn.addEventListener("click", function (e) {
             e.preventDefault();
             e.stopPropagation();
-            console.log('👑 Crown clicked! Toggling dropdown...');
-            
-            const dropdown = document.getElementById('adminDropdown');
-            const isActive = dropdown.classList.contains('active');
-            console.log('Current state:', isActive ? 'open' : 'closed');
-            
-            dropdown.classList.toggle('active');
-            console.log('New state:', dropdown.classList.contains('active') ? 'open' : 'closed');
+            console.log("👑 Crown clicked! Toggling dropdown...");
+
+            const dropdown = document.getElementById("adminDropdown");
+            const isActive = dropdown.classList.contains("active");
+            console.log("Current state:", isActive ? "open" : "closed");
+
+            dropdown.classList.toggle("active");
+            console.log(
+              "New state:",
+              dropdown.classList.contains("active") ? "open" : "closed"
+            );
           });
-          
+
           // Close on outside click
-          document.addEventListener('click', function(e) {
-            const dropdown = document.getElementById('adminDropdown');
-            const button = document.getElementById('adminMenuBtn');
-            
-            if (dropdown && button && 
-                !dropdown.contains(e.target) && 
-                !button.contains(e.target)) {
-              dropdown.classList.remove('active');
+          document.addEventListener("click", function (e) {
+            const dropdown = document.getElementById("adminDropdown");
+            const button = document.getElementById("adminMenuBtn");
+
+            if (
+              dropdown &&
+              button &&
+              !dropdown.contains(e.target) &&
+              !button.contains(e.target)
+            ) {
+              dropdown.classList.remove("active");
             }
           });
-          
-          // Test the button is clickable
-          console.log('🧪 Button properties:', {
-            disabled: newBtn.disabled,
-            display: window.getComputedStyle(newBtn).display,
-            visibility: window.getComputedStyle(newBtn).visibility,
-            pointerEvents: window.getComputedStyle(newBtn).pointerEvents
-          });
-          
-          console.log('✅ Admin dropdown setup complete!');
-        } else {
-          console.error('❌ Could not find admin dropdown elements!');
+
+          }
         }
-      }
-      
+
       // Try on DOM load
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', setupAdminDropdown);
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", setupAdminDropdown);
       } else {
         // DOM is already loaded
         setupAdminDropdown();
       }
-      
+
       // Also try after a short delay to ensure everything is ready
       setTimeout(setupAdminDropdown, 500);
     </script>
-    
+
     <script type="module">
-      import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
-      document.addEventListener('DOMContentLoaded', () => {
-        const btn = document.getElementById('adminLogoutBtn');
+      import {
+        getAuth,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+      document.addEventListener("DOMContentLoaded", () => {
+        const btn = document.getElementById("adminLogoutBtn");
         if (!btn) return;
 
         // Replace existing listeners to avoid duplicate handlers
         const newBtn = btn.cloneNode(true);
         btn.parentNode.replaceChild(newBtn, btn);
 
-        if (typeof window.handleAdminLogout === 'function') {
-          newBtn.addEventListener('click', (e) => {
+        if (typeof window.handleAdminLogout === "function") {
+          newBtn.addEventListener("click", (e) => {
             e.preventDefault();
             window.handleAdminLogout();
           });
         } else {
-          newBtn.addEventListener('click', async (e) => {
+          newBtn.addEventListener("click", async (e) => {
             e.preventDefault();
-            if (!confirm('Are you sure you want to logout?')) return;
-            try { await signOut(getAuth()); } catch {}
-            window.location.href = 'admin-login.html';
+            if (!confirm("Are you sure you want to logout?")) return;
+            try {
+              await signOut(getAuth());
+            } catch {}
+            window.location.href = "admin-login.html";
           });
         }
       });

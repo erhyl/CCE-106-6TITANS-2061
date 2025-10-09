@@ -66,6 +66,7 @@
             />
             <h1>Welcome Back</h1>
             <p>Sign in to your 6Titans account</p>
+            
           </div>
 
           <form id="loginForm" class="auth-form">
@@ -232,12 +233,14 @@
               
               hideLoading();
               
-              // Step 3: Check if coach is pending approval
-              if (accountType === 'coach' && !coachApproved) {
+              // Step 3: Check if user is a coach - redirect to coach login
+              if (accountType === 'coach') {
                 if (window.Utils && window.Utils.showToast) {
-                  window.Utils.showToast('Login successful! Your account is pending approval.', 'info');
+                  window.Utils.showToast('Please use the Coach Login page to access your account.', 'info');
                 }
-                window.location.href = 'coach-pending.html';
+                // Sign out the user since they shouldn't be here
+                await auth.signOut();
+                window.location.href = 'coach-login.html';
                 return;
               }
               
@@ -246,9 +249,6 @@
               switch (accountType) {
                 case 'admin':
                   redirectUrl = 'admin.html';
-                  break;
-                case 'coach':
-                  redirectUrl = 'coach-dashboard.html';
                   break;
                 case 'member':
                 default:

@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script type="module">
+      import { requireCoach } from "./role-guard.js";
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+      import {
+        getAuth,
+        onAuthStateChanged,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+      import {
+        getFirestore,
+        doc,
+        getDoc,
+      } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+
+      // Protect this page - only approved coaches can access
+      requireCoach();
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyC2YE5Cn0gbiuQ5sq8lErotl01itq5-hYk",
+        authDomain: "titans-8d454.firebaseapp.com",
+        projectId: "titans-8d454",
+        storageBucket: "titans-8d454.firebasestorage.app",
+        messagingSenderId: "537648978979",
+        appId: "1:537648978979:web:30eb90af77c7569b7be596",
+        measurementId: "G-W1D2R0Q1L1",
+        databaseURL: "https://titans-8d454-default-rtdb.firebaseio.com",
+      };
+      const guardApp = initializeApp(firebaseConfig);
+      const guardAuth = getAuth(guardApp);
+      const guardDb = getFirestore(guardApp);
+
+      window.isLoggingOut = false;
+      onAuthStateChanged(guardAuth, async (user) => {
+        if (!user) {
+          if (window.isLoggingOut) return; // Prevent double redirect
+          window.location.href = "coach-login.html";
+          return;
+        }
+        try {
+          const userDoc = await getDoc(doc(guardDb, "users", user.uid));
+          const userData = userDoc.exists() ? userDoc.data() : null;
+          if (!userData || userData.accountType !== "coach") {
+            await signOut(guardAuth);
+            window.location.href = "coach-login.html";
+            return;
+          }
+          // Check if coach is approved
+          if (userData.coachApproved === false) {
+            window.location.href = "coach-pending.html";
+            return;
+          }
+          // Update coach name
+          const coachName = document.getElementById("coachName");
+          if (coachName && userData.firstName) {
+            coachName.textContent = userData.firstName;
+          }
+        } catch (err) {
+          await signOut(guardAuth);
+          window.location.href = "coach-login.html";
+        }
+      });
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Clients - 6Titans</title>
+    <link rel="stylesheet" href="assets/css/styles-base.css" />
+    <link rel="stylesheet" href="assets/css/auth.css" />
+    <link rel="stylesheet" href="assets/css/styles.css" />
+    <link rel="stylesheet" href="assets/css/coach-dashboard.css" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="nav-logo">
+          <img src="images/image 66.png" alt="6Titans Logo" class="logo-icon" />
+          <img src="images/image 67.png" alt="6Titans" class="logo-text" />
+        </div>
+        <ul class="nav-menu">
+          <li class="nav-item">
+            <a href="coach-dashboard.html" class="nav-link">Dashboard</a>
+          </li>
+          <li class="nav-item">
+            <a href="coach-bookings.html" class="nav-link">Bookings</a>
+          </li>
+          <li class="nav-item">
+            <a href="messaging.html" class="nav-link">
+              <i class="fas fa-comments"></i> Messages
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="coach-clients.html" class="nav-link active">
+              <i class="fas fa-users"></i> My Clients
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="coach-schedule.html" class="nav-link">
+              <i class="fas fa-calendar"></i> Schedule
+            </a>
+          </li>
+        </ul>
+        <div class="user-menu">
+          <button class="user-avatar coach-avatar" id="coachMenuBtn">
+            <span id="coachName">Coach</span>
+            <i class="fas fa-caret-down"></i>
+          </button>
+          <div class="user-dropdown" id="coachDropdown">
+            <a href="coach-dashboard.html"
+              ><i class="fas fa-tachometer-alt"></i> Dashboard</a
+            >
+            <a href="coach-bookings.html"
+              ><i class="fas fa-calendar-check"></i> Bookings</a
+            >
+            <a href="messaging.html"
+              ><i class="fas fa-comments"></i> Messages</a
+            >
+            <a href="coach-clients.html"
+              ><i class="fas fa-users"></i> My Clients</a
+            >
+            <a href="coach-schedule.html"
+              ><i class="fas fa-calendar"></i> Schedule</a
+            >
+            <a href="#" id="coachLogoutBtn"
+              ><i class="fas fa-sign-out-alt"></i> Logout</a
+            >
+          </div>
+        </div>
+        <div class="hamburger">
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="coach-dashboard">
+      <div class="container">
+        <div class="dashboard-header">
+          <h1>My Clients</h1>
+          <p>Manage your client relationships and track their progress</p>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+          <div class="filter-group">
+            <label>Status</label>
+            <select id="filterStatus">
+              <option value="">All Clients</option>
+              <option value="active">Active Clients</option>
+              <option value="completed">Completed Sessions</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Experience</label>
+            <select id="filterExperience">
+              <option value="">All Levels</option>
+              <option value="beginner">Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="advanced">Advanced</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Search</label>
+            <input type="text" id="searchClients" placeholder="Search by name or email..." />
+          </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-info">
+              <h3 id="totalClients">0</h3>
+              <p>Total Clients</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="stat-info">
+              <h3 id="activeClients">0</h3>
+              <p>Active Clients</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-info">
+              <h3 id="upcomingSessions">0</h3>
+              <p>Upcoming Sessions</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-star"></i>
+            </div>
+            <div class="stat-info">
+              <h3 id="avgRating">0.0</h3>
+              <p>Average Rating</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Clients Grid -->
+        <div class="clients-container">
+          <div id="clientsGrid" class="clients-grid">
+            <p style="color: #888; text-align: center; padding: 2rem;">Loading clients...</p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Client Details Modal -->
+    <div class="modal" id="clientModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Client Details</h2>
+          <button class="close-modal" onclick="closeClientModal()">&times;</button>
+        </div>
+        <div id="clientDetails"></div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+      import { getDatabase, ref, get, onValue } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+      import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+      import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+
+      // Use existing Firebase app from role guard
+      const app = getApps()[0];
+      const rtdb = getDatabase(app);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      let coachName = '';
+      let allBookings = [];
+      let filteredClients = [];
+
+      // Get coach info
+      async function getCoachInfo(uid) {
+        try {
+          const userDoc = await getDoc(doc(db, "users", uid));
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            return `${userData.firstName || ''} ${userData.lastName || ''}`.trim();
+          }
+        } catch (error) {
+          console.error('Error getting coach info:', error);
+        }
+        return '';
+      }
+
+      // Load clients
+      async function loadClients() {
+        try {
+          const snapshot = await get(ref(rtdb, 'coachBookings'));
+          const bookings = snapshot.val();
+
+          if (!bookings) {
+            allBookings = [];
+            updateStats();
+            processClientsData();
+            displayClients();
+            return;
+          }
+
+          // Filter bookings for this coach (only admin-approved bookings)
+          allBookings = Object.entries(bookings)
+            .map(([id, booking]) => ({ id, ...booking }))
+            .filter(booking => {
+              const matches = booking.coachName === coachName;
+              const isAdminApproved = booking.status === 'pending_coach_approval' || 
+                                    booking.status === 'confirmed' || 
+                                    booking.status === 'completed';
+              return matches && isAdminApproved;
+            })
+            .sort((a, b) => new Date(b.preferredDate) - new Date(a.preferredDate));
+
+          updateStats();
+          processClientsData();
+          displayClients();
+        } catch (error) {
+          console.error('Error loading clients:', error);
+          document.getElementById('clientsGrid').innerHTML = 
+            '<p style="color: #f44336; text-align: center; padding: 2rem;">Failed to load clients</p>';
+        }
+      }
+
+      // Update stats
+      function updateStats() {
+        // Group bookings by client
+        const clientMap = new Map();
+        allBookings.forEach(booking => {
+          const clientKey = booking.memberName;
+          if (!clientMap.has(clientKey)) {
+            clientMap.set(clientKey, {
+              name: booking.memberName,
+              email: booking.memberEmail,
+              phone: booking.memberPhone,
+              goals: booking.goals,
+              experience: booking.experience,
+              bookings: [],
+              totalSessions: 0,
+              nextSession: null,
+              completedSessions: 0
+            });
+          }
+          
+          const client = clientMap.get(clientKey);
+          client.bookings.push(booking);
+          client.totalSessions++;
+          
+          if (booking.status === 'completed') {
+            client.completedSessions++;
+          }
+          
+          // Find next upcoming session
+          const sessionDate = new Date(booking.preferredDate);
+          if (sessionDate >= new Date()) {
+            if (!client.nextSession || sessionDate < new Date(client.nextSession.preferredDate)) {
+              client.nextSession = booking;
+            }
+          }
+        });
+
+        const clients = Array.from(clientMap.values());
+        const activeClients = clients.filter(client => 
+          client.bookings.some(booking => 
+            booking.status === 'confirmed' || booking.status === 'pending_coach_approval'
+          )
+        );
+        const upcomingSessions = clients.reduce((total, client) => {
+          return total + client.bookings.filter(booking => 
+            booking.status === 'confirmed' && new Date(booking.preferredDate) >= new Date()
+          ).length;
+        }, 0);
+
+        document.getElementById('totalClients').textContent = clients.length;
+        document.getElementById('activeClients').textContent = activeClients.length;
+        document.getElementById('upcomingSessions').textContent = upcomingSessions;
+        document.getElementById('avgRating').textContent = '4.8'; // Placeholder
+      }
+
+      // Process clients data
+      function processClientsData() {
+        // Group bookings by client
+        const clientMap = new Map();
+        allBookings.forEach(booking => {
+          const clientKey = booking.memberName;
+          if (!clientMap.has(clientKey)) {
+            clientMap.set(clientKey, {
+              name: booking.memberName,
+              email: booking.memberEmail,
+              phone: booking.memberPhone,
+              goals: booking.goals,
+              experience: booking.experience,
+              bookings: [],
+              totalSessions: 0,
+              nextSession: null,
+              completedSessions: 0,
+              lastSession: null
+            });
+          }
+          
+          const client = clientMap.get(clientKey);
+          client.bookings.push(booking);
+          client.totalSessions++;
+          
+          if (booking.status === 'completed') {
+            client.completedSessions++;
+            if (!client.lastSession || new Date(booking.preferredDate) > new Date(client.lastSession.preferredDate)) {
+              client.lastSession = booking;
+            }
+          }
+          
+          // Find next upcoming session
+          const sessionDate = new Date(booking.preferredDate);
+          if (sessionDate >= new Date()) {
+            if (!client.nextSession || sessionDate < new Date(client.nextSession.preferredDate)) {
+              client.nextSession = booking;
+            }
+          }
+        });
+
+        filteredClients = Array.from(clientMap.values());
+      }
+
+      // Display clients
+      function displayClients() {
+        const container = document.getElementById('clientsGrid');
+
+        if (filteredClients.length === 0) {
+          container.innerHTML = 
+            '<p style="color: #888; text-align: center; padding: 2rem;">No clients found</p>';
+          return;
+        }
+
+        const clientsHtml = `
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1.5rem;">
+            ${filteredClients.map(client => `
+              <div class="client-card" style="background: #1a1a1a; border: 1px solid #333; border-radius: 12px; padding: 1.5rem; transition: all 0.3s ease; display: flex; flex-direction: column;">
+                <!-- Header Section -->
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                  <div style="width: 60px; height: 60px; background: #ffd700; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: bold; color: #000; flex-shrink: 0;">
+                    ${client.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div style="flex: 1; min-width: 0;">
+                    <h4 style="color: #fff; margin: 0; font-size: 1.2rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${client.name}</h4>
+                    <p style="color: #888; margin: 0.25rem 0 0 0; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${client.email}</p>
+                    ${client.phone ? `<p style="color: #888; margin: 0.25rem 0 0 0; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${client.phone}</p>` : ''}
+                  </div>
+                </div>
+                
+                <!-- Stats Section -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                  <div style="text-align: center; padding: 0.75rem; background: #0f0f0f; border-radius: 8px;">
+                    <div style="color: #ffd700; font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem;">${client.totalSessions}</div>
+                    <div style="color: #ccc; font-size: 0.8rem;">Total Sessions</div>
+                  </div>
+                  <div style="text-align: center; padding: 0.75rem; background: #0f0f0f; border-radius: 8px;">
+                    <div style="color: #4CAF50; font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem;">${client.completedSessions}</div>
+                    <div style="color: #ccc; font-size: 0.8rem;">Completed</div>
+                  </div>
+                </div>
+                
+                <!-- Session Info Section -->
+                <div style="margin-bottom: 1.5rem;">
+                  ${client.nextSession ? `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; padding: 0.5rem; background: #0f0f0f; border-radius: 6px;">
+                      <span style="color: #ccc; font-size: 0.85rem; font-weight: 500;">Next Session:</span>
+                      <span style="color: #fff; font-size: 0.85rem; font-weight: 600;">${formatDate(client.nextSession.preferredDate)} at ${client.nextSession.preferredTime}</span>
+                    </div>
+                  ` : ''}
+                  ${client.experience ? `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; background: #0f0f0f; border-radius: 6px;">
+                      <span style="color: #ccc; font-size: 0.85rem; font-weight: 500;">Experience:</span>
+                      <span style="color: #fff; font-size: 0.85rem; font-weight: 600; text-transform: capitalize;">${client.experience}</span>
+                    </div>
+                  ` : ''}
+                </div>
+                
+                <!-- Goals Section -->
+                ${client.goals && client.goals.trim() && !client.goals.match(/^[0-9]+$/) ? `
+                  <div style="margin-bottom: 1.5rem; flex: 1;">
+                    <div style="color: #ccc; font-size: 0.85rem; font-weight: 500; margin-bottom: 0.5rem;">Goals:</div>
+                    <div style="color: #fff; font-size: 0.9rem; line-height: 1.4; padding: 0.75rem; background: #0f0f0f; border-radius: 6px; max-height: 60px; overflow: hidden; position: relative;">
+                      ${client.goals.length > 100 ? client.goals.substring(0, 100) + '...' : client.goals}
+                      ${client.goals.length > 100 ? `
+                        <div style="position: absolute; bottom: 0; right: 0; background: linear-gradient(transparent, #0f0f0f); height: 20px; width: 100%;"></div>
+                      ` : ''}
+                    </div>
+                  </div>
+                ` : ''}
+                
+                <!-- Action Buttons -->
+                <div style="display: flex; gap: 0.5rem; margin-top: auto;">
+                  <button onclick="viewClientDetails('${client.name}')" style="flex: 1; padding: 0.75rem; background: #ffd700; color: #000; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.85rem; transition: all 0.3s ease;">
+                    <i class="fas fa-eye"></i> Details
+                  </button>
+                  <button onclick="window.location.href='messaging.html'" style="flex: 1; padding: 0.75rem; background: #333; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.85rem; transition: all 0.3s ease;">
+                    <i class="fas fa-comments"></i> Message
+                  </button>
+                  <button onclick="window.location.href='coach-bookings.html'" style="flex: 1; padding: 0.75rem; background: #2196F3; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.85rem; transition: all 0.3s ease;">
+                    <i class="fas fa-calendar"></i> Sessions
+                  </button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+
+        container.innerHTML = clientsHtml;
+      }
+
+      // Apply filters
+      function applyFilters() {
+        const statusFilter = document.getElementById('filterStatus').value;
+        const experienceFilter = document.getElementById('filterExperience').value;
+        const searchTerm = document.getElementById('searchClients').value.toLowerCase();
+
+        // Process the raw data first
+        processClientsData();
+
+        // Apply filters to the processed data
+        filteredClients = filteredClients.filter(client => {
+          // Status filter
+          if (statusFilter === 'active') {
+            const hasActiveSessions = client.bookings.some(booking => 
+              booking.status === 'confirmed' || booking.status === 'pending_coach_approval'
+            );
+            if (!hasActiveSessions) return false;
+          } else if (statusFilter === 'completed') {
+            const hasCompletedSessions = client.bookings.some(booking => 
+              booking.status === 'completed'
+            );
+            if (!hasCompletedSessions) return false;
+          }
+
+          // Experience filter
+          if (experienceFilter && client.experience !== experienceFilter) {
+            return false;
+          }
+
+          // Search filter
+          if (searchTerm && !client.name.toLowerCase().includes(searchTerm) && 
+              !client.email.toLowerCase().includes(searchTerm)) {
+            return false;
+          }
+
+          return true;
+        });
+
+        displayClients();
+      }
+
+      // View client details
+      window.viewClientDetails = function(clientName) {
+        const client = filteredClients.find(c => c.name === clientName);
+        if (!client) return;
+
+        const modal = document.getElementById('clientModal');
+        const details = document.getElementById('clientDetails');
+
+        const sessionsHtml = client.bookings.map(booking => `
+          <div style="padding: 1rem; background: #1a1a1a; border-radius: 8px; margin-bottom: 0.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <strong style="color: #fff;">${booking.sessionType}</strong>
+              <span style="padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600; background: ${getStatusColor(booking.status)}; color: ${booking.status === 'pending' ? '#000' : '#fff'};">
+                ${booking.status.toUpperCase()}
+              </span>
+            </div>
+            <p style="color: #ccc; margin: 0; font-size: 0.9rem;">
+              ${formatDate(booking.preferredDate)} at ${booking.preferredTime}
+            </p>
+          </div>
+        `).join('');
+
+        details.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;">
+            <div style="width: 80px; height: 80px; background: #ffd700; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; color: #000;">
+              ${client.name.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <h3 style="color: #fff; margin: 0; font-size: 1.5rem;">${client.name}</h3>
+              <p style="color: #888; margin: 0.25rem 0 0 0;">${client.email}</p>
+              ${client.phone ? `<p style="color: #888; margin: 0.25rem 0 0 0;">${client.phone}</p>` : ''}
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+            <div style="background: #1a1a1a; padding: 1rem; border-radius: 8px; text-align: center;">
+              <h4 style="color: #ffd700; margin: 0; font-size: 2rem;">${client.totalSessions}</h4>
+              <p style="color: #ccc; margin: 0.5rem 0 0 0;">Total Sessions</p>
+            </div>
+            <div style="background: #1a1a1a; padding: 1rem; border-radius: 8px; text-align: center;">
+              <h4 style="color: #4CAF50; margin: 0; font-size: 2rem;">${client.completedSessions}</h4>
+              <p style="color: #ccc; margin: 0.5rem 0 0 0;">Completed</p>
+            </div>
+            <div style="background: #1a1a1a; padding: 1rem; border-radius: 8px; text-align: center;">
+              <h4 style="color: #2196F3; margin: 0; font-size: 2rem;">${client.totalSessions - client.completedSessions}</h4>
+              <p style="color: #ccc; margin: 0.5rem 0 0 0;">Upcoming</p>
+            </div>
+          </div>
+
+          ${client.experience ? `
+            <div style="margin-bottom: 1rem;">
+              <h4 style="color: #fff; margin: 0 0 0.5rem 0;">Experience Level</h4>
+              <p style="color: #ccc; margin: 0; text-transform: capitalize;">${client.experience}</p>
+            </div>
+          ` : ''}
+
+          ${client.goals ? `
+            <div style="margin-bottom: 2rem;">
+              <h4 style="color: #fff; margin: 0 0 0.5rem 0;">Fitness Goals</h4>
+              <p style="color: #ccc; margin: 0; line-height: 1.6;">${client.goals}</p>
+            </div>
+          ` : ''}
+
+          <div>
+            <h4 style="color: #fff; margin: 0 0 1rem 0;">Session History</h4>
+            <div style="max-height: 300px; overflow-y: auto;">
+              ${sessionsHtml}
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+            <button onclick="window.location.href='messaging.html'" style="flex: 1; padding: 0.75rem; background: #ffd700; color: #000; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+              <i class="fas fa-comments"></i> Send Message
+            </button>
+            <button onclick="window.location.href='coach-bookings.html'" style="flex: 1; padding: 0.75rem; background: #2196F3; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+              <i class="fas fa-calendar"></i> View All Sessions
+            </button>
+          </div>
+        `;
+
+        modal.classList.add('active');
+      };
+
+      // Close client modal
+      window.closeClientModal = function() {
+        document.getElementById('clientModal').classList.remove('active');
+      };
+
+      // Helper functions
+      function formatDate(dateStr) {
+        if (!dateStr) return "N/A";
+        const date = new Date(dateStr);
+        return date.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        });
+      }
+
+      function getStatusColor(status) {
+        const colors = {
+          pending: "#ffd700",
+          confirmed: "#4caf50",
+          completed: "#2196F3",
+          cancelled: "#f44336",
+          pending_coach_approval: "#ffa726",
+          pending_admin_approval: "#ff6b35"
+        };
+        return colors[status] || "#888";
+      }
+
+      // Event listeners
+      document.getElementById('filterStatus').addEventListener('change', applyFilters);
+      document.getElementById('filterExperience').addEventListener('change', applyFilters);
+      document.getElementById('searchClients').addEventListener('input', applyFilters);
+
+      // Initialize when auth state changes
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          coachName = await getCoachInfo(user.uid);
+          loadClients();
+
+          // Listen for real-time updates
+          onValue(ref(rtdb, 'coachBookings'), () => {
+            loadClients();
+          });
+        } else {
+          console.log("No authenticated user");
+        }
+      });
+
+      // Logout functionality
+      document.getElementById('coachLogoutBtn').addEventListener('click', async () => {
+        try {
+          window.isLoggingOut = true;
+          await signOut(auth);
+          window.location.href = 'coach-login.html';
+        } catch (error) {
+          alert('Logout failed: ' + error.message);
+        }
+      });
+
+      // Coach menu toggle
+      const coachMenuBtn = document.getElementById('coachMenuBtn');
+      const coachDropdown = document.getElementById('coachDropdown');
+      
+      if (coachMenuBtn && coachDropdown) {
+        coachMenuBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          coachDropdown.classList.toggle('active');
+        });
+
+        document.addEventListener('click', function(e) {
+          if (!coachMenuBtn.contains(e.target) && !coachDropdown.contains(e.target)) {
+            coachDropdown.classList.remove('active');
+          }
+        });
+      }
+    </script>
+
+    <style>
+      .coach-dashboard {
+        padding: 120px 0 80px;
+        background-color: #0a0a0a;
+        min-height: 100vh;
+      }
+
+      .dashboard-header {
+        text-align: center;
+        margin-bottom: 3rem;
+      }
+
+      .dashboard-header h1 {
+        color: #fff;
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .dashboard-header p {
+        color: #888;
+        font-size: 1.1rem;
+      }
+
+      .filters {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+      }
+
+      .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        min-width: 200px;
+      }
+
+      .filter-group label {
+        color: #ccc;
+        font-size: 0.9rem;
+        font-weight: 600;
+      }
+
+      .filter-group select,
+      .filter-group input {
+        padding: 0.75rem;
+        border: 1px solid #333;
+        border-radius: 6px;
+        background-color: #1a1a1a;
+        color: #fff;
+        font-size: 0.9rem;
+      }
+
+      .filter-group select:focus,
+      .filter-group input:focus {
+        outline: none;
+        border-color: #ffd700;
+        box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.2);
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+      }
+
+      .stat-card {
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 12px;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .stat-icon {
+        width: 50px;
+        height: 50px;
+        background: #ffd700;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        color: #000;
+      }
+
+      .stat-info h3 {
+        color: #fff;
+        font-size: 1.8rem;
+        margin: 0;
+        font-weight: 700;
+      }
+
+      .stat-info p {
+        color: #ccc;
+        margin: 0.25rem 0 0 0;
+        font-size: 0.9rem;
+      }
+
+      .clients-container {
+        margin-top: 2rem;
+      }
+
+      .client-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(255, 215, 0, 0.15);
+        border-color: #ffd700;
+      }
+
+      .client-card button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      }
+
+      .client-card button[style*="background: #ffd700"]:hover {
+        background: #ffed4e !important;
+      }
+
+      .client-card button[style*="background: #333"]:hover {
+        background: #444 !important;
+      }
+
+      .client-card button[style*="background: #2196F3"]:hover {
+        background: #1976D2 !important;
+      }
+
+      .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+      }
+
+      .modal.active {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .modal-content {
+        background: #1a1a1a;
+        border-radius: 12px;
+        padding: 2rem;
+        max-width: 90vw;
+        max-height: 90vh;
+        overflow-y: auto;
+        position: relative;
+        transform: scale(0.9);
+        transition: transform 0.3s ease;
+      }
+
+      .modal.active .modal-content {
+        transform: scale(1);
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #333;
+      }
+
+      .modal-header h2 {
+        color: #fff;
+        margin: 0;
+      }
+
+      .close-modal {
+        background: none;
+        border: none;
+        color: #888;
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+      }
+
+      .close-modal:hover {
+        background: #333;
+        color: #fff;
+      }
+
+      @media (max-width: 768px) {
+        .filters {
+          flex-direction: column;
+        }
+
+        .filter-group {
+          min-width: 100%;
+        }
+
+        .stats-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .modal-content {
+          margin: 1rem;
+          padding: 1.5rem;
+        }
+      }
+    </style>
+  </body>
+</html>

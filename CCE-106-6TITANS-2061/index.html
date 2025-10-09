@@ -35,6 +35,55 @@
       const auth = getAuth(app);
       const db = getFirestore(app);
       const rtdb = getDatabase(app);
+      
+      // Immediate redirect check - hide content until auth state is determined
+      document.body.style.visibility = 'hidden';
+      
+      // Add loading spinner
+      const loadingSpinner = document.createElement('div');
+      loadingSpinner.id = 'authLoadingSpinner';
+      loadingSpinner.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        transition: opacity 0.5s ease-out;
+      `;
+      loadingSpinner.innerHTML = `
+        <div style="
+          width: 60px;
+          height: 60px;
+          border: 3px solid #333;
+          border-top: 3px solid #ffd700;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+          margin-bottom: 20px;
+        "></div>
+        <div style="
+          color: #ffd700;
+          font-size: 1.2rem;
+          font-weight: 600;
+          margin-bottom: 10px;
+        ">6Titans</div>
+        <div style="
+          color: #ccc;
+          font-size: 0.9rem;
+        ">Loading...</div>
+        <style>
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        </style>
+      `;
+      document.body.appendChild(loadingSpinner);
       function showUserUI(userData) {
         const authButtons = document.getElementById('authButtons');
         const isAdmin = userData && (userData.accountType === 'admin' || userData.role === 'admin');
@@ -210,9 +259,36 @@
           // Fetch user info from Firestore
           const userDoc = await getDoc(doc(db, "users", user.uid));
           const userData = userDoc.exists() ? userDoc.data() : null;
-          showUserUI(userData);
+          
+          // Redirect logged-in users to their dashboard (index is landing page only)
+          const isAdmin = userData && (userData.accountType === 'admin' || userData.role === 'admin');
+          const isCoach = userData && (userData.accountType === 'coach' || userData.role === 'coach');
+          
+          if (isAdmin) {
+            window.location.href = 'admin.html';
+            return;
+          } else if (isCoach) {
+            window.location.href = 'coach-dashboard.html';
+            return;
+          } else {
+            window.location.href = 'user-dashboard.html';
+            return;
+          }
         } else {
-          showGuestUI();
+          // Show landing page for guests with smooth transition
+          setTimeout(() => {
+            const spinner = document.getElementById('authLoadingSpinner');
+            if (spinner) {
+              spinner.style.opacity = '0';
+              setTimeout(() => {
+                spinner.remove();
+                document.body.style.visibility = 'visible';
+              }, 500);
+            } else {
+              document.body.style.visibility = 'visible';
+            }
+            showGuestUI();
+          }, 300); // Small delay for smooth transition
         }
       });
     </script>

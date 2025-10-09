@@ -56,6 +56,13 @@ class RealtimeAdminStats {
     // Load historical data first
     await this.loadHistoricalStats();
     
+    // Set default labels after DOM is ready so elements exist
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => this.setDefaultChangeLabels());
+    } else {
+      this.setDefaultChangeLabels();
+    }
+    
     // Set up real-time listeners
     this.setupUserCountListener();
     this.setupCoachCountListener();
@@ -64,6 +71,29 @@ class RealtimeAdminStats {
     
     // Save snapshot every hour
     this.startSnapshotScheduler();
+  }
+
+  // Ensure labels have default text on initial paint
+  setDefaultChangeLabels() {
+    try {
+      const statCards = document.querySelectorAll('.stat-card');
+      if (statCards[0]) {
+        const el = statCards[0].querySelector('.stat-change');
+        if (el) el.textContent = '+0 users this month';
+      }
+      if (statCards[1]) {
+        const el = statCards[1].querySelector('.stat-change');
+        if (el) el.textContent = '+0 this month';
+      }
+      if (statCards[2]) {
+        const el = statCards[2].querySelector('.stat-change');
+        if (el) el.textContent = '+$0 this month';
+      }
+      if (statCards[3]) {
+        const el = statCards[3].querySelector('.stat-change');
+        if (el) el.textContent = '+0% this week';
+      }
+    } catch (e) {}
   }
 
   // Load historical stats for comparison
@@ -125,14 +155,15 @@ class RealtimeAdminStats {
       this.currentStats.totalUsers = count;
       this.updateUI('totalUsers', count);
       
-      // Calculate percentage change
-      const change = this.calculatePercentageChange(
-        count, 
-        this.previousStats.totalUsers
-      );
-      this.updateChangeIndicator('totalUsers', change, 'this month');
+      // Calculate new users for current month
+      const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).getTime();
+      const newUsersThisMonth = Object.values(users).filter(u => {
+        const created = u && u.createdAt ? new Date(u.createdAt).getTime() : 0;
+        return created >= startOfMonth;
+      }).length;
+      this.updateChangeIndicator('totalUsers', newUsersThisMonth, 'this month');
       
-      console.log(`👥 Total Users: ${count} (${change >= 0 ? '+' : ''}${change}%)`);
+      console.log(`👥 Total Users: ${count} (+${newUsersThisMonth} this month)`);
     });
     
     this.listeners.push(unsubscribe);
@@ -153,14 +184,18 @@ class RealtimeAdminStats {
       this.currentStats.activeCoaches = coachCount;
       this.updateUI('totalCoaches', coachCount);
       
-      // Calculate change
-      const change = this.calculateAbsoluteChange(
-        coachCount, 
-        this.previousStats.activeCoaches
-      );
-      this.updateChangeIndicator('totalCoaches', change, 'this month', true);
+      // New coaches approved this month (use approvedAt if present, else createdAt)
+      const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).getTime();
+      const newCoachesThisMonth = Object.values(users).filter(user => {
+        if (!user) return false;
+        const isCoach = (user.accountType === 'coach' || user.role === 'coach') && user.coachApproved === true;
+        const approvedAt = user.approvedAt || user.coachApprovedAt || user.updatedAt || user.createdAt;
+        const ts = approvedAt ? new Date(approvedAt).getTime() : 0;
+        return isCoach && ts >= startOfMonth;
+      }).length;
+      this.updateChangeIndicator('totalCoaches', newCoachesThisMonth, 'this month');
       
-      console.log(`🏋️‍♂️ Active Coaches: ${coachCount} (${change >= 0 ? '+' : ''}${change})`);
+      console.log(`🏋️‍♂️ Active Coaches: ${coachCount} (+${newCoachesThisMonth} this month)`);
     });
     
     this.listeners.push(unsubscribe);
@@ -174,7 +209,9 @@ class RealtimeAdminStats {
       
       // Calculate revenue from active memberships
       let totalRevenue = 0;
+      let revenueThisMonth = 0;
       const now = Date.now();
+      const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).getTime();
       
       Object.values(users).forEach(user => {
         if (user.membership && user.membership.status === 'active') {
@@ -185,6 +222,10 @@ class RealtimeAdminStats {
             const plan = user.membership.plan || 'basic';
             const price = MEMBERSHIP_PRICES[plan] || MEMBERSHIP_PRICES.basic;
             totalRevenue += price;
+            const startDate = user.membership.startDate ? new Date(user.membership.startDate).getTime() : 0;
+            if (startDate >= startOfMonth) {
+              revenueThisMonth += price;
+            }
           }
         }
       });
@@ -192,14 +233,10 @@ class RealtimeAdminStats {
       this.currentStats.monthlyRevenue = totalRevenue;
       this.updateUI('monthlyRevenue', `$${totalRevenue.toLocaleString()}`);
       
-      // Calculate percentage change
-      const change = this.calculatePercentageChange(
-        totalRevenue, 
-        this.previousStats.monthlyRevenue
-      );
-      this.updateChangeIndicator('monthlyRevenue', change, 'this month');
+      // Revenue added this month
+      this.updateChangeIndicator('monthlyRevenue', revenueThisMonth, 'this month');
       
-      console.log(`💰 Monthly Revenue: $${totalRevenue} (${change >= 0 ? '+' : ''}${change}%)`);
+      console.log(`💰 Monthly Revenue: $${totalRevenue} (+$${revenueThisMonth} this month)`);
     });
     
     this.listeners.push(unsubscribe);
@@ -239,7 +276,7 @@ class RealtimeAdminStats {
       
       // Calculate percentage point change
       const change = percentage - (this.previousStats.activeSessions || 0);
-      this.updateChangeIndicator('activeSessions', change, 'this week', true);
+      this.updateChangeIndicator('activeSessions', change, 'this week');
       
       console.log(`📊 Active Sessions: ${percentage}% (${change >= 0 ? '+' : ''}${change}pp)`);
     });
@@ -251,8 +288,12 @@ class RealtimeAdminStats {
   updateUI(elementId, value) {
     const element = document.getElementById(elementId);
     if (element) {
-      // Animate number change
-      this.animateValue(element, element.textContent, value);
+      // Set value directly (no animation)
+      if (typeof value === 'number') {
+        element.textContent = value.toLocaleString();
+      } else {
+        element.textContent = value;
+      }
     }
   }
 
@@ -294,7 +335,7 @@ class RealtimeAdminStats {
   }
 
   // Update change indicator
-  updateChangeIndicator(statType, change, period, isAbsolute = false) {
+  updateChangeIndicator(statType, change, period) {
     // Map to card elements
     const cardMapping = {
       totalUsers: 0,
@@ -310,8 +351,18 @@ class RealtimeAdminStats {
       const changeElement = statCards[cardIndex].querySelector('.stat-change');
       if (changeElement) {
         const sign = change >= 0 ? '+' : '';
-        const suffix = isAbsolute ? '' : '%';
-        changeElement.textContent = `${sign}${change}${suffix} ${period}`;
+        const absVal = Math.abs(change);
+        let text = '';
+        if (statType === 'monthlyRevenue') {
+          text = `${sign}$${absVal.toLocaleString()} ${period}`;
+        } else if (statType === 'totalUsers') {
+          text = `${sign}${absVal} users ${period}`;
+        } else if (statType === 'totalCoaches') {
+          text = `${sign}${absVal} ${period}`;
+        } else if (statType === 'activeSessions') {
+          text = `${sign}${absVal}% ${period}`;
+        }
+        changeElement.textContent = text.trim();
         
         // Update styling based on positive/negative
         changeElement.className = 'stat-change';

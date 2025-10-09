@@ -146,8 +146,8 @@ document.addEventListener("DOMContentLoaded", function () {
     setTimeout(() => {
       hideLoading();
       alert(
-        `Great choice! You've selected the ${planName} plan. You will receive detailed instructions via email shortly.`
-      );
+        `Coming soon!`
+      )
       planModal.style.display = "none";
       document.body.style.overflow = "auto";
     }, 2000);

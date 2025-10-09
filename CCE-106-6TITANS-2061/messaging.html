@@ -389,7 +389,7 @@
       .mobile-toggle {
         display: none;
         position: fixed;
-        bottom: 20px;
+        bottom: 100px; /* Moved up to avoid input area */
         right: 20px;
         background: #ffd700;
         color: #000;
@@ -400,7 +400,7 @@
         font-size: 1.5rem;
         cursor: pointer;
         box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
-        z-index: 1000;
+        z-index: 1001;
         transition: all 0.3s ease;
         align-items: center;
         justify-content: center;
@@ -456,6 +456,33 @@
 
         .chat-area {
           width: 100%;
+          height: calc(100vh - 60px);
+          display: none; /* Hidden by default on mobile */
+        }
+
+        .chat-area.mobile-show {
+          display: flex !important;
+          flex-direction: column !important;
+          height: calc(100vh - 60px) !important;
+        }
+
+        .messages-container {
+          padding: 1rem;
+          padding-bottom: 120px; /* Extra space for fixed input */
+          min-height: 200px;
+          background: #0a0a0a;
+          flex: 1;
+          overflow-y: auto;
+        }
+
+        .empty-state {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          height: 100%;
+          min-height: 200px;
+          color: #888;
         }
 
         .mobile-toggle {
@@ -508,10 +535,45 @@
 
         .message-input-container {
           padding: 1rem;
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          background: #1a1a1a;
+          border-top: 1px solid #333;
+          z-index: 1000;
+          display: block !important;
+          margin-bottom: 0;
+        }
+
+        .message-input-wrapper {
+          display: flex;
+          gap: 0.75rem;
+          align-items: flex-end;
+        }
+
+        .message-input {
+          flex: 1;
+          padding: 0.75rem;
+          background: #0a0a0a;
+          border: 1px solid #333;
+          border-radius: 8px;
+          color: #fff;
+          font-size: 0.9rem;
+          resize: none;
+          min-height: 40px;
+          max-height: 120px;
         }
 
         .send-btn {
           padding: 0.75rem 1rem;
+          background: #ffd700;
+          color: #000;
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+          font-size: 1rem;
+          min-width: 50px;
         }
 
         .contact-name {
@@ -592,7 +654,7 @@
           width: 50px;
           height: 50px;
           font-size: 1.3rem;
-          bottom: 15px;
+          bottom: 100px; /* Moved up to avoid input area */
           right: 15px;
         }
       }
@@ -604,9 +666,7 @@
       <div class="nav-container">
         <a href="index.html" class="logo">6TITANS</a>
         <ul class="nav-menu">
-          <li class="nav-item">
-            <a href="index.html" class="nav-link">Home</a>
-          </li>
+          
           <li class="nav-item">
             <a href="user-dashboard.html" class="nav-link">Dashboard</a>
           </li>
@@ -1027,12 +1087,33 @@
           // Process regular bookings (class bookings)
           if (bookingsSnapshot.exists()) {
             const bookings = bookingsSnapshot.val();
+            const totalBookings = Object.keys(bookings).length;
+            let filteredBookings = 0;
             console.log(
               "📋 Found regular bookings:",
-              Object.keys(bookings).length
+              totalBookings
             );
 
             Object.entries(bookings).forEach(([bookingId, booking]) => {
+              // For coaches, only show confirmed or completed bookings
+              if (isCoachUser && booking.status && 
+                  booking.status !== 'confirmed' && 
+                  booking.status !== 'completed' &&
+                  booking.status !== 'pending_coach_approval') {
+                console.log(`   ⏭️ Skipping pending booking ${bookingId} for coach (status: ${booking.status})`);
+                filteredBookings++;
+                return; // Skip pending_admin_approval bookings for coaches
+              }
+
+              // For users/members, only show confirmed or completed bookings (coach has approved)
+              if (!isCoachUser && booking.status && 
+                  booking.status !== 'confirmed' && 
+                  booking.status !== 'completed') {
+                console.log(`   ⏭️ Skipping pending booking ${bookingId} for user (status: ${booking.status})`);
+                filteredBookings++;
+                return; // Skip pending bookings for users
+              }
+
               let contactId = null;
               let isCoach = false;
 
@@ -1080,18 +1161,44 @@
                 }
               }
             });
+            
+            if (filteredBookings > 0) {
+              const userType = isCoachUser ? 'Coach' : 'User';
+              console.log(`📊 ${userType} filtering summary: ${filteredBookings}/${totalBookings} bookings filtered out (pending status)`);
+            }
           }
 
           // Process coach bookings (coaching sessions)
           if (coachBookingsSnapshot.exists()) {
             const coachBookings = coachBookingsSnapshot.val();
+            const totalCoachBookings = Object.keys(coachBookings).length;
+            let filteredCoachBookings = 0;
             console.log(
               "🏋️ Found coach bookings:",
-              Object.keys(coachBookings).length
+              totalCoachBookings
             );
             console.log("🔍 Current user UID:", currentUser.uid);
 
             Object.entries(coachBookings).forEach(([bookingId, booking]) => {
+              // For coaches, only show confirmed or completed bookings
+              if (isCoachUser && booking.status && 
+                  booking.status !== 'confirmed' && 
+                  booking.status !== 'completed' &&
+                  booking.status !== 'pending_coach_approval') {
+                console.log(`   ⏭️ Skipping pending booking ${bookingId} for coach (status: ${booking.status})`);
+                filteredCoachBookings++;
+                return; // Skip pending_admin_approval bookings for coaches
+              }
+
+              // For users/members, only show confirmed or completed bookings (coach has approved)
+              if (!isCoachUser && booking.status && 
+                  booking.status !== 'confirmed' && 
+                  booking.status !== 'completed') {
+                console.log(`   ⏭️ Skipping pending booking ${bookingId} for user (status: ${booking.status})`);
+                filteredCoachBookings++;
+                return; // Skip pending bookings for users
+              }
+
               let contactId = null;
               let isCoach = false;
 
@@ -1099,6 +1206,7 @@
                 memberId: booking.memberId || booking.userId,
                 coachId: booking.coachId,
                 currentUserUid: currentUser.uid,
+                status: booking.status
               });
 
               if (
@@ -1171,6 +1279,11 @@
                 }
               }
             });
+            
+            if (filteredCoachBookings > 0) {
+              const userType = isCoachUser ? 'Coach' : 'User';
+              console.log(`📊 ${userType} filtering summary: ${filteredCoachBookings}/${totalCoachBookings} coach bookings filtered out (pending status)`);
+            }
           }
 
           // Check if we have any contacts
@@ -1180,15 +1293,15 @@
               ? `
                         <div style="padding: 2rem; text-align: center; color: #888;">
                             <i class="fas fa-calendar-times" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
-                            <p><strong>No bookings yet</strong></p>
-                            <p style="font-size: 0.85rem; margin-top: 0.5rem;">You'll see your clients here once they book sessions with you!</p>
+                            <p><strong>No confirmed bookings yet</strong></p>
+                            <p style="font-size: 0.85rem; margin-top: 0.5rem;">You'll see your clients here once their bookings are confirmed!</p>
                         </div>
                     `
               : `
                         <div style="padding: 2rem; text-align: center; color: #888;">
                             <i class="fas fa-calendar-times" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
-                            <p><strong>No bookings yet</strong></p>
-                            <p style="font-size: 0.85rem; margin-top: 0.5rem;">Book a coach session to start messaging!</p>
+                            <p><strong>No confirmed bookings yet</strong></p>
+                            <p style="font-size: 0.85rem; margin-top: 0.5rem;">You'll see your coaches here once your bookings are confirmed by them!</p>
                         </div>
                     `;
             return;
@@ -1341,10 +1454,22 @@
 
         // Show chat header and input
         document.getElementById("chatHeader").style.display = "flex";
-        document.getElementById("messageInputContainer").style.display =
-          "block";
+        const inputContainer = document.getElementById("messageInputContainer");
+        inputContainer.style.display = "block";
+        
+        console.log("📱 Input container display:", window.getComputedStyle(inputContainer).display);
+        console.log("📱 Input container position:", window.getComputedStyle(inputContainer).position);
+        
+        // Show chat area on mobile
+        if (window.innerWidth <= 768) {
+          console.log("📱 Mobile: Showing chat area");
+          const chatArea = document.querySelector(".chat-area");
+          chatArea.classList.add("mobile-show");
+          console.log("📱 Chat area classes:", chatArea.className);
+          console.log("📱 Chat area display:", window.getComputedStyle(chatArea).display);
+        }
 
-        // On mobile, hide contacts and change toggle button
+        // On mobile, hide contacts and hide toggle button (back button is in header)
         if (window.innerWidth <= 768) {
           const sidebar = document.querySelector(".contacts-sidebar");
           const toggleBtn = document.getElementById("mobileToggle");
@@ -1354,8 +1479,7 @@
           }
 
           if (toggleBtn) {
-            toggleBtn.innerHTML = '<i class="fas fa-arrow-left"></i>';
-            toggleBtn.title = "Back to Contacts";
+            toggleBtn.style.display = "none"; // Hide toggle button when chat is active
           }
         }
 
@@ -1415,6 +1539,10 @@
 
       function loadMessages() {
         const messagesContainer = document.getElementById("messagesContainer");
+        console.log("📥 Loading messages, container:", messagesContainer);
+        console.log("📥 Container display:", window.getComputedStyle(messagesContainer).display);
+        console.log("📥 Container height:", window.getComputedStyle(messagesContainer).height);
+        
         messagesContainer.innerHTML =
           '<div class="loading"><div class="spinner"></div><p>Loading messages...</p></div>';
 
@@ -1872,23 +2000,29 @@
       window.toggleContacts = function () {
         const sidebar = document.querySelector(".contacts-sidebar");
         const toggleBtn = document.getElementById("mobileToggle");
+        const chatArea = document.querySelector(".chat-area");
         const isShowingContacts = sidebar.classList.contains("mobile-show");
 
         if (isShowingContacts) {
           // Hide contacts
           sidebar.classList.remove("mobile-show");
           if (currentChatId) {
-            // If a chat is active, show back arrow
+            // If a chat is active, show chat area and back arrow
+            if (chatArea) chatArea.classList.add("mobile-show");
             toggleBtn.innerHTML = '<i class="fas fa-arrow-left"></i>';
             toggleBtn.title = "Back to Contacts";
           } else {
-            // No chat active, show messages icon
+            // No chat active, hide chat area and show messages icon
+            if (chatArea) chatArea.classList.remove("mobile-show");
+            toggleBtn.style.display = "flex"; // Show toggle button
             toggleBtn.innerHTML = '<i class="fas fa-comments"></i>';
             toggleBtn.title = "Show Contacts";
           }
         } else {
           // Show contacts
           sidebar.classList.add("mobile-show");
+          if (chatArea) chatArea.classList.remove("mobile-show");
+          toggleBtn.style.display = "flex"; // Show toggle button when showing contacts
           toggleBtn.innerHTML = '<i class="fas fa-times"></i>';
           toggleBtn.title = "Close Contacts";
         }

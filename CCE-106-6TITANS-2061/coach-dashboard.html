@@ -107,18 +107,14 @@
                 <a href="messaging.html"
                   ><i class="fas fa-comments"></i> Messages</a
                 >
-                <a href="coach-profile.html"
-                  ><i class="fas fa-user-edit"></i> Profile</a
-                >
+                
                 <a href="coach-clients.html"
                   ><i class="fas fa-users"></i> My Clients</a
                 >
                 <a href="coach-schedule.html"
                   ><i class="fas fa-calendar"></i> Schedule</a
                 >
-                <a href="coach-settings.html"
-                  ><i class="fas fa-cog"></i> Settings</a
-                >
+                
                 <a href="#" id="coachLogoutBtn"
                   ><i class="fas fa-sign-out-alt"></i> Logout</a
                 >
@@ -254,11 +250,7 @@
           <div class="dashboard-section">
             <h2>Earnings Overview</h2>
             <div class="earnings-grid">
-              <div class="earnings-card">
-                <h3>This Week</h3>
-                <div class="earnings-amount" id="earningsThisWeek">$0</div>
-                <div class="earnings-change" id="earningsWeekChange">Calculating...</div>
-              </div>
+      
               <div class="earnings-card">
                 <h3>This Month</h3>
                 <div class="earnings-amount" id="earningsThisMonthDetail">$0</div>
@@ -825,6 +817,22 @@
             return;
           }
 
+          // Check if current coach is trusted
+          let isTrustedCoach = false;
+          try {
+            const coachProfilesSnapshot = await get(ref(rtdb, 'coachProfiles'));
+            if (coachProfilesSnapshot.exists()) {
+              const coachProfiles = coachProfilesSnapshot.val();
+              const coachProfile = Object.values(coachProfiles).find(profile => 
+                profile.coachUid === coachData?.uid || profile.coachId === coachData?.uid
+              );
+              isTrustedCoach = coachProfile?.trustedCoach || false;
+              console.log('Coach Dashboard - Is trusted coach:', isTrustedCoach);
+            }
+          } catch (error) {
+            console.error('Error checking trusted coach status:', error);
+          }
+
           // Filter bookings for this coach
           allBookings = Object.entries(bookings)
             .map(([id, booking]) => ({ id, ...booking }))
@@ -833,13 +841,33 @@
               const matches =
                 booking.coachName === coachName ||
                 booking.coachId === coachData?.uid;
+              
+              // Show bookings based on trust status
+              let shouldShow = false;
+              if (isTrustedCoach) {
+                // Trusted coaches see: pending_coach_approval, confirmed, completed
+                shouldShow = booking.status === 'pending_coach_approval' || 
+                            booking.status === 'confirmed' || 
+                            booking.status === 'completed';
+              } else {
+                // Non-trusted coaches see: confirmed, completed (admin-approved only)
+                shouldShow = booking.status === 'confirmed' || 
+                            booking.status === 'completed';
+              }
+              
               console.log(
                 `Booking ${booking.id}:`,
                 booking.coachName,
                 "matches:",
-                matches
+                matches,
+                "status:",
+                booking.status,
+                "isTrustedCoach:",
+                isTrustedCoach,
+                "shouldShow:",
+                shouldShow
               );
-              return matches;
+              return matches && shouldShow;
             })
             .sort((a, b) => {
               // Sort by date (newest first)
@@ -968,7 +996,7 @@
         // 4. Earnings This Month
         const thisMonthEarnings = allBookings
           .filter((b) => {
-            if (b.status !== "confirmed" || !b.preferredDate) return false;
+            if ((b.status !== "confirmed" && b.status !== "completed") || !b.preferredDate) return false;
             const bookingDate = new Date(b.preferredDate);
             return bookingDate.getMonth() === currentMonth && 
                    bookingDate.getFullYear() === currentYear;
@@ -1009,7 +1037,7 @@
         // This Week Earnings
         const thisWeekEarnings = allBookings
           .filter((b) => {
-            if (b.status !== "confirmed" || !b.preferredDate) return false;
+            if ((b.status !== "confirmed" && b.status !== "completed") || !b.preferredDate) return false;
             const bookingDate = new Date(b.preferredDate);
             return bookingDate >= startOfWeek;
           })
@@ -1018,7 +1046,7 @@
         // Last Week Earnings
         const lastWeekEarnings = allBookings
           .filter((b) => {
-            if (b.status !== "confirmed" || !b.preferredDate) return false;
+            if ((b.status !== "confirmed" && b.status !== "completed") || !b.preferredDate) return false;
             const bookingDate = new Date(b.preferredDate);
             return bookingDate >= startOfLastWeek && bookingDate < startOfWeek;
           })
@@ -1027,7 +1055,7 @@
         // This Month Earnings
         const thisMonthEarnings = allBookings
           .filter((b) => {
-            if (b.status !== "confirmed" || !b.preferredDate) return false;
+            if ((b.status !== "confirmed" && b.status !== "completed") || !b.preferredDate) return false;
             const bookingDate = new Date(b.preferredDate);
             return bookingDate >= startOfMonth;
           })
@@ -1036,7 +1064,7 @@
         // Last Month Earnings
         const lastMonthEarnings = allBookings
           .filter((b) => {
-            if (b.status !== "confirmed" || !b.preferredDate) return false;
+            if ((b.status !== "confirmed" && b.status !== "completed") || !b.preferredDate) return false;
             const bookingDate = new Date(b.preferredDate);
             return bookingDate >= startOfLastMonth && bookingDate <= endOfLastMonth;
           })
@@ -1045,7 +1073,7 @@
         // Total Sessions This Month
         const totalSessionsMonth = allBookings
           .filter((b) => {
-            if (b.status !== "confirmed" || !b.preferredDate) return false;
+            if ((b.status !== "confirmed" && b.status !== "completed") || !b.preferredDate) return false;
             const bookingDate = new Date(b.preferredDate);
             return bookingDate >= startOfMonth;
           }).length;

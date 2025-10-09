@@ -494,10 +494,26 @@
     // Get coach info
     async function getCoachInfo(uid) {
       try {
+        // First try to get from coach profiles (RTDB)
+        const coachProfilesSnapshot = await get(ref(rtdb, 'coachProfiles'));
+        if (coachProfilesSnapshot.exists()) {
+          const coachProfiles = coachProfilesSnapshot.val();
+          const coachProfile = Object.values(coachProfiles).find(profile => 
+            profile.coachUid === uid || profile.coachId === uid
+          );
+          if (coachProfile && coachProfile.name) {
+            console.log('Found coach name from profiles:', coachProfile.name);
+            return coachProfile.name;
+          }
+        }
+        
+        // Fallback to Firestore users collection
         const userDoc = await getDoc(doc(db, "users", uid));
         if (userDoc.exists()) {
           const userData = userDoc.data();
-          return `${userData.firstName || ''} ${userData.lastName || ''}`.trim();
+          const name = `${userData.firstName || ''} ${userData.lastName || ''}`.trim();
+          console.log('Found coach name from users:', name);
+          return name;
         }
       } catch (error) {
         console.error('Error getting coach info:', error);
@@ -518,9 +534,57 @@
           return;
         }
 
+        // Get current user to check if they're a trusted coach
+        const currentUser = auth.currentUser;
+        let isTrustedCoach = false;
+        
+        if (currentUser) {
+          try {
+            const coachProfilesSnapshot = await get(ref(rtdb, 'coachProfiles'));
+            if (coachProfilesSnapshot.exists()) {
+              const coachProfiles = coachProfilesSnapshot.val();
+              const coachProfile = Object.values(coachProfiles).find(profile => 
+                profile.coachUid === currentUser.uid || profile.coachId === currentUser.uid
+              );
+              isTrustedCoach = coachProfile?.trustedCoach || false;
+              console.log('Coach Bookings - Is trusted coach:', isTrustedCoach);
+            }
+          } catch (error) {
+            console.error('Error checking trusted coach status:', error);
+          }
+        }
+
         allBookings = Object.entries(bookings)
           .map(([id, booking]) => ({ id, ...booking }))
-          .filter(booking => booking.coachName === coachName)
+          .filter(booking => {
+            // Match by coach name
+            const matches = booking.coachName === coachName;
+            
+            // Show bookings based on trust status
+            let shouldShow = false;
+            if (isTrustedCoach) {
+              // Trusted coaches see: pending_coach_approval, confirmed, completed
+              shouldShow = booking.status === 'pending_coach_approval' || 
+                          booking.status === 'confirmed' || 
+                          booking.status === 'completed';
+            } else {
+              // Non-trusted coaches see: confirmed, completed (admin-approved only)
+              shouldShow = booking.status === 'confirmed' || 
+                          booking.status === 'completed';
+            }
+            
+            console.log(`Coach Bookings - Booking ${booking.id}:`, {
+              coachName: booking.coachName,
+              currentCoachName: coachName,
+              matches: matches,
+              status: booking.status,
+              isTrustedCoach: isTrustedCoach,
+              shouldShow: shouldShow,
+              finalResult: matches && shouldShow
+            });
+            
+            return matches && shouldShow;
+          })
           .sort((a, b) => new Date(b.preferredDate) - new Date(a.preferredDate));
 
         // Check for new bookings
@@ -544,7 +608,7 @@
     function updateStats() {
       document.getElementById('totalBookings').textContent = allBookings.length;
       
-      // Count pending coach approval
+      // Count pending coach approval (only for trusted coaches)
       const pendingApproval = allBookings.filter(b => b.status === 'pending_coach_approval').length;
       document.getElementById('pendingApprovalBookings').textContent = pendingApproval;
       
@@ -552,6 +616,13 @@
         allBookings.filter(b => b.status === 'confirmed').length;
       document.getElementById('completedBookings').textContent = 
         allBookings.filter(b => b.status === 'completed').length;
+        
+      console.log('Coach Bookings Stats:', {
+        total: allBookings.length,
+        pendingApproval: pendingApproval,
+        confirmed: allBookings.filter(b => b.status === 'confirmed').length,
+        completed: allBookings.filter(b => b.status === 'completed').length
+      });
       
       // Upcoming this week
       const today = new Date();
@@ -943,6 +1014,7 @@
       }
 
       coachName = await getCoachInfo(user.uid);
+      console.log('Coach Bookings - Current coach name:', coachName);
       loadBookings();
 
       // Real-time updates

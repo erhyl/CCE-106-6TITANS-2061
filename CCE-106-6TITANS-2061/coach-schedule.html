@@ -512,9 +512,53 @@
           return;
         }
 
+        // Check if current coach is trusted
+        let isTrustedCoach = false;
+        try {
+          const coachProfilesSnapshot = await get(ref(rtdb, 'coachProfiles'));
+          if (coachProfilesSnapshot.exists()) {
+            const coachProfiles = coachProfilesSnapshot.val();
+            const coachProfile = Object.values(coachProfiles).find(profile => 
+              profile.coachUid === currentUser.uid || profile.coachId === currentUser.uid
+            );
+            isTrustedCoach = coachProfile?.trustedCoach || false;
+            console.log('Coach Schedule - Is trusted coach:', isTrustedCoach);
+          }
+        } catch (error) {
+          console.error('Error checking trusted coach status:', error);
+        }
+
         allBookings = Object.entries(bookings)
           .map(([id, booking]) => ({ id, ...booking }))
-          .filter(booking => booking.coachName === coachName)
+          .filter(booking => {
+            // Match by coach name
+            const matches = booking.coachName === coachName;
+            
+            // Show bookings based on trust status
+            let shouldShow = false;
+            if (isTrustedCoach) {
+              // Trusted coaches see: pending_coach_approval, confirmed, completed
+              shouldShow = booking.status === 'pending_coach_approval' || 
+                          booking.status === 'confirmed' || 
+                          booking.status === 'completed';
+            } else {
+              // Non-trusted coaches see: confirmed, completed (admin-approved only)
+              shouldShow = booking.status === 'confirmed' || 
+                          booking.status === 'completed';
+            }
+            
+            console.log(`Coach Schedule - Booking ${booking.id}:`, {
+              coachName: booking.coachName,
+              currentCoachName: coachName,
+              matches: matches,
+              status: booking.status,
+              isTrustedCoach: isTrustedCoach,
+              shouldShow: shouldShow,
+              finalResult: matches && shouldShow
+            });
+            
+            return matches && shouldShow;
+          })
           .sort((a, b) => new Date(a.preferredDate) - new Date(b.preferredDate));
 
         renderCalendar();

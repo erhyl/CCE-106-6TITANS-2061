@@ -98,8 +98,26 @@ document.addEventListener("DOMContentLoaded", function () {
       const coachNameInput = document.getElementById('coachName');
       const coachId = coachNameInput ? coachNameInput.getAttribute('data-coach-id') : null;
       
+      // Check if coach is trusted
+      let isTrustedCoach = false;
+      try {
+        const coachProfilesSnapshot = await get(ref(rtdb, 'coachProfiles'));
+        if (coachProfilesSnapshot.exists()) {
+          const coachProfiles = coachProfilesSnapshot.val();
+          const coachProfile = Object.values(coachProfiles).find(profile => 
+            profile.coachId === coachId || profile.coachUid === coachId
+          );
+          isTrustedCoach = coachProfile?.trustedCoach || false;
+        }
+      } catch (error) {
+        console.error('Error checking coach trust status:', error);
+      }
+
       // Create booking in RTDB under coachBookings
       const key = push(ref(rtdb, 'coachBookings')).key;
+      const initialStatus = isTrustedCoach ? 'pending_coach_approval' : 'pending_admin_approval';
+      const workflowStage = isTrustedCoach ? 'coach_review' : 'admin_review';
+      
       await set(ref(rtdb, `coachBookings/${key}`), {
         id: key,
         coachId: coachId, // Link to coach profile
@@ -114,8 +132,8 @@ document.addEventListener("DOMContentLoaded", function () {
         experience: bookingData.experience || '',
         memberId: user.uid,
         userId: user.uid, // Added for messaging compatibility
-        status: 'pending_admin_approval', // Stage 1: Waiting for admin confirmation
-        workflowStage: 'admin_review',
+        status: initialStatus, // Trusted coaches skip admin approval
+        workflowStage: workflowStage,
         bookingDate: new Date().toISOString(),
         createdAt: Date.now(),
         updatedAt: Date.now()
@@ -125,23 +143,50 @@ document.addEventListener("DOMContentLoaded", function () {
       const notifKey = push(ref(rtdb, 'notifications/' + user.uid)).key;
       await set(ref(rtdb, `notifications/${user.uid}/${notifKey}`), {
         type: 'booking',
-        message: `Session request with ${bookingData.coachName} submitted - Awaiting admin approval`,
+        message: isTrustedCoach 
+          ? `Session request with ${bookingData.coachName} submitted - Awaiting coach confirmation`
+          : `Session request with ${bookingData.coachName} submitted - Awaiting admin approval`,
         data: { bookingId: key },
         read: false,
         createdAt: Date.now()
       });
 
-      // Notification to all admins
-      const usersSnap = await get(ref(rtdb, 'users'));
-      if (usersSnap.exists()) {
-        const users = usersSnap.val();
-        for (const [uid, userData] of Object.entries(users)) {
-          if (userData.role === 'admin') {
-            const adminNotifKey = push(ref(rtdb, `notifications/${uid}`)).key;
-            await set(ref(rtdb, `notifications/${uid}/${adminNotifKey}`), {
-              type: 'booking_pending',
-              message: `New booking request from ${bookingData.memberName} for ${bookingData.coachName}`,
-              data: { bookingId: key, memberId: user.uid },
+      // Notification to all admins (only for non-trusted coaches)
+      if (!isTrustedCoach) {
+        const usersSnap = await get(ref(rtdb, 'users'));
+        if (usersSnap.exists()) {
+          const users = usersSnap.val();
+          for (const [uid, userData] of Object.entries(users)) {
+            if (userData.role === 'admin') {
+              const adminNotifKey = push(ref(rtdb, `notifications/${uid}`)).key;
+              await set(ref(rtdb, `notifications/${uid}/${adminNotifKey}`), {
+                type: 'booking_pending',
+                message: `New booking request from ${bookingData.memberName} for ${bookingData.coachName}`,
+                data: { bookingId: key, memberId: user.uid },
+                read: false,
+                createdAt: Date.now()
+              });
+            }
+          }
+        }
+      }
+
+      // Notification to coach (for trusted coaches)
+      if (isTrustedCoach) {
+        // Find coach's UID from coach profiles
+        const coachProfilesSnapshot = await get(ref(rtdb, 'coachProfiles'));
+        if (coachProfilesSnapshot.exists()) {
+          const coachProfiles = coachProfilesSnapshot.val();
+          const coachProfile = Object.values(coachProfiles).find(profile => 
+            profile.coachId === coachId || profile.coachUid === coachId
+          );
+          
+          if (coachProfile && coachProfile.coachUid) {
+            const coachNotifKey = push(ref(rtdb, `notifications/${coachProfile.coachUid}`)).key;
+            await set(ref(rtdb, `notifications/${coachProfile.coachUid}/${coachNotifKey}`), {
+              type: 'booking_pending_approval',
+              message: `New booking request: ${bookingData.memberName} on ${bookingData.preferredDate} at ${bookingData.preferredTime} - Please accept or reschedule`,
+              bookingId: key,
               read: false,
               createdAt: Date.now()
             });
@@ -153,16 +198,25 @@ document.addEventListener("DOMContentLoaded", function () {
       const evtKey = push(ref(rtdb, 'events/' + user.uid)).key;
       await set(ref(rtdb, `events/${user.uid}/${evtKey}`), {
         action: 'booking_created',
-        details: { type: 'coach', coachName: bookingData.coachName, status: 'pending_admin_approval' },
+        details: { type: 'coach', coachName: bookingData.coachName, status: initialStatus },
         page: 'coaching',
         createdAt: Date.now()
       });
 
       hideLoading();
       if (window.Utils && window.Utils.showToast) {
-        window.Utils.showToast(`Booking request submitted! Awaiting admin confirmation.`, 'success');
+        window.Utils.showToast(
+          isTrustedCoach 
+            ? `Booking request submitted! Awaiting coach confirmation.`
+            : `Booking request submitted! Awaiting admin confirmation.`, 
+          'success'
+        );
       } else {
-        alert(`Booking request submitted! An admin will review your request shortly.`);
+        alert(
+          isTrustedCoach 
+            ? `Booking request submitted! The coach will review your request shortly.`
+            : `Booking request submitted! An admin will review your request shortly.`
+        );
       }
       bookingModal.classList.remove("show");
       document.body.style.overflow = "auto";
